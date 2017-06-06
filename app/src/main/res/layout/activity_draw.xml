@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="3dp"
+    android:id="@+id/draw_activity_layout"
+    tools:context="com.cvter.nynote.View.Activity.MainActivity">
+
+    <include layout="@layout/item_reading"
+        />
+    <include layout="@layout/item_drawing"
+        android:visibility="gone"/>
+
+
+    <LinearLayout
+        android:layout_marginTop="35dp"
+        style="@android:style/Theme.Translucent"
+        android:orientation="vertical"
+        android:id="@+id/front_activity_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</RelativeLayout>

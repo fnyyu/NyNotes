@@ -1,4 +1,4 @@
-package com.cvter.program.nynote;
+package com.cvter.nynote;
 
 import org.junit.Test;
 

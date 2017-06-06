@@ -1,4 +1,4 @@
-package com.cvter.program.nynote;
+package com.cvter.nynote;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.cvter.program.nynote", appContext.getPackageName());
+        assertEquals("com.cvter.nynote", appContext.getPackageName());
     }
 }

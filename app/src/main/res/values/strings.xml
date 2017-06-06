@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">NyNote</string>
+
+    <string name="notifyTitle">提示</string>
+    <string name="notifyMsg">是否允许打开系统设置进行权限设置</string>
+    <string name="cancel">取消</string>
+    <string name="allow">允许</string>
+    <string name="import_note">导入</string>
+    <string name="export_note">导出</string>
+    <string name="share_note">分享</string>
+    <string name="draw_note">编辑</string>
+
+    <string name="draw_pen">画笔</string>
+    <string name="draw_eraser">擦除</string>
+    <string name="draw_withdraw">撤回</string>
+    <string name="draw_forward">前进</string>
+    <string name="draw_save">保存</string>
+    <string name="draw_picture">图片</string>
+    <string name="draw_graph">图形</string>
+    <string name="draw_clear">清除</string>
+
+    <string name="fileName">FileName : </string>
+    <string name="sure">确定</string>
+
 </resources>
