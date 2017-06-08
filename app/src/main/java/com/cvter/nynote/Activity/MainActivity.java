@@ -1,11 +1,11 @@
-package com.cvter.nynote.View.Activity;
+package com.cvter.nynote.Activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ThemedSpinnerAdapter;
 
 import com.cvter.nynote.Adapter.ThumbnailRecyclerAdapter;
 import com.cvter.nynote.Model.NoteInfo;
@@ -13,7 +13,7 @@ import com.cvter.nynote.Presenter.IMainPresenter;
 import com.cvter.nynote.Presenter.MainPresenterImpl;
 import com.cvter.nynote.R;
 import com.cvter.nynote.Utils.CommonUtils;
-import com.cvter.nynote.View.View.IMainView;
+import com.cvter.nynote.View.IMainView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,6 +31,10 @@ public class MainActivity extends BaseActivity implements IMainView {
     RecyclerView thumbnailRecyclerView;
 
     private ThumbnailRecyclerAdapter mAdapter;
+
+    public static void launch(Context context){
+        context.startActivity(new Intent(context,MainActivity.class));
+    }
 
     @Override
     protected void initWidget(Bundle bundle) {

@@ -1,4 +1,4 @@
-package com.cvter.nynote.View.View;
+package com.cvter.nynote.View;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
@@ -21,9 +21,12 @@ public class BasePopupWindow extends PopupWindow {
     private Context mContext;
     private float mShowAlpha = 0.88f;
     private Drawable mBackgroundDrawable;
+    private int width, height;
 
-    public BasePopupWindow(Context context) {
+    public BasePopupWindow(Context context, int width, int height) {
         this.mContext = context;
+        this.width = width;
+        this.height = height;
         initBasePopupWindow();
     }
 
@@ -51,8 +54,12 @@ public class BasePopupWindow extends PopupWindow {
      * */
     private void initBasePopupWindow() {
         setAnimationStyle(android.R.style.Animation_Dialog);
-        setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-        setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
+        if(height == 0){
+            setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        }else{
+            setHeight(height);
+        }
+        setWidth(width);
         setOutsideTouchable(true);  //默认设置outside点击无响应
         setFocusable(true);
     }

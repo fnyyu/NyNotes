@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cvter.nynote.Model.NoteInfo;
-import com.cvter.nynote.View.View.IMainView;
+import com.cvter.nynote.View.IMainView;
 
 
 import java.io.File;

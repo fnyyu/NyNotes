@@ -12,4 +12,9 @@ public class CommonUtils {
 
     public static final String PICPATH = PATH + "/pic";//note图片路径
 
+    public enum Mode{
+        DRAW,
+        ERASER
+    }
+
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="35dp"
-    android:layout_margin="3dp"
+    android:layout_height="40dp"
+    android:layout_margin="5dp"
     android:background="@drawable/title_item_shape"
     android:gravity="center_vertical"
     android:padding="5dp"
@@ -28,7 +28,7 @@
         android:src="@mipmap/eraser" />
 
     <ImageView
-        android:id="@+id/withdraw_imageView"
+        android:id="@+id/forward_imageView"
         android:layout_width="0dp"
         android:layout_height="25dp"
         android:layout_weight="1"
@@ -52,7 +52,7 @@
         android:src="@mipmap/graph" />
 
     <ImageView
-        android:id="@+id/forward_imageView"
+        android:id="@+id/withdraw_imageView"
         android:layout_width="0dp"
         android:layout_height="25dp"
         android:layout_weight="1"

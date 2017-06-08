@@ -12,15 +12,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         >
-        <activity android:name=".View.Activity.MainActivity"
-            android:theme="@style/AppTheme">
+
+        <activity android:name=".Activity.BannerActivity"
+            android:theme="@style/NoTitleTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".View.Activity.DrawActivity"
+
+        <activity android:name=".Activity.MainActivity"
+            android:theme="@style/AppTheme"/>
+
+        <activity android:name=".Activity.DrawActivity"
             android:theme="@style/NoTitleTheme"/>
     </application>
 

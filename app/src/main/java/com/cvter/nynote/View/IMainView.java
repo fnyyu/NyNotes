@@ -1,4 +1,4 @@
-package com.cvter.nynote.View.View;
+package com.cvter.nynote.View;
 
 import com.cvter.nynote.Model.NoteInfo;
 
