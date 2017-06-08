@@ -8,24 +8,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cvter.nynote.Presenter.PathWFCallback;
@@ -33,14 +27,15 @@ import com.cvter.nynote.Presenter.PicturePresenter;
 import com.cvter.nynote.Presenter.PicturePresenterImpl;
 import com.cvter.nynote.R;
 import com.cvter.nynote.Utils.CommonUtils;
-import com.cvter.nynote.View.BasePopupWindow;
+import com.cvter.nynote.View.FilePopupWindow;
+import com.cvter.nynote.View.GraphPopupWindow;
 import com.cvter.nynote.View.IPictureView;
 import com.cvter.nynote.View.PaintView;
+import com.cvter.nynote.View.PaintPopupWindow;
 
 import java.io.File;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -64,30 +59,23 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @BindView(R.id.front_activity_layout)
     LinearLayout frontActivityLayout;
     @BindView(R.id.pen_imageView)
-    ImageView penImageView;
+    public ImageView penImageView;
     @BindView(R.id.eraser_imageView)
-    ImageView eraserImageView;
+    public ImageView eraserImageView;
     @BindView(R.id.withdraw_imageView)
     ImageView withdrawImageView;
     @BindView(R.id.forward_imageView)
     ImageView forwardImageView;
     @BindView(R.id.draw_paintView)
-    PaintView drawPaintView;
+    public PaintView drawPaintView;
     @BindView(R.id.front_imageView)
     ImageView frontImageView;
 
-    Button fileNameButton;
-    EditText fileNameEditText;
-    ImageView pencilImageView, fountainImageView, dropperImageView,
-            brushImageView, brushWideImageView;
-    ImageView blackImageView, blueImageView, greenImageView,
-            yellowImageView, redImageView;
-    SeekBar widthSeekBar;
-    TextView progressTextView;
-    private static int paintWidth = 20;
+    public static int paintWidth = 20;
 
-    BasePopupWindow mFilePopupWindow;
-    BasePopupWindow mPaintPopupWindow;
+    FilePopupWindow mFilePopupWindow;
+    PaintPopupWindow mPaintPopupWindow;
+    GraphPopupWindow mGraphPopupWindow;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -109,30 +97,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     protected void initWidget(Bundle bundle) {
         drawActivityLayout.setClickable(true);
 
-        mFilePopupWindow = new BasePopupWindow(this, 800, 0);
-        View fileView = LayoutInflater.from(DrawActivity.this).inflate(R.layout.window_file_name, null);
-        mFilePopupWindow.setContentView(fileView);
-        fileNameButton = (Button) fileView.findViewById(R.id.fileName_button);
-        fileNameEditText = (EditText) fileView.findViewById(R.id.fileName_editText);
-
-        mPaintPopupWindow = new BasePopupWindow(this,700, 500);
-        View viewPaint = LayoutInflater.from(DrawActivity.this).inflate(R.layout.window_pen_list, null);
-        mPaintPopupWindow.setContentView(viewPaint);
-
-        pencilImageView = (ImageView) viewPaint.findViewById(R.id.pencil_imageView);
-        fountainImageView = (ImageView) viewPaint.findViewById(R.id.fountain_imageView);
-        dropperImageView = (ImageView) viewPaint.findViewById(R.id.dropper_imageView);
-        brushImageView = (ImageView) viewPaint.findViewById(R.id.brush_imageView);
-        brushWideImageView = (ImageView) viewPaint.findViewById(R.id.brush_wide_imageView);
-
-        widthSeekBar = (SeekBar) viewPaint.findViewById(R.id.paint_width_seekBar);
-        progressTextView = (TextView) viewPaint.findViewById(R.id.progress_textView);
-
-        blackImageView = (ImageView) viewPaint.findViewById(R.id.black_imageView);
-        greenImageView = (ImageView) viewPaint.findViewById(R.id.green_imageView);
-        blueImageView = (ImageView) viewPaint.findViewById(R.id.blue_imageView);
-        redImageView = (ImageView) viewPaint.findViewById(R.id.red_imageView);
-        yellowImageView = (ImageView) viewPaint.findViewById(R.id.yellow_imageView);
+        mFilePopupWindow = new FilePopupWindow(this, 800, 0);
+        mPaintPopupWindow = new PaintPopupWindow(this,700, 500);
+        mGraphPopupWindow = new GraphPopupWindow(this, 500, 300);
 
         picturePresenter = new PicturePresenterImpl(this, this);
 
@@ -155,78 +122,15 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void setListener() {
-        fileNameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mFilePopupWindow.dismiss();
-                finish();
-            }
-        });
-
-        pencilImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
-        widthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                paintWidth = i;
-                progressTextView.setText(i + "");
-                eraserImageView.setSelected(false);
-                drawPaintView.setMode(CommonUtils.Mode.DRAW);
-                drawPaintView.setPenRawSize(paintWidth);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        blackImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawPaintView.setPenColor(getResources().getColor(R.color.black));
-            }
-        });
-
-        greenImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawPaintView.setPenColor(getResources().getColor(R.color.green));
-            }
-        });
-
-        blueImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawPaintView.setPenColor(getResources().getColor(R.color.blue));
-            }
-        });
-
-        yellowImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawPaintView.setPenColor(getResources().getColor(R.color.yellow));
-            }
-        });
-
-        redImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawPaintView.setPenColor(getResources().getColor(R.color.red));
-            }
-        });
-
+        mFilePopupWindow.setListener();
+        mPaintPopupWindow.setListener();
+        mGraphPopupWindow.setListener();
     }
 
     @Override
     public void doBusiness(Context context) {
-        skipType = getIntent().getExtras().getString("skipType");
+        //skipType = getIntent().getExtras().getString("skipType");
+        skipType = "new_edit";
         if (skipType != null && !skipType.equals("")) {
             switch (skipType) {
                 case "new_edit":
@@ -311,7 +215,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 view.setSelected(true);
                 eraserImageView.setSelected(false);
                 drawPaintView.setMode(CommonUtils.Mode.DRAW);
-                drawPaintView.setPenRawSize(paintWidth);
+                drawPaintView.mPaint.setPenRawSize(paintWidth);
+                drawPaintView.mPaint.setGraphType(CommonUtils.ODINARY);
                 break;
 
             case R.id.eraser_imageView:
@@ -329,7 +234,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.graph_imageView:
-
+                mGraphPopupWindow.showAsDropDown(drawingTitleLayout, 330, 10);
                 break;
 
             case R.id.forward_imageView:

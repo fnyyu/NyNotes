@@ -18,12 +18,12 @@ import android.widget.PopupWindow;
 
 public class BasePopupWindow extends PopupWindow {
 
-    private Context mContext;
+    private Activity mContext;
     private float mShowAlpha = 0.88f;
     private Drawable mBackgroundDrawable;
     private int width, height;
 
-    public BasePopupWindow(Context context, int width, int height) {
+    public BasePopupWindow(Activity context, int width, int height) {
         this.mContext = context;
         this.width = width;
         this.height = height;

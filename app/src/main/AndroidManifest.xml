@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         >
 
-        <activity android:name=".Activity.BannerActivity"
+        <activity android:name=".Activity.DrawActivity"
             android:theme="@style/NoTitleTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +25,7 @@
         <activity android:name=".Activity.MainActivity"
             android:theme="@style/AppTheme"/>
 
-        <activity android:name=".Activity.DrawActivity"
+        <activity android:name=".Activity.BannerActivityS"
             android:theme="@style/NoTitleTheme"/>
     </application>
 
