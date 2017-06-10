@@ -19,7 +19,14 @@
     <string name="draw_graph">图形</string>
     <string name="draw_clear">清除</string>
 
-    <string name="fileName">FileName : </string>
+    <string name="fileName">文件名 : </string>
     <string name="sure">确定</string>
+
+    <string name="pick_galley">图库</string>
+    <string name="take_picture">拍照</string>
+
+    <string name="save_as">保存为 : </string>
+    <string name="save_as_picture">照片</string>
+    <string name="save_as_xml">XML文件</string>
 
 </resources>

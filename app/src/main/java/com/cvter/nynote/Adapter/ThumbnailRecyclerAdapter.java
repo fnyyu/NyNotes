@@ -40,7 +40,8 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
         if(notes != null && notes.get(position) != null){
             Glide.with(mContext).load(notes.get(position).getNotePic()).into(holder.thumbnailImageView);
-            holder.thumbnailTextView.setText(notes.get(position).getNoteName());
+            String name = notes.get(position).getNoteName().replace(".jpg", "");
+            holder.thumbnailTextView.setText(name);
         }
 
     }

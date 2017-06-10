@@ -60,7 +60,7 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
                 mContext.paintWidth = i;
                 progressTextView.setText(i + "");
                 mContext.eraserImageView.setSelected(false);
-                mContext.drawPaintView.setMode(CommonUtils.Mode.DRAW);
+                mContext.drawPaintView.mPaint.setMode(CommonUtils.Mode.DRAW);
                 mContext.drawPaintView.mPaint.setPenRawSize(DrawActivity.paintWidth);
             }
 
@@ -93,32 +93,23 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.pencil_imageView:
-                mContext.drawPaintView.mPaint.setPenAlpha(false);
-                mContext.drawPaintView.mPaint.setStrokeCap(Paint.Cap.ROUND);
-                mContext.drawPaintView.mPaint.setMaskFilter(false);
+                mContext.drawPaintView.mPaint.setOrdinaryPen();
                 break;
 
             case R.id.fountain_imageView:
-                mContext.drawPaintView.mPaint.setPenAlpha(false);
-                mContext.drawPaintView.mPaint.setMaskFilter(false);
+                mContext.drawPaintView.mPaint.setDashPen();
                 break;
 
             case R.id.dropper_imageView:
-                mContext.drawPaintView.mPaint.setPenAlpha(true);
-                mContext.drawPaintView.mPaint.setPenRawSize(40);
-                mContext.drawPaintView.mPaint.setStrokeCap(Paint.Cap.SQUARE);
-                mContext.drawPaintView.mPaint.setMaskFilter(false);
+                mContext.drawPaintView.mPaint.setTransPen();
                 break;
 
             case R.id.brush_imageView:
-                mContext.drawPaintView.mPaint.setPenAlpha(false);
-                mContext.drawPaintView.mPaint.setMaskFilter(false);
+                mContext.drawPaintView.mPaint.setDiscretePen();
                 break;
 
             case R.id.brush_wide_imageView:
-                mContext.drawPaintView.mPaint.setPenAlpha(false);
-                //mContext.drawPaintView.setStrokeCap(Paint.Cap.ROUND);
-                mContext.drawPaintView.mPaint.setMaskFilter(true);
+                mContext.drawPaintView.mPaint.setInkPen();
                 break;
 
             case R.id.black_imageView:

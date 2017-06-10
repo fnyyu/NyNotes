@@ -13,10 +13,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -32,6 +34,7 @@ import com.cvter.nynote.View.GraphPopupWindow;
 import com.cvter.nynote.View.IPictureView;
 import com.cvter.nynote.View.PaintView;
 import com.cvter.nynote.View.PaintPopupWindow;
+import com.cvter.nynote.View.PictureAlertDialog;
 
 import java.io.File;
 
@@ -41,11 +44,7 @@ import butterknife.OnClick;
 
 public class DrawActivity extends BaseActivity implements IPictureView, PathWFCallback {
 
-    PicturePresenter picturePresenter;
-
-    private final static int TAKE_PHOTO = 1;
-    private final static int GALLEY_PICK = 2;
-    private final static int CROP_PHOTO = 3;
+    public PicturePresenter picturePresenter;
 
     private String skipType = "";
     private static String photoPath = "";
@@ -73,9 +72,10 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     public static int paintWidth = 20;
 
-    FilePopupWindow mFilePopupWindow;
-    PaintPopupWindow mPaintPopupWindow;
-    GraphPopupWindow mGraphPopupWindow;
+    private FilePopupWindow mFilePopupWindow;
+    private PaintPopupWindow mPaintPopupWindow;
+    private GraphPopupWindow mGraphPopupWindow;
+    private PictureAlertDialog pictureDialog;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -129,8 +129,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void doBusiness(Context context) {
-        //skipType = getIntent().getExtras().getString("skipType");
-        skipType = "new_edit";
+        skipType = getIntent().getExtras().getString("skipType");
+        //skipType = "new_edit";
         if (skipType != null && !skipType.equals("")) {
             switch (skipType) {
                 case "new_edit":
@@ -211,18 +211,20 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.pen_imageView:
+                drawPaintView.mPaint.setGraphType(CommonUtils.ODINARY);
+                drawPaintView.mPaint.setPenRawSize(paintWidth);
                 mPaintPopupWindow.showAsDropDown(drawingTitleLayout);
                 view.setSelected(true);
                 eraserImageView.setSelected(false);
-                drawPaintView.setMode(CommonUtils.Mode.DRAW);
-                drawPaintView.mPaint.setPenRawSize(paintWidth);
-                drawPaintView.mPaint.setGraphType(CommonUtils.ODINARY);
+                drawPaintView.mPaint.setMode(CommonUtils.Mode.DRAW);
                 break;
 
             case R.id.eraser_imageView:
                 view.setSelected(true);
                 penImageView.setSelected(false);
-                drawPaintView.setMode(CommonUtils.Mode.ERASER);
+                drawPaintView.mPaint.setMode(CommonUtils.Mode.ERASER);
+                drawPaintView.mPaint.setGraphType(CommonUtils.ODINARY);
+                drawPaintView.mPaint.setOrdinaryPen();
                 break;
 
             case R.id.withdraw_imageView:
@@ -230,7 +232,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.picture_imageView:
-                showTypeDialog();
+                pictureDialog = new PictureAlertDialog(this);
                 break;
 
             case R.id.graph_imageView:
@@ -246,52 +248,16 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.save_imageView:
-                mFilePopupWindow.showAtLocation(drawActivityLayout, Gravity.CENTER, 0, 0);
+                mFilePopupWindow.showAtLocation(drawActivityLayout, Gravity.CENTER, 0, -60);
                 break;
 
         }
     }
 
-    //显示图片选择dialog
-    private void showTypeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(DrawActivity.this);
-        final AlertDialog dialog = builder.create();
-        View view = View.inflate(DrawActivity.this, R.layout.dialog_select_photo, null);
-        TextView tv_select_gallery = (TextView) view.findViewById(R.id.tv_select_gallery);
-        TextView tv_select_camera = (TextView) view.findViewById(R.id.tv_select_camera);
-        tv_select_gallery.setOnClickListener(new View.OnClickListener() {// 在相册中选取
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(Intent.ACTION_PICK, null);
-                intent1.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                startActivityForResult(intent1, GALLEY_PICK);
-                dialog.dismiss();
-            }
-        });
-        tv_select_camera.setOnClickListener(new View.OnClickListener() {// 调用照相机
-            @Override
-            public void onClick(View v) {
-                Intent intent2 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                File file = picturePresenter.createImgFile();
-                Uri uri = Uri.fromFile(file);
-                try {
-                    photoPath = file.getAbsolutePath();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-                intent2.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                startActivityForResult(intent2, TAKE_PHOTO);// 采用ForResult打开
-                dialog.dismiss();
-            }
-        });
-        dialog.setView(view);
-        dialog.show();
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case GALLEY_PICK:
+            case CommonUtils.GALLEY_PICK:
                 if (resultCode == RESULT_OK) {
                     Uri photoUri = data.getData();
                     //获取照片路径
@@ -304,24 +270,20 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 }
                 break;
 
-            case TAKE_PHOTO:
+            case CommonUtils.TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    picturePresenter.getSmallBitmap(photoPath);
-
+                    if(data != null){
+                        if(data.hasExtra("data")){
+                            Bitmap bitmap = data.getParcelableExtra("data");
+                            setPictureBG(bitmap);
+                        }
+                        }else{
+                            picturePresenter.getSmallBitmap(pictureDialog.getPhotoPath());
+                        }
                 }
                 break;
 
-            case CROP_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    if (data != null) {
-                        Bundle extras = data.getExtras();
-                        Bitmap bitmap = extras.getParcelable("data");
-                        if (bitmap != null) {
-                            //setPicToView(bitmap);
-                            picturePresenter.getSmallBitmap(photoPath);
-                        }
-                    }
-                }
+            default:
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -339,6 +301,16 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         drawPaintView.bringToFront();
         drawPaintView.setZOrderOnTop(true);
         drawPaintView.getHolder().setFormat(PixelFormat.TRANSPARENT);
+
+    }
+
+    @Override
+    public void showProgress() {
+
+    }
+
+    @Override
+    public void hideProgress() {
 
     }
 

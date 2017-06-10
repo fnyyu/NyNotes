@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity implements IMainView {
     @Override
     public void doBusiness(Context context) {
 
-        File file = new File(CommonUtils.PICPATH);
+        File file = new File(CommonUtils.PICTURE_PATH);
         mPresenter.getNoteImage(file);
 
     }
@@ -80,9 +80,17 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onLoadImagesCompleted(ArrayList<NoteInfo> notes) {
-        thumbnailRecyclerView.setLayoutManager(new GridLayoutManager(this,4));
+        thumbnailRecyclerView.setLayoutManager(new GridLayoutManager(this,3));
         mAdapter = new ThumbnailRecyclerAdapter(MainActivity.this, notes);
         thumbnailRecyclerView.setAdapter(mAdapter);
     }
 
+    @Override
+    protected void onResume() {
+        if(mAdapter != null){
+            mAdapter.notifyDataSetChanged();
+            thumbnailRecyclerView.setAdapter(mAdapter);
+        }
+        super.onResume();
+    }
 }

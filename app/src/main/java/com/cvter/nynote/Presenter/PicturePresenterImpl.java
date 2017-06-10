@@ -3,19 +3,15 @@ package com.cvter.nynote.Presenter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 
 import com.cvter.nynote.Utils.CommonUtils;
 import com.cvter.nynote.View.IPictureView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-
-import static android.R.attr.path;
+import java.util.Date;
 
 /**
  * Created by cvter on 2017/6/6.
@@ -24,61 +20,21 @@ import static android.R.attr.path;
 public class PicturePresenterImpl implements PicturePresenter{
 
     private IPictureView iPictureView;
-    private Context mContext;
 
     public PicturePresenterImpl(IPictureView iPictureView, Context mContext){
         this.iPictureView = iPictureView;
-        this.mContext = mContext;
-    }
-
-    //设置图片到ImageView中
-    @Override
-    public void setPicToView(Bitmap mBitmap) {
-
-        String sdStatus = Environment.getExternalStorageState();
-        if (!sdStatus.equals(Environment.MEDIA_MOUNTED)) { // 检测sd卡是否可用
-            return;
-        }
-        FileOutputStream b = null;
-        File file = new File(CommonUtils.PATH);
-        if (file.mkdirs()) {
-            // 创建以此File对象为名（path）的文件夹
-            String fileName = path + "myPic.jpg";//图片名字
-            try {
-                b = new FileOutputStream(fileName);
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, 30, b);// 把数据写入文件（compress：压缩）
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (b != null) {
-                        b.flush();
-                        b.close();
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        } else {
-            iPictureView.onError();
-        }
     }
 
     //图片存放文件目录
     @Override
     public File createImgFile() {
         //确定文件名
-        String fileName = SimpleDateFormat.getDateTimeInstance() + ".jpg";
-        File dir;
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            dir = Environment.getExternalStorageDirectory();
-        } else {
-            dir = mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File path = new File(CommonUtils.PATH);
+        if(!path.exists()){
+            path.mkdirs();
         }
-        File tempFile = new File(dir, fileName);
+        String fileName = new SimpleDateFormat("HH:mm:ss").format(new Date()) + ".jpg";
+        File tempFile = new File(path, fileName);
         try {
             if (tempFile.exists() && !tempFile.delete()) {
                 iPictureView.onError();

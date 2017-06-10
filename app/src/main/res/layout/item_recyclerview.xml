@@ -7,8 +7,8 @@
 
     <ImageView
         android:id="@+id/thumbnail_imageView"
-        android:layout_width="70dp"
-        android:layout_height="105dp"
+        android:layout_width="110dp"
+        android:layout_height="130dp"
         android:layout_margin="10dp" />
 
     <TextView
@@ -16,9 +16,8 @@
         android:layout_marginStart="10dp"
         android:maxLines="1"
         android:textColor="@android:color/black"
-        android:text="@string/allow"
         android:gravity="center"
-        android:layout_width="70dp"
+        android:layout_width="110dp"
         android:layout_height="wrap_content" />
 
 </LinearLayout>

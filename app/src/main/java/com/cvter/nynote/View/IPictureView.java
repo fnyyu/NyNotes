@@ -10,5 +10,6 @@ public interface IPictureView {
 
     void onError();
     void setPictureBG(Bitmap bitmap);
-
+    void showProgress();
+    void hideProgress();
 }

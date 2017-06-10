@@ -35,4 +35,5 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'com.github.bumptech.glide:glide:3.5.2'
     compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.bigmercu.cBox:cbox:1.08'
 }

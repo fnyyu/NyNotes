@@ -9,7 +9,7 @@
         android:textColor="@android:color/black"
         android:textSize="18sp"
         android:gravity="center"
-        android:text="图库"
+        android:text="@string/pick_galley"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:id="@+id/tv_select_gallery" />
@@ -24,7 +24,7 @@
         android:id="@+id/tv_select_camera"
         android:textSize="18sp"
         android:gravity="center"
-        android:text="拍照"
+        android:text="@string/take_picture"
         android:layout_width="match_parent"
         android:layout_height="70dp" />
 

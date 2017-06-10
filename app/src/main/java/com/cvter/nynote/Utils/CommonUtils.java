@@ -8,9 +8,12 @@ import android.os.Environment;
 
 public class CommonUtils {
 
-    public static final String PATH = Environment.getExternalStorageDirectory().getPath() + "/NyNote";//sd路径
+    public static final String PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote";//sd路径
 
-    public static final String PICPATH = PATH + "/pic";//note图片路径
+    public static final String PICTURE_PATH = PATH + "/pic";//note图片路径
+
+    public final static int TAKE_PHOTO = 1;
+    public final static int GALLEY_PICK = 2;
 
     public enum Mode{
         DRAW,
