@@ -75,7 +75,7 @@ public class PaintInfo extends Paint {
 
     public void setTransPen(){
         isAlpha = true;
-        setAlpha(100);
+        setAlpha(70);
         setStrokeCap(Paint.Cap.SQUARE);
         setMaskFilter(null);
         setPathEffect(null);

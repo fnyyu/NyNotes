@@ -129,8 +129,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void doBusiness(Context context) {
-        skipType = getIntent().getExtras().getString("skipType");
-        //skipType = "new_edit";
+        //skipType = getIntent().getExtras().getString("skipType");
+        skipType = "new_edit";
         if (skipType != null && !skipType.equals("")) {
             switch (skipType) {
                 case "new_edit":

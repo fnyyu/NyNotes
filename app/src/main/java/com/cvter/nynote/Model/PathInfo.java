@@ -2,6 +2,9 @@ package com.cvter.nynote.Model;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
+
+import java.util.ArrayList;
 
 /**
  * Created by cvter on 2017/6/6.
@@ -9,27 +12,35 @@ import android.graphics.Paint;
 
 public abstract class PathInfo {
 
+    public Path path;
     public Paint paint;
-    public float startX;
-    public float startY;
-    public float stopX;
-    public float stopY;
+    public ArrayList<ArrayList<PointInfo>> lines;
+
 
     public abstract void draw(Canvas canvas, int type);
 
-    public abstract void setStartX(float startX);
+    public void setPaint(Paint paint) {
+        this.paint = paint;
+    }
 
-    public abstract void setStartY(float startY);
+    public void setPath(Path path) {
+        this.path = path;
+    }
 
-    public abstract void setStopX(float stopX);
+    public void setLines(ArrayList<ArrayList<PointInfo>> lines) {
+        this.lines = lines;
+    }
 
-    public abstract void setStopY(float stopY);
+    public ArrayList<ArrayList<PointInfo>> getLines() {
+        return lines;
+    }
 
-    public abstract float getStartX();
+    public Paint getPaint() {
+        return paint;
+    }
 
-    public abstract float getStartY();
+    public Path getPath() {
+        return path;
+    }
 
-    public abstract float getStopX();
-
-    public abstract float getStopY();
 }
