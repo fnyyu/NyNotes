@@ -6,7 +6,7 @@ import android.widget.ImageView;
 
 import com.cvter.nynote.Activity.DrawActivity;
 import com.cvter.nynote.R;
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 
 
 /**
@@ -17,8 +17,17 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
 
     private DrawActivity mContext;
 
-    private ImageView circleImageView, lineImageView, squareImageView,
-            coneImageView, sphereImageView, cubeImageView;
+    private ImageView circleImageView;
+    private ImageView lineImageView;
+    private ImageView squareImageView;
+
+    private ImageView deltaImageView;
+    private ImageView pentagonImageView;
+    private ImageView starImageView;
+
+    private ImageView coneImageView;
+    private ImageView sphereImageView;
+    private ImageView cubeImageView;
 
     public GraphPopupWindow(DrawActivity context, int width, int height) {
         super(context, width, height);
@@ -36,6 +45,9 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
         coneImageView = (ImageView) graphView.findViewById(R.id.cone_imageView);
         sphereImageView = (ImageView) graphView.findViewById(R.id.sphere_imageView);
         cubeImageView = (ImageView) graphView.findViewById(R.id.cube_imageView);
+        deltaImageView = (ImageView) graphView.findViewById(R.id.delta_imageView);
+        pentagonImageView = (ImageView) graphView.findViewById(R.id.pentagon_imageView);
+        starImageView = (ImageView) graphView.findViewById(R.id.star_imageView);
 
     }
 
@@ -47,6 +59,9 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
         coneImageView.setOnClickListener(this);
         sphereImageView.setOnClickListener(this);
         cubeImageView.setOnClickListener(this);
+        deltaImageView.setOnClickListener(this);
+        pentagonImageView.setOnClickListener(this);
+        starImageView.setOnClickListener(this);
 
     }
 
@@ -54,27 +69,39 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.circle_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(CommonUtils.CIRCLE);
+                mContext.drawPaintView.mPaint.setGraphType(Constants.CIRCLE);
                 break;
 
             case R.id.line_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(CommonUtils.LINE);
+                mContext.drawPaintView.mPaint.setGraphType(Constants.LINE);
                 break;
 
             case R.id.square_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(CommonUtils.SQUARE);
+                mContext.drawPaintView.mPaint.setGraphType(Constants.SQUARE);
                 break;
 
             case R.id.cone_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(CommonUtils.CONE);
+                mContext.drawPaintView.mPaint.setGraphType(Constants.CONE);
                 break;
 
             case R.id.sphere_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(CommonUtils.SPHERE);
+                mContext.drawPaintView.mPaint.setGraphType(Constants.SPHERE);
                 break;
 
             case R.id.cube_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(CommonUtils.CUBE);
+                mContext.drawPaintView.mPaint.setGraphType(Constants.CUBE);
+                break;
+
+            case R.id.delta_imageView:
+                mContext.drawPaintView.mPaint.setGraphType(Constants.DELTA);
+                break;
+
+            case R.id.pentagon_imageView:
+                mContext.drawPaintView.mPaint.setGraphType(Constants.PENTAGON);
+                break;
+
+            case R.id.star_imageView:
+                mContext.drawPaintView.mPaint.setGraphType(Constants.STAR);
                 break;
         }
     }

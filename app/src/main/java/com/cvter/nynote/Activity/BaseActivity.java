@@ -39,9 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private Unbinder mUnbinder;
 
-    /**
-     * 需要进行检测的权限数组
-     */
+    //需要进行检测的权限数组
     protected String[] mNeedPermissions = {
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -73,52 +71,30 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * 初始化控件
-     * @param bundle
-     */
+    //初始化控件
     protected abstract void initWidget(Bundle bundle);
 
-    /**
-     * 初始化参数
-     *@param params
-     */
+    //初始化参数
     public abstract void initParams(Bundle params);
 
 
-    /**
-     * 绑定布局
-     *
-     */
+    // 绑定布局
     public abstract int bindLayout();
 
 
-    /**
-     * 设置监听
-     *
-     */
+    //设置监听
     public abstract void setListener();
 
-    /**
-     * 业务操作
-     * @param context
-     */
+    // 业务操作
     public abstract void doBusiness(Context context);
 
 
-    /**
-     * 页面跳转
-     * @param clz
-     */
+    //页面跳转
     public void startActivity(Class<?> clz) {
         startActivity(new Intent(BaseActivity.this,clz));
     }
 
-    /**
-     * 携带数据的页面跳转
-     * @param clz
-     * @param bundle
-     */
+    // 携带数据的页面跳转
     public void startActivity(Class<?> clz, Bundle bundle) {
         Intent intent = new Intent();
         intent.setClass(this, clz);
@@ -128,12 +104,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    /**
-     * 含有Bundle通过Class打开编辑界面
-     * @param cls
-     * @param bundle
-     * @param requestCode
-     */
+    //含有Bundle通过Class打开编辑界面
     public void startActivityForResult(Class<?> cls, Bundle bundle,
                                        int requestCode) {
         Intent intent = new Intent();
@@ -144,19 +115,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         startActivityForResult(intent, requestCode);
     }
 
-    /**
-     * 简化Toast
-     * @param msg
-     */
+    // 简化Toast
     public void showToast(String msg){
         Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
     }
 
 
-    /**
-     * 检查应用权限设置
-     * @param permissions
-     */
+    //检查应用权限设置
     private void checkPermissions(String... permissions){
         List<String> needRequestPermissionList = findDeniedPermissions(permissions);
         if (null != needRequestPermissionList
@@ -168,11 +133,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 获取申请权限列表
-     * @param permissions
-     * @return
-     */
+    //获取申请权限列表
     private List<String> findDeniedPermissions(String[] permissions) {
         List<String> needRequestPermissionList = new ArrayList<String>();
         for (String perm : permissions) {
@@ -184,11 +145,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         return needRequestPermissionList;
     }
 
-    /**
-     *检查所有权限是否授权
-     * @param grantResults
-     * @return
-     */
+
+    //检查所有权限是否授权
     private boolean verifyPermissions(int[] grantResults) {
         for (int result : grantResults) {
             if (result != PackageManager.PERMISSION_GRANTED) {
@@ -199,10 +157,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * 显示提示信息
-     *
-     */
+    //显示提示信息
     private void showMissingPermissionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.notifyTitle);
@@ -230,10 +185,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * 启动应用的设置
-     *
-     */
+    //启动应用的设置
     private void startAppSettings() {
         Intent intent = new Intent(
                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -250,7 +202,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
         }
     }
-
 
     @Override
     protected void onDestroy() {

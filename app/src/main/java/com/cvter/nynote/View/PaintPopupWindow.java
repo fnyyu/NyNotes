@@ -1,7 +1,6 @@
 package com.cvter.nynote.View;
 
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,7 +9,7 @@ import android.widget.TextView;
 
 import com.cvter.nynote.Activity.DrawActivity;
 import com.cvter.nynote.R;
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 
 
 /**
@@ -60,7 +59,7 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
                 mContext.paintWidth = i;
                 progressTextView.setText(i + "");
                 mContext.eraserImageView.setSelected(false);
-                mContext.drawPaintView.mPaint.setMode(CommonUtils.Mode.DRAW);
+                mContext.drawPaintView.mPaint.setMode(Constants.Mode.DRAW);
                 mContext.drawPaintView.mPaint.setPenRawSize(DrawActivity.paintWidth);
             }
 

@@ -5,13 +5,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.SaveListener;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -34,7 +32,7 @@ public class FilePresenterImpl implements IFilePresenter {
             @Override
             public void run() {
                 try{
-                    File file = new File(CommonUtils.PICTURE_PATH + "/" + path + ".jpg");
+                    File file = new File(Constants.PICTURE_PATH + "/" + path + ".jpg");
                     file.createNewFile();
                     OutputStream outputStream = new FileOutputStream(file);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);

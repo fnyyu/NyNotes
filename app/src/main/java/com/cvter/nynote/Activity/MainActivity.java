@@ -12,7 +12,7 @@ import com.cvter.nynote.Model.NoteInfo;
 import com.cvter.nynote.Presenter.IMainPresenter;
 import com.cvter.nynote.Presenter.MainPresenterImpl;
 import com.cvter.nynote.R;
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.IMainView;
 
 import java.io.File;
@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity implements IMainView {
     @Override
     public void doBusiness(Context context) {
 
-        File file = new File(CommonUtils.PICTURE_PATH);
+        File file = new File(Constants.PICTURE_PATH);
         mPresenter.getNoteImage(file);
 
     }

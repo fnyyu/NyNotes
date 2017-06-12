@@ -1,18 +1,15 @@
 package com.cvter.nynote.View;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.StyleRes;
 import android.view.View;
 import android.widget.TextView;
 
 import com.cvter.nynote.Activity.DrawActivity;
 import com.cvter.nynote.R;
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 
 import java.io.File;
 
@@ -40,7 +37,7 @@ public class PictureAlertDialog extends AlertDialog {
             public void onClick(View v) {
                 Intent intent1 = new Intent(Intent.ACTION_PICK, null);
                 intent1.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                context.startActivityForResult(intent1, CommonUtils.GALLEY_PICK);
+                context.startActivityForResult(intent1, Constants.GALLEY_PICK);
                 dismiss();
             }
         });
@@ -52,7 +49,7 @@ public class PictureAlertDialog extends AlertDialog {
                 photoPath = file.getPath();
                 Uri uri = Uri.fromFile(file);
                 intent2.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                context.startActivityForResult(intent2, CommonUtils.TAKE_PHOTO);// 采用ForResult打开
+                context.startActivityForResult(intent2, Constants.TAKE_PHOTO);// 采用ForResult打开
                 dismiss();
             }
         });

@@ -13,30 +13,25 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.cvter.nynote.Presenter.PathWFCallback;
 import com.cvter.nynote.Presenter.PicturePresenter;
 import com.cvter.nynote.Presenter.PicturePresenterImpl;
 import com.cvter.nynote.R;
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.FilePopupWindow;
 import com.cvter.nynote.View.GraphPopupWindow;
 import com.cvter.nynote.View.IPictureView;
 import com.cvter.nynote.View.PaintView;
 import com.cvter.nynote.View.PaintPopupWindow;
 import com.cvter.nynote.View.PictureAlertDialog;
-
-import java.io.File;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -99,7 +94,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
         mFilePopupWindow = new FilePopupWindow(this, 800, 0);
         mPaintPopupWindow = new PaintPopupWindow(this,700, 500);
-        mGraphPopupWindow = new GraphPopupWindow(this, 500, 300);
+        mGraphPopupWindow = new GraphPopupWindow(this, 500, 400);
 
         picturePresenter = new PicturePresenterImpl(this, this);
 
@@ -211,19 +206,19 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.pen_imageView:
-                drawPaintView.mPaint.setGraphType(CommonUtils.ODINARY);
+                drawPaintView.mPaint.setGraphType(Constants.ORDINARY);
                 drawPaintView.mPaint.setPenRawSize(paintWidth);
                 mPaintPopupWindow.showAsDropDown(drawingTitleLayout);
                 view.setSelected(true);
                 eraserImageView.setSelected(false);
-                drawPaintView.mPaint.setMode(CommonUtils.Mode.DRAW);
+                drawPaintView.mPaint.setMode(Constants.Mode.DRAW);
                 break;
 
             case R.id.eraser_imageView:
                 view.setSelected(true);
                 penImageView.setSelected(false);
-                drawPaintView.mPaint.setMode(CommonUtils.Mode.ERASER);
-                drawPaintView.mPaint.setGraphType(CommonUtils.ODINARY);
+                drawPaintView.mPaint.setMode(Constants.Mode.ERASER);
+                drawPaintView.mPaint.setGraphType(Constants.ORDINARY);
                 drawPaintView.mPaint.setOrdinaryPen();
                 break;
 
@@ -257,7 +252,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case CommonUtils.GALLEY_PICK:
+            case Constants.GALLEY_PICK:
                 if (resultCode == RESULT_OK) {
                     Uri photoUri = data.getData();
                     //获取照片路径
@@ -270,7 +265,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 }
                 break;
 
-            case CommonUtils.TAKE_PHOTO:
+            case Constants.TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
                     if(data != null){
                         if(data.hasExtra("data")){

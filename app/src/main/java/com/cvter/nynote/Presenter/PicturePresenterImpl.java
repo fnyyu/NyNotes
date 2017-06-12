@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.IPictureView;
 
 import java.io.ByteArrayOutputStream;
@@ -29,7 +29,7 @@ public class PicturePresenterImpl implements PicturePresenter{
     @Override
     public File createImgFile() {
         //确定文件名
-        File path = new File(CommonUtils.PATH);
+        File path = new File(Constants.PATH);
         if(!path.exists()){
             path.mkdirs();
         }

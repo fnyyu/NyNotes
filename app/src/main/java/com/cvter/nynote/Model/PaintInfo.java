@@ -10,7 +10,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
 
-import com.cvter.nynote.Utils.CommonUtils;
+import com.cvter.nynote.Utils.Constants;
 
 
 /**
@@ -20,9 +20,8 @@ import com.cvter.nynote.Utils.CommonUtils;
 public class PaintInfo extends Paint {
 
     private int mDrawSize;
-    private int type = CommonUtils.ODINARY;
-    private boolean isAlpha;
-    private CommonUtils.Mode mMode = CommonUtils.Mode.DRAW;
+    private int type = Constants.ORDINARY;
+    private Constants.Mode mMode = Constants.Mode.DRAW;
     private Xfermode mClearMode;
 
     public PaintInfo(){
@@ -40,10 +39,10 @@ public class PaintInfo extends Paint {
         mClearMode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
     }
 
-    public void setMode(CommonUtils.Mode mode) {
+    public void setMode(Constants.Mode mode) {
         if (mode != mMode) {
             mMode = mode;
-            if (mMode == CommonUtils.Mode.DRAW) {
+            if (mMode == Constants.Mode.DRAW) {
                 setXfermode(null);
             } else {
                 setXfermode(mClearMode);
@@ -61,12 +60,7 @@ public class PaintInfo extends Paint {
         setColor(color);
     }
 
-    public boolean getIsAlpha() {
-        return isAlpha;
-    }
-
     public void setOrdinaryPen(){
-        isAlpha = false;
         setAlpha(255);
         setStrokeCap(Paint.Cap.ROUND);
         setMaskFilter(null);
@@ -74,7 +68,6 @@ public class PaintInfo extends Paint {
     }
 
     public void setTransPen(){
-        isAlpha = true;
         setAlpha(70);
         setStrokeCap(Paint.Cap.SQUARE);
         setMaskFilter(null);
@@ -82,7 +75,6 @@ public class PaintInfo extends Paint {
     }
 
     public void setInkPen(){
-        isAlpha = false;
         setAlpha(255);
         setStrokeCap(Paint.Cap.ROUND);
         setMaskFilter(new BlurMaskFilter(mDrawSize, BlurMaskFilter.Blur.NORMAL));
@@ -90,7 +82,6 @@ public class PaintInfo extends Paint {
     }
 
     public void setDiscretePen(){
-        isAlpha = false;
         setAlpha(255);
         setStrokeCap(Paint.Cap.ROUND);
         setMaskFilter(null);
@@ -98,7 +89,6 @@ public class PaintInfo extends Paint {
     }
 
     public void setDashPen(){
-        isAlpha = false;
         setAlpha(255);
         setStrokeCap(Paint.Cap.ROUND);
         setMaskFilter(null);
@@ -120,7 +110,7 @@ public class PaintInfo extends Paint {
         return type;
     }
 
-    public CommonUtils.Mode getMode() {
+    public Constants.Mode getMode() {
         return mMode;
     }
 }
