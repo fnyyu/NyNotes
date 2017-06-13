@@ -141,11 +141,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case Constants.PENTAGON:
-                mDrawPolygon.drawPentagon(mGraphPath, y>mLastY?y-mLastY:mLastY-y, mLastX, mLastY);
+                mDrawPolygon.drawPentagon(mGraphPath, y-mLastY, mLastX, mLastY);
                 break;
 
             case Constants.STAR:
-                mDrawPolygon.drawStar(mGraphPath, mLastX, mLastY, x, y);
+                mDrawPolygon.drawStar(mGraphPath, y-mLastY, mLastX, mLastY);
                 break;
 
             case Constants.SPHERE:
