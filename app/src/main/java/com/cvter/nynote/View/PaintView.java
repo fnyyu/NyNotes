@@ -44,6 +44,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private List<PathInfo> mRemovedList;
 
     private boolean mCanEraser;
+    private boolean mIsHasBG;
     private Bitmap mBufferBitmap;
 
     private PathWFCallback mCallback;
@@ -197,8 +198,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private void initBuffer(){
         mBufferBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBufferBitmap);
-        mCanvas.drawColor(Color.WHITE);
-
     }
 
     @Override
@@ -269,6 +268,21 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         if (mCallback != null) {
             mCallback.pathWFState();
         }
+    }
+
+    //是否有背景图片
+    public void setIsHasBG(boolean mIsHasBG) {
+        this.mIsHasBG = mIsHasBG;
+    }
+
+    //获取是否存在背景图片
+    public boolean getIsHasBG() {
+        return mIsHasBG;
+    }
+
+    //返回bitmap
+    public Bitmap getBitmap(){
+        return mBufferBitmap;
     }
 
     //支持反撤销
@@ -342,11 +356,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 mCallback.pathWFState();
             }
         }
-    }
-
-    //获取bitmap
-    public Bitmap getBitmap(){
-        return mBufferBitmap;
     }
 
     @Override

@@ -1,5 +1,9 @@
 package com.cvter.nynote.View;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -57,7 +61,18 @@ public class FilePopupWindow extends BasePopupWindow {
 
 
                 }else if(saveAsImg.isChecked() && !saveAsXML.isChecked()){
-                    filePresenter.saveAsImg(mContext.drawPaintView.getBitmap(), fileName, new SaveListener() {
+
+                    Bitmap temBitmap = Bitmap.createBitmap(mContext.drawPaintView.getWidth(),
+                            mContext.drawPaintView.getHeight(), Bitmap.Config.RGB_565);
+                    Canvas canvas = new Canvas(temBitmap);
+                    if(mContext.drawPaintView.getIsHasBG()){ //若存在背景图片
+                        mContext.drawPaintView.draw(canvas);
+                    }else{
+                        canvas.drawColor(Color.WHITE);
+                        canvas.drawBitmap(mContext.drawPaintView.getBitmap(), 0, 0, null);
+                    }
+
+                    filePresenter.saveAsImg(temBitmap, fileName, new SaveListener() {
                         @Override
                         public void onSuccess() {
                             mContext.hideProgress();

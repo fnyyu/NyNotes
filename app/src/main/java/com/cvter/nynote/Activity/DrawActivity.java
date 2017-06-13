@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -62,8 +63,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     ImageView forwardImageView;
     @BindView(R.id.draw_paintView)
     public PaintView drawPaintView;
-    @BindView(R.id.front_imageView)
-    ImageView frontImageView;
 
     public static int paintWidth = 20;
 
@@ -291,12 +290,11 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void setPictureBG(Bitmap bitmap) {
-        frontImageView.setImageBitmap(bitmap);
-        frontImageView.setVisibility(View.VISIBLE);
+        drawPaintView.setBackground(new BitmapDrawable(bitmap));
         drawPaintView.bringToFront();
         drawPaintView.setZOrderOnTop(true);
         drawPaintView.getHolder().setFormat(PixelFormat.TRANSPARENT);
-
+        drawPaintView.setIsHasBG(true);
     }
 
     @Override
