@@ -14,11 +14,13 @@ import com.cvter.nynote.Presenter.MainPresenterImpl;
 import com.cvter.nynote.R;
 import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.IMainView;
+import com.yalantis.phoenix.PullToRefreshView;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -29,11 +31,13 @@ public class MainActivity extends BaseActivity implements IMainView {
     FloatingActionButton newNoteFloatingActionButton;
     @BindView(R.id.thumbnail_recyclerView)
     RecyclerView thumbnailRecyclerView;
+    @BindView(R.id.refresh_pullToRefreshView)
+    com.yalantis.phoenix.PullToRefreshView refreshPullToRefreshView;
 
     private ThumbnailRecyclerAdapter mAdapter;
 
-    public static void launch(Context context){
-        context.startActivity(new Intent(context,MainActivity.class));
+    public static void launch(Context context) {
+        context.startActivity(new Intent(context, MainActivity.class));
     }
 
     @Override
@@ -55,6 +59,22 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void setListener() {
+
+        refreshPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshPullToRefreshView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshPullToRefreshView.setRefreshing(false);
+                    }
+                }, 1000);
+
+                mAdapter.clearData();
+                thumbnailRecyclerView.removeAllViews();
+                doBusiness(MainActivity.this);
+            }
+        });
 
     }
 
@@ -80,17 +100,19 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onLoadImagesCompleted(ArrayList<NoteInfo> notes) {
-        thumbnailRecyclerView.setLayoutManager(new GridLayoutManager(this,3));
+        thumbnailRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         mAdapter = new ThumbnailRecyclerAdapter(MainActivity.this, notes);
         thumbnailRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
     protected void onResume() {
-        if(mAdapter != null){
-            mAdapter.notifyDataSetChanged();
-            thumbnailRecyclerView.setAdapter(mAdapter);
+        if (mAdapter != null) {
+            mAdapter.clearData();
+            thumbnailRecyclerView.removeAllViews();
+            doBusiness(MainActivity.this);
         }
         super.onResume();
     }
+
 }

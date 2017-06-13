@@ -22,8 +22,8 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp" />
 
-    <ScrollView
-        android:scrollbars="none"
+    <com.yalantis.phoenix.PullToRefreshView
+        android:id="@+id/refresh_pullToRefreshView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -31,6 +31,6 @@
             android:id="@+id/thumbnail_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-    </ScrollView>
+    </com.yalantis.phoenix.PullToRefreshView>
 
 </RelativeLayout>

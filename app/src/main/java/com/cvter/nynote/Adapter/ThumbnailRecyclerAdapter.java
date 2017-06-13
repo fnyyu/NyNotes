@@ -28,11 +28,14 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
     }
 
+    public void clearData(){
+        notes.clear();
+    }
+
     @Override
     public ThumbnailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView=View.inflate(mContext, R.layout.item_recyclerview,null);
-        ThumbnailViewHolder viewHolder=new ThumbnailViewHolder(itemView);
-        return viewHolder;
+        return new ThumbnailViewHolder(itemView);
     }
 
     @Override

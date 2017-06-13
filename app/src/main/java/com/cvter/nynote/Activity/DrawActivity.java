@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.cvter.nynote.Presenter.PathWFCallback;
@@ -30,20 +31,27 @@ import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.FilePopupWindow;
 import com.cvter.nynote.View.GraphPopupWindow;
 import com.cvter.nynote.View.IPictureView;
-import com.cvter.nynote.View.PaintView;
 import com.cvter.nynote.View.PaintPopupWindow;
+import com.cvter.nynote.View.PaintView;
 import com.cvter.nynote.View.PictureAlertDialog;
+
+
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 
 public class DrawActivity extends BaseActivity implements IPictureView, PathWFCallback {
 
     public PicturePresenter picturePresenter;
+    @BindView(R.id.save_progressBar)
+    ProgressBar saveProgressBar;
 
     private String skipType = "";
-    private static String photoPath = "";
 
     @BindView(R.id.reading_titile_layout)
     ConstraintLayout readingTitleLayout;
@@ -65,7 +73,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     public PaintView drawPaintView;
 
     public static int paintWidth = 20;
-
     private FilePopupWindow mFilePopupWindow;
     private PaintPopupWindow mPaintPopupWindow;
     private GraphPopupWindow mGraphPopupWindow;
@@ -92,7 +99,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         drawActivityLayout.setClickable(true);
 
         mFilePopupWindow = new FilePopupWindow(this, 800, 0);
-        mPaintPopupWindow = new PaintPopupWindow(this,700, 500);
+        mPaintPopupWindow = new PaintPopupWindow(this, 700, 500);
         mGraphPopupWindow = new GraphPopupWindow(this, 500, 400);
 
         picturePresenter = new PicturePresenterImpl(this, this);
@@ -266,14 +273,14 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
             case Constants.TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    if(data != null){
-                        if(data.hasExtra("data")){
+                    if (data != null) {
+                        if (data.hasExtra("data")) {
                             Bitmap bitmap = data.getParcelableExtra("data");
                             setPictureBG(bitmap);
                         }
-                        }else{
-                            picturePresenter.getSmallBitmap(pictureDialog.getPhotoPath());
-                        }
+                    } else {
+                        picturePresenter.getSmallBitmap(pictureDialog.getPhotoPath());
+                    }
                 }
                 break;
 
@@ -299,12 +306,13 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void showProgress() {
-
+        saveProgressBar.bringToFront();
+        saveProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideProgress() {
-
+        saveProgressBar.setVisibility(View.GONE);
     }
 
     @Override

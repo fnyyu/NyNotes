@@ -15,6 +15,12 @@ import com.cvter.nynote.Presenter.FilePresenterImpl;
 import com.cvter.nynote.Presenter.IFilePresenter;
 import com.cvter.nynote.R;
 
+import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+
 /**
  * Created by cvter on 2017/6/8.
  */
@@ -51,7 +57,7 @@ public class FilePopupWindow extends BasePopupWindow {
             @Override
             public void onClick(View view) {
 
-                mContext.showProgress();
+                dismiss();
                 fileName = fileNameEditText.getText().toString();
                 if(!saveAsImg.isChecked() && !saveAsXML.isChecked()){
                     mContext.hideProgress();
@@ -75,28 +81,35 @@ public class FilePopupWindow extends BasePopupWindow {
                     filePresenter.saveAsImg(temBitmap, fileName, new SaveListener() {
                         @Override
                         public void onSuccess() {
-                            mContext.hideProgress();
-                            mContext.showToast("保存成功");
+                            mContext.showProgress();
+                            saveSuccess();
                         }
 
                         @Override
                         public void onFail(String toastMessage) {
-                            mContext.hideProgress();
                             mContext.showToast(toastMessage);
+                            mContext.finish();
                         }
                     });
 
                 }else if(saveAsImg.isChecked() && saveAsXML.isChecked()){
 
                 }
-                dismiss();
-                mContext.finish();
             }
         });
 
     }
 
-
+    private void saveSuccess(){
+        Observable.timer(3, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Long>() {
+            @Override
+            public void call(Long aLong) {
+                mContext.hideProgress();
+                mContext.showToast("保存成功");
+                mContext.finish();
+            }
+        });
+    }
 
 
 }
