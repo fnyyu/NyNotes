@@ -3,6 +3,8 @@ package com.cvter.nynote.View;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
@@ -14,19 +16,21 @@ import android.widget.PopupWindow;
 
 /**
  * Created by cvter on 2017/6/5.
+ * PopupWindow基类
  */
 
 public class BasePopupWindow extends PopupWindow {
 
     private Activity mContext;
     private float mShowAlpha = 0.88f;
-    private Drawable mBackgroundDrawable;
-    private int width, height;
+    private Drawable mOutsideBackgroundDrawable;
+    private int mWidth;
+    private int mHeight;
 
     public BasePopupWindow(Activity context, int width, int height) {
         this.mContext = context;
-        this.width = width;
-        this.height = height;
+        this.mWidth = width;
+        this.mHeight = height;
         initBasePopupWindow();
     }
 
@@ -34,10 +38,10 @@ public class BasePopupWindow extends PopupWindow {
     public void setOutsideTouchable(boolean touchable) {
         super.setOutsideTouchable(touchable);
         if(touchable) {
-            if(mBackgroundDrawable == null) {
-                mBackgroundDrawable = new ColorDrawable(0x00000000);
+            if(mOutsideBackgroundDrawable == null) {
+                mOutsideBackgroundDrawable = new ColorDrawable(Color.WHITE);
             }
-            super.setBackgroundDrawable(mBackgroundDrawable);
+            super.setBackgroundDrawable(mOutsideBackgroundDrawable);
         } else {
             super.setBackgroundDrawable(null);
         }
@@ -45,21 +49,19 @@ public class BasePopupWindow extends PopupWindow {
 
     @Override
     public void setBackgroundDrawable(Drawable background) {
-        mBackgroundDrawable = background;
+        mOutsideBackgroundDrawable = background;
         setOutsideTouchable(isOutsideTouchable());
     }
 
-    /**
-     * 初始化BasePopupWindow的一些信息
-     * */
+    //初始化BasePopupWindow的一些信息
     private void initBasePopupWindow() {
         setAnimationStyle(android.R.style.Animation_Dialog);
-        if(height == 0){
+        if(mHeight == 0){
             setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         }else{
-            setHeight(height);
+            setHeight(mHeight);
         }
-        setWidth(width);
+        setWidth(mWidth);
         setOutsideTouchable(true);  //默认设置outside点击无响应
         setFocusable(true);
     }
@@ -80,37 +82,35 @@ public class BasePopupWindow extends PopupWindow {
     @Override
     public void showAtLocation(View parent, int gravity, int x, int y) {
         super.showAtLocation(parent, gravity, x, y);
-        showAnimator().start();
+        getShowAnimator().start();
     }
 
     @Override
     public void showAsDropDown(View anchor) {
         super.showAsDropDown(anchor);
-        showAnimator().start();
+        getShowAnimator().start();
     }
 
     @Override
-    public void showAsDropDown(View anchor, int xoff, int yoff) {
-        super.showAsDropDown(anchor, xoff, yoff);
-        showAnimator().start();
+    public void showAsDropDown(View anchor, int x, int y) {
+        super.showAsDropDown(anchor, x, y);
+        getShowAnimator().start();
     }
 
     @Override
-    public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
-        super.showAsDropDown(anchor, xoff, yoff, gravity);
-        showAnimator().start();
+    public void showAsDropDown(View anchor, int x, int y, int gravity) {
+        super.showAsDropDown(anchor, x, y, gravity);
+        getShowAnimator().start();
     }
 
     @Override
     public void dismiss() {
         super.dismiss();
-        dismissAnimator().start();
+        getDismissAnimator().start();
     }
 
-    /**
-     * 窗口显示，窗口背景透明度渐变动画
-     * */
-    private ValueAnimator showAnimator() {
+    //窗口显示，窗口背景透明度渐变动画
+    private ValueAnimator getShowAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, mShowAlpha);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
@@ -124,10 +124,8 @@ public class BasePopupWindow extends PopupWindow {
         return animator;
     }
 
-    /**
-     * 窗口隐藏，窗口背景透明度渐变动画
-     * */
-    private ValueAnimator dismissAnimator() {
+    //窗口隐藏，窗口背景透明度渐变动画
+    private ValueAnimator getDismissAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(mShowAlpha, 1.0f);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
@@ -141,9 +139,7 @@ public class BasePopupWindow extends PopupWindow {
         return animator;
     }
 
-    /**
-     * 为窗体添加outside点击事件
-     * */
+    ///为窗体添加outside点击事件
     private void addKeyListener(View contentView) {
         if(contentView != null) {
             contentView.setFocusable(true);
@@ -152,22 +148,17 @@ public class BasePopupWindow extends PopupWindow {
 
                 @Override
                 public boolean onKey(View view, int keyCode, KeyEvent event) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_BACK:
-                            dismiss();
-                            return true;
-                        default:
-                            break;
+                    if (keyCode == KeyEvent.KEYCODE_BACK){
+                        dismiss();
                     }
+
                     return false;
                 }
             });
         }
     }
 
-    /**
-     * 控制窗口背景的不透明度
-     * */
+    //控制窗口背景的不透明度
     private void setWindowBackgroundAlpha(float alpha) {
         Window window = ((Activity)getContext()).getWindow();
         WindowManager.LayoutParams layoutParams = window.getAttributes();

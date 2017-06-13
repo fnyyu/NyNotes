@@ -10,6 +10,6 @@ public class PathDrawingInfo extends PathInfo{
 
     @Override
     public void draw(Canvas canvas, int type) {
-        canvas.drawPath(path, paint);
+        canvas.drawPath(getPath(), getPaint());
     }
 }

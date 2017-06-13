@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 
 public interface IPictureView {
 
-    void onError();
+    void onCreateError();
     void setPictureBG(Bitmap bitmap);
     void showProgress();
     void hideProgress();

@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cvter on 2017/6/6.
@@ -12,35 +13,35 @@ import java.util.ArrayList;
 
 public abstract class PathInfo {
 
-    public Path path;
-    public Paint paint;
-    public ArrayList<ArrayList<PointInfo>> lines;
+    private Path mPath;
+    private Paint mPaint;
+    private ArrayList<ArrayList<PointInfo>> mLines;
 
 
     public abstract void draw(Canvas canvas, int type);
 
-    public void setPaint(Paint paint) {
-        this.paint = paint;
+    public void setPaint(Paint mPaint) {
+        this.mPaint = mPaint;
     }
 
-    public void setPath(Path path) {
-        this.path = path;
+    public void setPath(Path mPath) {
+        this.mPath = mPath;
     }
 
-    public void setLines(ArrayList<ArrayList<PointInfo>> lines) {
-        this.lines = lines;
+    public void List(ArrayList<ArrayList<PointInfo>> lines) {
+        this.mLines = lines;
     }
 
-    public ArrayList<ArrayList<PointInfo>> getLines() {
-        return lines;
+    public List<ArrayList<PointInfo>> getmLines() {
+        return mLines;
     }
 
     public Paint getPaint() {
-        return paint;
+        return mPaint;
     }
 
     public Path getPath() {
-        return path;
+        return mPath;
     }
 
 }

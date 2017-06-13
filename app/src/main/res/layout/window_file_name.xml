@@ -67,7 +67,7 @@
 
     <Button
         android:background="@drawable/file_shape"
-        android:id="@+id/fileName_button"
+        android:id="@+id/fileSave_button"
         android:layout_marginTop="10dp"
         android:layout_width="70dp"
         android:layout_height="40dp"

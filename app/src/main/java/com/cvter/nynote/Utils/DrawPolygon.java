@@ -9,8 +9,6 @@ import android.graphics.RectF;
 
 public class DrawPolygon {
 
-    public DrawPolygon(){}
-
    //画圆
     public void drawCircle(Path path, float startX, float startY, float endX, float endY){
         path.rewind();
@@ -97,17 +95,17 @@ public class DrawPolygon {
     }
 
     //画球体
-    public void drawSphere(Path path, float startX, float startY, float endX, float endY){
+    public void drawSphere(Path path){
         path.rewind();
     }
 
     //画圆锥
-    public void drawCone(Path path, float startX, float startY, float endX, float endY){
+    public void drawCone(Path path){
         path.rewind();
     }
 
     //画正方体
-    public void drawCube(Path path, float startX, float startY, float endX, float endY){
+    public void drawCube(Path path){
         path.rewind();
     }
 

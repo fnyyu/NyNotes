@@ -16,7 +16,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -34,10 +33,7 @@ import butterknife.Unbinder;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-
-    private View mContextView = null; //当前Activity渲染的视图View
-
-    private Unbinder mUnbinder;
+    private Unbinder mUnBinder;
 
     //需要进行检测的权限数组
     protected String[] mNeedPermissions = {
@@ -57,7 +53,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); //全屏
 
         setContentView(LayoutInflater.from(this).inflate(bindLayout(), null));
-        mUnbinder = ButterKnife.bind(this);
+        mUnBinder = ButterKnife.bind(this);
 
         checkPermissions(mNeedPermissions);
         
@@ -124,8 +120,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //检查应用权限设置
     private void checkPermissions(String... permissions){
         List<String> needRequestPermissionList = findDeniedPermissions(permissions);
-        if (null != needRequestPermissionList
-                && needRequestPermissionList.size() > 0) {
+        if (!needRequestPermissionList.isEmpty()) {
             ActivityCompat.requestPermissions(this,
                     needRequestPermissionList.toArray(
                             new String[needRequestPermissionList.size()]),
@@ -135,7 +130,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //获取申请权限列表
     private List<String> findDeniedPermissions(String[] permissions) {
-        List<String> needRequestPermissionList = new ArrayList<String>();
+        List<String> needRequestPermissionList = new ArrayList<>();
         for (String perm : permissions) {
             if (ContextCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED
                     || ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
@@ -196,17 +191,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (!verifyPermissions(grantResults)) {
-                showMissingPermissionDialog();
-            }
+        if (requestCode == PERMISSION_REQUEST_CODE && !verifyPermissions(grantResults)) {
+            showMissingPermissionDialog();
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mUnbinder.unbind();
+        mUnBinder.unbind();
     }
 
 }

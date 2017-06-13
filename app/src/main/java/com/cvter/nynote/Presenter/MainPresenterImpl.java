@@ -1,9 +1,9 @@
 package com.cvter.nynote.Presenter;
 
-import android.os.Handler;
-import android.os.Looper;
+import android.util.Log;
 
 import com.cvter.nynote.Model.NoteInfo;
+import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.IMainView;
 
 
@@ -23,20 +23,30 @@ import rx.schedulers.Schedulers;
 
 public class MainPresenterImpl implements IMainPresenter{
 
-    private IMainView iMainView;
-    private Handler handler;
+    private IMainView mIMainView;
+    private static final String TAG = "MainPresenterImpl";
 
-    private ArrayList<NoteInfo> notes = new ArrayList<>();
+    private ArrayList<NoteInfo> mNotes = new ArrayList<>();
 
     public MainPresenterImpl(IMainView iMainView){
-        this.iMainView = iMainView;
-        handler = new Handler(Looper.getMainLooper());
-
+        this.mIMainView = iMainView;
     }
 
     @Override
-    public void deleteNote() {
-
+    public boolean deleteNote(String path) {
+        File file = new File(Constants.PICTURE_PATH  + path);
+        if (file.exists()) { // 是否存在
+            if (file.isFile()) {
+                return file.delete();
+            } else if (file.isDirectory()) { // 如果它是一个目录
+                File[] files = file.listFiles();
+                for (File file1 : files) { // 遍历目录下所有的文件
+                    this.deleteNote(file1.getName()); // 迭代删除
+                }
+            }
+            return file.delete();
+        }
+        return false;
     }
 
     @Override
@@ -70,14 +80,15 @@ public class MainPresenterImpl implements IMainPresenter{
                 .subscribe(new Subscriber<NoteInfo>() {
                     @Override
                     public void onCompleted() {//onNext（）执行完后调用
-                        iMainView.onLoadImagesCompleted(notes);
+                        mIMainView.onLoadImagesCompleted(mNotes);
                     }
                     @Override
                     public void onError(Throwable e) {
+                        Log.e(TAG, e.getMessage());
                     }
                     @Override
                     public void onNext(NoteInfo note) {
-                        notes.add(note);
+                        mNotes.add(note);
                     }
                 });
 

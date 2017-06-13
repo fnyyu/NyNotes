@@ -1,8 +1,8 @@
 package com.cvter.nynote.Presenter;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.IPictureView;
@@ -19,10 +19,12 @@ import java.util.Date;
 
 public class PicturePresenterImpl implements PicturePresenter{
 
-    private IPictureView iPictureView;
+    private IPictureView mIPictureView;
 
-    public PicturePresenterImpl(IPictureView iPictureView, Context mContext){
-        this.iPictureView = iPictureView;
+    private static final String TAG = "PicturePresenterImpl";
+
+    public PicturePresenterImpl(IPictureView iPictureView){
+        this.mIPictureView = iPictureView;
     }
 
     //图片存放文件目录
@@ -37,23 +39,23 @@ public class PicturePresenterImpl implements PicturePresenter{
         File tempFile = new File(path, fileName);
         try {
             if (tempFile.exists() && !tempFile.delete()) {
-                iPictureView.onError();
+                mIPictureView.onCreateError();
                 return null;
 
             }
             if (!tempFile.createNewFile()) {
-                iPictureView.onError();
+                mIPictureView.onCreateError();
                 return null;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
         return tempFile;
     }
 
     //图片压缩
     @Override
-    public void getSmallBitmap(String photoPath) {
+    public void getSmallBitmap (String photoPath) {
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -64,22 +66,25 @@ public class PicturePresenterImpl implements PicturePresenter{
 
         Bitmap bm = BitmapFactory.decodeFile(photoPath, options);
         if (bm == null) {
-            iPictureView.onError();
+            mIPictureView.onCreateError();
         }
         ByteArrayOutputStream b = null;
+
         try {
             b = new ByteArrayOutputStream();
-            bm.compress(Bitmap.CompressFormat.JPEG, 30, b);
+            if(bm != null){
+                bm.compress(Bitmap.CompressFormat.JPEG, 30, b);
+            }
 
-        } finally {
+        }finally {
             try {
                 if (b != null)
                     b.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
         }
-        iPictureView.setPictureBG(bm);
+        mIPictureView.setPictureBG(bm);
 
     }
 

@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide;
 import com.cvter.nynote.Model.NoteInfo;
 import com.cvter.nynote.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cvter on 2017/6/5.
@@ -20,16 +20,16 @@ import java.util.ArrayList;
 public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecyclerAdapter.ThumbnailViewHolder>{
 
     private Context mContext;
-    private ArrayList<NoteInfo> notes;
+    private List<NoteInfo> mNotes;
 
-    public ThumbnailRecyclerAdapter(Context mContext, ArrayList<NoteInfo> notes){
+    public ThumbnailRecyclerAdapter(Context mContext, List<NoteInfo> notes){
         this.mContext = mContext;
-        this.notes = notes;
+        this.mNotes = notes;
 
     }
 
     public void clearData(){
-        notes.clear();
+        mNotes.clear();
     }
 
     @Override
@@ -41,9 +41,9 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
     @Override
     public void onBindViewHolder(ThumbnailViewHolder holder, int position) {
 
-        if(notes != null && notes.get(position) != null){
-            Glide.with(mContext).load(notes.get(position).getNotePic()).into(holder.thumbnailImageView);
-            String name = notes.get(position).getNoteName().replace(".jpg", "");
+        if(mNotes != null && mNotes.get(position) != null){
+            Glide.with(mContext).load(mNotes.get(position).getNotePic()).into(holder.thumbnailImageView);
+            String name = mNotes.get(position).getNoteName().replace(".jpg", "");
             holder.thumbnailTextView.setText(name);
         }
 
@@ -51,8 +51,8 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
     @Override
     public int getItemCount() {
-        if (notes != null && notes.size() != 0){
-            return notes.size();
+        if (mNotes != null && !mNotes.isEmpty()){
+            return mNotes.size();
         }
         return 0;
     }

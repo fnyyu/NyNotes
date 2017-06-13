@@ -19,45 +19,61 @@ import java.io.File;
 
 public class PictureAlertDialog extends AlertDialog {
 
-    DrawActivity context;
-    private static String photoPath = "";
+    private DrawActivity mContext;
+    private String mPhotoPath = "";
+    private TextView mGalleryTextView;
+    private TextView mCameraTextView;
 
     public PictureAlertDialog(DrawActivity context) {
         super(context);
-        this.context = context;
+        this.mContext = context;
         init();
     }
 
     private void init() {
-        View view = View.inflate(context, R.layout.dialog_select_photo, null);
-        TextView tv_select_gallery = (TextView) view.findViewById(R.id.tv_select_gallery);
-        TextView tv_select_camera = (TextView) view.findViewById(R.id.tv_select_camera);
-        tv_select_gallery.setOnClickListener(new View.OnClickListener() {// 在相册中选取
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(Intent.ACTION_PICK, null);
-                intent1.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                context.startActivityForResult(intent1, Constants.GALLEY_PICK);
-                dismiss();
-            }
-        });
-        tv_select_camera.setOnClickListener(new View.OnClickListener() {// 调用照相机
-            @Override
-            public void onClick(View v) {
-                Intent intent2 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                File file = context.picturePresenter.createImgFile();
-                photoPath = file.getPath();
-                Uri uri = Uri.fromFile(file);
-                intent2.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                context.startActivityForResult(intent2, Constants.TAKE_PHOTO);// 采用ForResult打开
-                dismiss();
-            }
-        });
+        View view = View.inflate(mContext, R.layout.dialog_select_photo, null);
+        mGalleryTextView = (TextView) view.findViewById(R.id.gallery_textView);
+        mCameraTextView = (TextView) view.findViewById(R.id.camera_textView);
+        setListener();
         setView(view);
         show();
     }
 
-    public static String getPhotoPath() {
-        return photoPath;
+    private void setListener() {
+        mGalleryTextView.setOnClickListener(new View.OnClickListener() {// 在相册中选取
+            @Override
+            public void onClick(View v) {
+                skipToGallery();
+                dismiss();
+            }
+        });
+        mCameraTextView.setOnClickListener(new View.OnClickListener() {// 调用照相机
+            @Override
+            public void onClick(View v) {
+                skipToCamera();
+                dismiss();
+            }
+        });
+    }
+
+    //跳转到相册
+    private void skipToGallery(){
+        Intent intentGallery = new Intent(Intent.ACTION_PICK, null);
+        intentGallery.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        mContext.startActivityForResult(intentGallery, Constants.GALLEY_PICK);
+    }
+
+    //跳转到相机
+    private void skipToCamera(){
+        Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File file = mContext.getPicturePresenter().createImgFile();
+        mPhotoPath = file.getPath();
+        Uri uri = Uri.fromFile(file);
+        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        mContext.startActivityForResult(intentCamera, Constants.TAKE_PHOTO);// 采用ForResult打开
+    }
+
+    public String getPhotoPath() {
+        return mPhotoPath;
     }
 }

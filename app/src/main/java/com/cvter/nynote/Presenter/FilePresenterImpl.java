@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
-import com.cvter.nynote.Utils.Constants;
 import com.cvter.nynote.View.SaveListener;
 
 import java.io.File;
@@ -32,18 +31,20 @@ public class FilePresenterImpl implements IFilePresenter {
             @Override
             public void run() {
                 try{
-                    File file = new File(Constants.PICTURE_PATH + "/" + path + ".jpg");
-                    file.createNewFile();
-                    OutputStream outputStream = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
-                    outputStream.close();
+                    File file = new File(path);
+                    if (file.createNewFile()){
+                        OutputStream outputStream = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+                        outputStream.close();
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onSuccess();
-                        }
-                    });
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onSuccess();
+                            }
+                        });
+                    }
+
                 }catch (final Exception e){
                     handler.post(new Runnable() {
                         @Override

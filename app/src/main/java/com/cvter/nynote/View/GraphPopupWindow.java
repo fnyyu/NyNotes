@@ -1,10 +1,12 @@
 package com.cvter.nynote.View;
 
+import android.app.Activity;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.cvter.nynote.Activity.DrawActivity;
+import com.cvter.nynote.Model.PaintInfo;
 import com.cvter.nynote.R;
 import com.cvter.nynote.Utils.Constants;
 
@@ -15,23 +17,25 @@ import com.cvter.nynote.Utils.Constants;
 
 public class GraphPopupWindow extends BasePopupWindow implements View.OnClickListener{
 
-    private DrawActivity mContext;
+    private Activity mContext;
+    private PaintInfo mPaint;
 
-    private ImageView circleImageView;
-    private ImageView lineImageView;
-    private ImageView squareImageView;
+    private ImageView mCircleImageView;
+    private ImageView mLineImageView;
+    private ImageView mSquareImageView;
 
-    private ImageView deltaImageView;
-    private ImageView pentagonImageView;
-    private ImageView starImageView;
+    private ImageView mDeltaImageView;
+    private ImageView mPentagonImageView;
+    private ImageView mStarImageView;
 
-    private ImageView coneImageView;
-    private ImageView sphereImageView;
-    private ImageView cubeImageView;
+    private ImageView mConeImageView;
+    private ImageView mSphereImageView;
+    private ImageView mCubeImageView;
 
-    public GraphPopupWindow(DrawActivity context, int width, int height) {
+    public GraphPopupWindow(Activity context, Paint paint, int width, int height) {
         super(context, width, height);
         this.mContext = context;
+        this.mPaint = (PaintInfo) paint;
         initLayout();
     }
 
@@ -39,29 +43,29 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
         View graphView = LayoutInflater.from(mContext).inflate(R.layout.window_graph_species, null);
         this.setContentView(graphView);
 
-        circleImageView = (ImageView) graphView.findViewById(R.id.circle_imageView);
-        lineImageView = (ImageView) graphView.findViewById(R.id.line_imageView);
-        squareImageView = (ImageView) graphView.findViewById(R.id.square_imageView);
-        coneImageView = (ImageView) graphView.findViewById(R.id.cone_imageView);
-        sphereImageView = (ImageView) graphView.findViewById(R.id.sphere_imageView);
-        cubeImageView = (ImageView) graphView.findViewById(R.id.cube_imageView);
-        deltaImageView = (ImageView) graphView.findViewById(R.id.delta_imageView);
-        pentagonImageView = (ImageView) graphView.findViewById(R.id.pentagon_imageView);
-        starImageView = (ImageView) graphView.findViewById(R.id.star_imageView);
+        mCircleImageView = (ImageView) graphView.findViewById(R.id.circle_imageView);
+        mLineImageView = (ImageView) graphView.findViewById(R.id.line_imageView);
+        mSquareImageView = (ImageView) graphView.findViewById(R.id.square_imageView);
+        mConeImageView = (ImageView) graphView.findViewById(R.id.cone_imageView);
+        mSphereImageView = (ImageView) graphView.findViewById(R.id.sphere_imageView);
+        mCubeImageView = (ImageView) graphView.findViewById(R.id.cube_imageView);
+        mDeltaImageView = (ImageView) graphView.findViewById(R.id.delta_imageView);
+        mPentagonImageView = (ImageView) graphView.findViewById(R.id.pentagon_imageView);
+        mStarImageView = (ImageView) graphView.findViewById(R.id.star_imageView);
 
     }
 
     public void setListener() {
 
-        circleImageView.setOnClickListener(this);
-        lineImageView.setOnClickListener(this);
-        squareImageView.setOnClickListener(this);
-        coneImageView.setOnClickListener(this);
-        sphereImageView.setOnClickListener(this);
-        cubeImageView.setOnClickListener(this);
-        deltaImageView.setOnClickListener(this);
-        pentagonImageView.setOnClickListener(this);
-        starImageView.setOnClickListener(this);
+        mCircleImageView.setOnClickListener(this);
+        mLineImageView.setOnClickListener(this);
+        mSquareImageView.setOnClickListener(this);
+        mConeImageView.setOnClickListener(this);
+        mSphereImageView.setOnClickListener(this);
+        mCubeImageView.setOnClickListener(this);
+        mDeltaImageView.setOnClickListener(this);
+        mPentagonImageView.setOnClickListener(this);
+        mStarImageView.setOnClickListener(this);
 
     }
 
@@ -69,39 +73,42 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.circle_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.CIRCLE);
+                mPaint.setGraphType(Constants.CIRCLE);
                 break;
 
             case R.id.line_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.LINE);
+                mPaint.setGraphType(Constants.LINE);
                 break;
 
             case R.id.square_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.SQUARE);
+                mPaint.setGraphType(Constants.SQUARE);
                 break;
 
             case R.id.cone_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.CONE);
+               mPaint.setGraphType(Constants.CONE);
                 break;
 
             case R.id.sphere_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.SPHERE);
+                mPaint.setGraphType(Constants.SPHERE);
                 break;
 
             case R.id.cube_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.CUBE);
+                mPaint.setGraphType(Constants.CUBE);
                 break;
 
             case R.id.delta_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.DELTA);
+                mPaint.setGraphType(Constants.DELTA);
                 break;
 
             case R.id.pentagon_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.PENTAGON);
+                mPaint.setGraphType(Constants.PENTAGON);
                 break;
 
             case R.id.star_imageView:
-                mContext.drawPaintView.mPaint.setGraphType(Constants.STAR);
+                mPaint.setGraphType(Constants.STAR);
+                break;
+
+            default:
                 break;
         }
     }

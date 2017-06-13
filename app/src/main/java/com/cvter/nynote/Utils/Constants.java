@@ -10,16 +10,20 @@ public class Constants {
 
     public static final String PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote";//sd路径
 
-    public static final String PICTURE_PATH = PATH + "/pic";//note图片路径
+    public static final String PICTURE_FILE_PATH = PATH + "/pic";//note图片文件夹路径
+    public static final String PICTURE_PATH = PATH + "/pic/";//note图片路径
 
-    public final static int TAKE_PHOTO = 1;
-    public final static int GALLEY_PICK = 2;
+    //背景照片选择
+    public static final int TAKE_PHOTO = 1;
+    public static final int GALLEY_PICK = 2;
 
+    //画笔模式
     public enum Mode{
         DRAW,
         ERASER
     }
 
+    //绘制图形
     public static final int ORDINARY = 0;
     public static final int CIRCLE = 1;
     public static final int LINE = 2;

@@ -6,8 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
@@ -34,7 +34,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private Canvas mCanvas;
     private Path mPath;
     private Path mGraphPath;
-    public PaintInfo mPaint;
+    private PaintInfo mPaint;
     private float mLastX;
     private float mLastY;
 
@@ -48,9 +48,10 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private Bitmap mBufferBitmap;
 
     private PathWFCallback mCallback;
-    private MyThread myThread;
+    private MyThread mMyThread;
 
     DrawPolygon mDrawPolygon;
+    private static final String TAG = "PaintView";
 
     public PaintView(Context context) {
         super(context);
@@ -150,15 +151,18 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case Constants.SPHERE:
-                mDrawPolygon.drawSphere(mGraphPath, mLastX, mLastY, x, y);
+                mDrawPolygon.drawSphere(mGraphPath);
                 break;
 
             case Constants.CONE:
-                mDrawPolygon.drawCone(mGraphPath, mLastX, mLastY, x, y);
+                mDrawPolygon.drawCone(mGraphPath);
                 break;
 
             case Constants.CUBE:
-                mDrawPolygon.drawCube(mGraphPath, mLastX, mLastY, x, y);
+                mDrawPolygon.drawCube(mGraphPath);
+                break;
+
+            default:
                 break;
 
         }
@@ -190,14 +194,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         this.setKeepScreenOn(true);
         mPaint = new PaintInfo();
         mPaint.setStrokeWidth(20);
-        myThread = new MyThread(mHolder);
+        mMyThread = new MyThread(mHolder);
         mDrawPolygon = new DrawPolygon();
-    }
-
-    //画布初始化
-    private void initBuffer(){
-        mBufferBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_4444);
-        mCanvas = new Canvas(mBufferBitmap);
     }
 
     @Override
@@ -233,16 +231,16 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     @Override
     public void surfaceCreated(SurfaceHolder arg0) {
 
-        if (myThread.getState() == Thread.State.TERMINATED) {
-            myThread = new MyThread(mHolder);
+        if (mMyThread.getState() == Thread.State.TERMINATED) {
+            mMyThread = new MyThread(mHolder);
         }
-        myThread.isDrawing = true;
-        myThread.start();
+        mMyThread.isDrawing = true;
+        mMyThread.start();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder arg0) {
-        myThread.isDrawing = false;
+        mMyThread.isDrawing = false;
     }
 
     //保存路径
@@ -261,13 +259,17 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         }
         cachePaint = new Paint(mPaint);
         PathDrawingInfo info = new PathDrawingInfo();
-        info.path = cachePath;
-        info.paint = cachePaint;
+        info.setPath(cachePath);
+        info.setPaint(cachePaint);
         mDrawingList.add(info);
         mCanEraser = true;
         if (mCallback != null) {
             mCallback.pathWFState();
         }
+    }
+
+    public PaintInfo getPaint() {
+        return mPaint;
     }
 
     //是否有背景图片
@@ -287,22 +289,22 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
 
     //支持反撤销
     public boolean canWithdraw() {
-        return mRemovedList != null && mRemovedList.size() > 0;
+        return mRemovedList != null && !mRemovedList.isEmpty();
     }
 
     //支持撤销
     public boolean canForward(){
-        return mDrawingList != null && mDrawingList.size() > 0;
+        return mDrawingList != null && !mDrawingList.isEmpty();
     }
 
     //撤销
     public void withdraw() {
-        int size = mRemovedList == null ? 0 : mRemovedList.size();
+        int size = mRemovedList.isEmpty() ? 0 : mRemovedList.size();
         if (size > 0) {
             PathInfo info = mRemovedList.remove(size - 1);
             mDrawingList.add(info);
             mCanEraser = true;
-            if (mDrawingList != null) {
+            if (!mDrawingList.isEmpty()) {
                 mBufferBitmap.eraseColor(Color.TRANSPARENT);
                 for (PathInfo pathInfo : mDrawingList) {
                     pathInfo.draw(mCanvas, mPaint.getGraphType());
@@ -327,7 +329,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 mCanEraser = false;
             }
             mRemovedList.add(info);
-            if (mDrawingList != null) {
+            if (!mDrawingList.isEmpty()) {
                 mBufferBitmap.eraseColor(Color.TRANSPARENT);
                 for (PathInfo pathInfo : mDrawingList) {
                     pathInfo.draw(mCanvas, mPaint.getGraphType());
@@ -384,12 +386,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         public void run() {
             while (isDrawing) {
                 Canvas canvas = holder.lockCanvas();
-                //mCanvas = mHolder.lockCanvas();
                 if (canvas != null) {
                     // 绘制背景色
                     canvas.drawColor(Color.WHITE);
                     if(mBufferBitmap == null){
-                        initBuffer();
+                        mBufferBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_4444);
+                        mCanvas = new Canvas(mBufferBitmap);
                     }
                     canvas.drawBitmap(mBufferBitmap, 0, 0, null);
                     holder.unlockCanvasAndPost(canvas);
@@ -398,7 +400,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                     // 休眠20ms
                     TimeUnit.MILLISECONDS.sleep(20);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, e.getMessage());
                 }
             }
         }

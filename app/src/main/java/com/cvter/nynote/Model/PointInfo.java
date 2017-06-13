@@ -5,22 +5,22 @@ package com.cvter.nynote.Model;
  */
 
 public class PointInfo {
-    float pointX;
-    float pointY;
+    private float mPointX;
+    private float mPointY;
 
     public void setPointX(float pointX) {
-        this.pointX = pointX;
+        this.mPointX = pointX;
     }
 
     public void setPointY(float pointY) {
-        this.pointY = pointY;
+        this.mPointY = pointY;
     }
 
     public float getPointX() {
-        return pointX;
+        return mPointX;
     }
 
     public float getPointY() {
-        return pointY;
+        return mPointY;
     }
 }

@@ -36,53 +36,47 @@ import com.cvter.nynote.View.PaintView;
 import com.cvter.nynote.View.PictureAlertDialog;
 
 
-import java.util.concurrent.TimeUnit;
-
 import butterknife.BindView;
 import butterknife.OnClick;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 
 
 public class DrawActivity extends BaseActivity implements IPictureView, PathWFCallback {
 
-    public PicturePresenter picturePresenter;
+    private PicturePresenter mPicturePresenter;
+
     @BindView(R.id.save_progressBar)
-    ProgressBar saveProgressBar;
-
-    private String skipType = "";
-
+    ProgressBar mSaveProgressBar;
     @BindView(R.id.reading_titile_layout)
-    ConstraintLayout readingTitleLayout;
+    ConstraintLayout mReadingTitleLayout;
     @BindView(R.id.draw_activity_layout)
-    RelativeLayout drawActivityLayout;
+    RelativeLayout mDrawActivityLayout;
     @BindView(R.id.drawing_title_layout)
-    LinearLayout drawingTitleLayout;
+    LinearLayout mDrawingTitleLayout;
     @BindView(R.id.front_activity_layout)
-    LinearLayout frontActivityLayout;
-    @BindView(R.id.pen_imageView)
-    public ImageView penImageView;
-    @BindView(R.id.eraser_imageView)
-    public ImageView eraserImageView;
-    @BindView(R.id.withdraw_imageView)
-    ImageView withdrawImageView;
-    @BindView(R.id.forward_imageView)
-    ImageView forwardImageView;
-    @BindView(R.id.draw_paintView)
-    public PaintView drawPaintView;
+    LinearLayout mFrontActivityLayout;
 
-    public static int paintWidth = 20;
+    @BindView(R.id.pen_imageView)
+    ImageView mPenImageView;
+    @BindView(R.id.eraser_imageView)
+    ImageView mEraserImageView;
+    @BindView(R.id.withdraw_imageView)
+    ImageView mWithdrawImageView;
+    @BindView(R.id.forward_imageView)
+    ImageView mForwardImageView;
+
+    @BindView(R.id.draw_paintView)
+    PaintView mDrawPaintView;
+
     private FilePopupWindow mFilePopupWindow;
     private PaintPopupWindow mPaintPopupWindow;
     private GraphPopupWindow mGraphPopupWindow;
-    private PictureAlertDialog pictureDialog;
+    private PictureAlertDialog mPictureDialog;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case AlertDialog.BUTTON_POSITIVE:// "保存"按钮弹出PopupWindow
-                    mFilePopupWindow.showAtLocation(drawActivityLayout, Gravity.CENTER, 0, 0);
+                    mFilePopupWindow.showAtLocation(mDrawActivityLayout, Gravity.CENTER, 0, 0);
                     break;
 
                 case AlertDialog.BUTTON_NEGATIVE:// "取消"按钮退出该界面
@@ -96,17 +90,17 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     protected void initWidget(Bundle bundle) {
-        drawActivityLayout.setClickable(true);
+        mDrawActivityLayout.setClickable(true);
 
         mFilePopupWindow = new FilePopupWindow(this, 800, 0);
-        mPaintPopupWindow = new PaintPopupWindow(this, 700, 500);
-        mGraphPopupWindow = new GraphPopupWindow(this, 500, 400);
+        mPaintPopupWindow = new PaintPopupWindow(this, mDrawPaintView.getPaint(), 700, 500);
+        mGraphPopupWindow = new GraphPopupWindow(this, mDrawPaintView.getPaint(), 500, 400);
 
-        picturePresenter = new PicturePresenterImpl(this, this);
+        mPicturePresenter = new PicturePresenterImpl(this);
 
-        drawPaintView.setCallback(this);
-        withdrawImageView.setEnabled(false);
-        forwardImageView.setEnabled(false);
+        mDrawPaintView.setCallback(this);
+        mWithdrawImageView.setEnabled(false);
+        mForwardImageView.setEnabled(false);
     }
 
     @Override
@@ -130,20 +124,19 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void doBusiness(Context context) {
-        //skipType = getIntent().getExtras().getString("skipType");
-        skipType = "new_edit";
+        String skipType = getIntent().getExtras().getString("skipType");
         if (skipType != null && !skipType.equals("")) {
             switch (skipType) {
                 case "new_edit":
-                    frontActivityLayout.setVisibility(View.GONE);
-                    readingTitleLayout.setVisibility(View.GONE);
-                    drawingTitleLayout.setVisibility(View.VISIBLE);
+                    mFrontActivityLayout.setVisibility(View.GONE);
+                    mReadingTitleLayout.setVisibility(View.GONE);
+                    mDrawingTitleLayout.setVisibility(View.VISIBLE);
                     break;
 
                 case "read_note":
-                    frontActivityLayout.setVisibility(View.VISIBLE);
-                    frontActivityLayout.bringToFront();
-                    frontActivityLayout.setClickable(true);
+                    mFrontActivityLayout.setVisibility(View.VISIBLE);
+                    mFrontActivityLayout.bringToFront();
+                    mFrontActivityLayout.setClickable(true);
                     break;
 
                 default:
@@ -155,16 +148,16 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @OnClick(R.id.front_activity_layout)
     public void onViewClicked() {
-        if (readingTitleLayout.getVisibility() == View.GONE) {
-            readingTitleLayout.setAlpha(0f);
-            readingTitleLayout.setVisibility(View.VISIBLE);
-            readingTitleLayout.animate().alpha(1f).setDuration(2000).setListener(null);
+        if (mReadingTitleLayout.getVisibility() == View.GONE) {
+            mReadingTitleLayout.setAlpha(0f);
+            mReadingTitleLayout.setVisibility(View.VISIBLE);
+            mReadingTitleLayout.animate().alpha(1f).setDuration(2000).setListener(null);
 
         } else {
-            readingTitleLayout.animate().alpha(0f).setDuration(1000).setListener(new AnimatorListenerAdapter() {
+            mReadingTitleLayout.animate().alpha(0f).setDuration(1000).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    readingTitleLayout.setVisibility(View.GONE);
+                    mReadingTitleLayout.setVisibility(View.GONE);
                 }
             });
         }
@@ -193,9 +186,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
         switch (view.getId()) {
             case R.id.draw_imageView:
-                readingTitleLayout.setVisibility(View.GONE);
-                drawingTitleLayout.setVisibility(View.VISIBLE);
-                frontActivityLayout.setVisibility(View.GONE);
+                mReadingTitleLayout.setVisibility(View.GONE);
+                mDrawingTitleLayout.setVisibility(View.VISIBLE);
+                mFrontActivityLayout.setVisibility(View.GONE);
 
                 break;
 
@@ -212,44 +205,47 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.pen_imageView:
-                drawPaintView.mPaint.setGraphType(Constants.ORDINARY);
-                drawPaintView.mPaint.setPenRawSize(paintWidth);
-                mPaintPopupWindow.showAsDropDown(drawingTitleLayout);
+                mDrawPaintView.getPaint().setGraphType(Constants.ORDINARY);
+                mDrawPaintView.getPaint().setPenRawSize(mDrawPaintView.getPaint().getPenRawSize());
+                mPaintPopupWindow.showAsDropDown(mDrawingTitleLayout);
                 view.setSelected(true);
-                eraserImageView.setSelected(false);
-                drawPaintView.mPaint.setMode(Constants.Mode.DRAW);
+                mEraserImageView.setSelected(false);
+                mDrawPaintView.getPaint().setMode(Constants.Mode.DRAW);
                 break;
 
             case R.id.eraser_imageView:
                 view.setSelected(true);
-                penImageView.setSelected(false);
-                drawPaintView.mPaint.setMode(Constants.Mode.ERASER);
-                drawPaintView.mPaint.setGraphType(Constants.ORDINARY);
-                drawPaintView.mPaint.setOrdinaryPen();
+                mPenImageView.setSelected(false);
+                mDrawPaintView.getPaint().setMode(Constants.Mode.ERASER);
+                mDrawPaintView.getPaint().setGraphType(Constants.ORDINARY);
+                mDrawPaintView.getPaint().setOrdinaryPen();
                 break;
 
             case R.id.withdraw_imageView:
-                drawPaintView.withdraw();
+                mDrawPaintView.withdraw();
                 break;
 
             case R.id.picture_imageView:
-                pictureDialog = new PictureAlertDialog(this);
+                mPictureDialog = new PictureAlertDialog(this);
                 break;
 
             case R.id.graph_imageView:
-                mGraphPopupWindow.showAsDropDown(drawingTitleLayout, 330, 10);
+                mGraphPopupWindow.showAsDropDown(mDrawingTitleLayout, 330, 10);
                 break;
 
             case R.id.forward_imageView:
-                drawPaintView.forward();
+                mDrawPaintView.forward();
                 break;
 
             case R.id.clear_imageView:
-                drawPaintView.clear();
+                mDrawPaintView.clear();
                 break;
 
             case R.id.save_imageView:
-                mFilePopupWindow.showAtLocation(drawActivityLayout, Gravity.CENTER, 0, -60);
+                mFilePopupWindow.showAtLocation(mDrawActivityLayout, Gravity.CENTER, 0, -60);
+                break;
+
+            default:
                 break;
 
         }
@@ -267,7 +263,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     cursor.moveToFirst();
                     String path = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
                     cursor.close();
-                    picturePresenter.getSmallBitmap(path);
+                    mPicturePresenter.getSmallBitmap(path);
                 }
                 break;
 
@@ -279,7 +275,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                             setPictureBG(bitmap);
                         }
                     } else {
-                        picturePresenter.getSmallBitmap(pictureDialog.getPhotoPath());
+                        mPicturePresenter.getSmallBitmap(mPictureDialog.getPhotoPath());
                     }
                 }
                 break;
@@ -291,34 +287,50 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     }
 
     @Override
-    public void onError() {
+    public void onCreateError() {
         showToast("Create Fail !");
     }
 
     @Override
     public void setPictureBG(Bitmap bitmap) {
-        drawPaintView.setBackground(new BitmapDrawable(bitmap));
-        drawPaintView.bringToFront();
-        drawPaintView.setZOrderOnTop(true);
-        drawPaintView.getHolder().setFormat(PixelFormat.TRANSPARENT);
-        drawPaintView.setIsHasBG(true);
+        mDrawPaintView.setBackground(new BitmapDrawable(bitmap));
+        mDrawPaintView.bringToFront();
+        mDrawPaintView.setZOrderOnTop(true);
+        mDrawPaintView.getHolder().setFormat(PixelFormat.TRANSPARENT);
+        mDrawPaintView.setIsHasBG(true);
     }
 
     @Override
     public void showProgress() {
-        saveProgressBar.bringToFront();
-        saveProgressBar.setVisibility(View.VISIBLE);
+        mSaveProgressBar.bringToFront();
+        mSaveProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideProgress() {
-        saveProgressBar.setVisibility(View.GONE);
+        mSaveProgressBar.setVisibility(View.GONE);
     }
 
     @Override
     public void pathWFState() {
-        withdrawImageView.setEnabled(drawPaintView.canWithdraw());
-        forwardImageView.setEnabled(drawPaintView.canForward());
+        mWithdrawImageView.setEnabled(mDrawPaintView.canWithdraw());
+        mForwardImageView.setEnabled(mDrawPaintView.canForward());
+    }
+
+    public PicturePresenter getPicturePresenter(){
+        return mPicturePresenter;
+    }
+
+    public ImageView getPenImageView() {
+        return mPenImageView;
+    }
+
+    public ImageView getEraserImageView() {
+        return mEraserImageView;
+    }
+
+    public PaintView getDrawPaintView() {
+        return mDrawPaintView;
     }
 
 }

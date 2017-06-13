@@ -1,13 +1,14 @@
 package com.cvter.nynote.View;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.cvter.nynote.Activity.DrawActivity;
+import com.cvter.nynote.Model.PaintInfo;
 import com.cvter.nynote.R;
 import com.cvter.nynote.Utils.Constants;
 
@@ -19,17 +20,24 @@ import com.cvter.nynote.Utils.Constants;
 public class PaintPopupWindow extends BasePopupWindow implements View.OnClickListener {
 
     private DrawActivity mContext;
+    private PaintInfo mPaint;
 
-    private ImageView pencilImageView, fountainImageView, dropperImageView,
-            brushImageView, brushWideImageView;
-    private ImageView blackImageView, blueImageView, greenImageView,
-            yellowImageView, redImageView;
-    private SeekBar widthSeekBar;
-    private TextView progressTextView;
+    private ImageView mPencilImageView;
+    private ImageView mFountainImageView;
+    private ImageView mDropperImageView;
+    private ImageView mBrushImageView;
+    private ImageView mBrushWideImageView;
+    private ImageView mBlackImageView;
+    private ImageView mBlueImageView;
+    private ImageView mGreenImageView;
+    private ImageView mYellowImageView;
+    private ImageView mRedImageView;
+    private SeekBar mWidthSeekBar;
 
 
-    public PaintPopupWindow(DrawActivity context, int width, int height){
+    public PaintPopupWindow(DrawActivity context, Paint paint, int width, int height){
         super(context, width, height);
+        this.mPaint = (PaintInfo) paint;
         this.mContext = context;
         initLayout();
     }
@@ -38,29 +46,41 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
         View viewPaint = LayoutInflater.from(mContext).inflate(R.layout.window_pen_species, null);
         this.setContentView(viewPaint);
 
-        pencilImageView = (ImageView) viewPaint.findViewById(R.id.pencil_imageView);
-        fountainImageView = (ImageView) viewPaint.findViewById(R.id.fountain_imageView);
-        dropperImageView = (ImageView) viewPaint.findViewById(R.id.dropper_imageView);
-        brushImageView = (ImageView) viewPaint.findViewById(R.id.brush_imageView);
-        brushWideImageView = (ImageView) viewPaint.findViewById(R.id.brush_wide_imageView);
+        mPencilImageView = (ImageView) viewPaint.findViewById(R.id.pencil_imageView);
+        mFountainImageView = (ImageView) viewPaint.findViewById(R.id.fountain_imageView);
+        mDropperImageView = (ImageView) viewPaint.findViewById(R.id.dropper_imageView);
+        mBrushImageView = (ImageView) viewPaint.findViewById(R.id.brush_imageView);
+        mBrushWideImageView = (ImageView) viewPaint.findViewById(R.id.brush_wide_imageView);
 
-        widthSeekBar = (SeekBar) viewPaint.findViewById(R.id.paint_width_seekBar);
-        progressTextView = (TextView) viewPaint.findViewById(R.id.progress_textView);
+        mWidthSeekBar = (SeekBar) viewPaint.findViewById(R.id.paint_width_seekBar);
 
-        blackImageView = (ImageView) viewPaint.findViewById(R.id.black_imageView);
-        greenImageView = (ImageView) viewPaint.findViewById(R.id.green_imageView);
-        blueImageView = (ImageView) viewPaint.findViewById(R.id.blue_imageView);
-        redImageView = (ImageView) viewPaint.findViewById(R.id.red_imageView);
-        yellowImageView = (ImageView) viewPaint.findViewById(R.id.yellow_imageView);
+        mBlackImageView = (ImageView) viewPaint.findViewById(R.id.black_imageView);
+        mGreenImageView = (ImageView) viewPaint.findViewById(R.id.green_imageView);
+        mBlueImageView = (ImageView) viewPaint.findViewById(R.id.blue_imageView);
+        mRedImageView = (ImageView) viewPaint.findViewById(R.id.red_imageView);
+        mYellowImageView = (ImageView) viewPaint.findViewById(R.id.yellow_imageView);
 
-        widthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+    }
+
+    public void setListener() {
+        mPencilImageView.setOnClickListener(this);
+        mFountainImageView.setOnClickListener(this);
+        mDropperImageView.setOnClickListener(this);
+        mBrushImageView.setOnClickListener(this);
+        mBrushWideImageView.setOnClickListener(this);
+
+        mBlackImageView.setOnClickListener(this);
+        mGreenImageView.setOnClickListener(this);
+        mBlueImageView.setOnClickListener(this);
+        mYellowImageView.setOnClickListener(this);
+        mRedImageView.setOnClickListener(this);
+
+        mWidthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                mContext.paintWidth = i;
-                progressTextView.setText(i + "");
-                mContext.eraserImageView.setSelected(false);
-                mContext.drawPaintView.mPaint.setMode(Constants.Mode.DRAW);
-                mContext.drawPaintView.mPaint.setPenRawSize(DrawActivity.paintWidth);
+                mContext.getEraserImageView().setSelected(false);
+                mContext.getDrawPaintView().getPaint().setMode(Constants.Mode.DRAW);
+                mContext.getDrawPaintView().getPaint().setPenRawSize(i);
             }
 
             @Override
@@ -70,21 +90,8 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
+
         });
-    }
-
-    public void setListener() {
-        pencilImageView.setOnClickListener(this);
-        fountainImageView.setOnClickListener(this);
-        dropperImageView.setOnClickListener(this);
-        brushImageView.setOnClickListener(this);
-        brushWideImageView.setOnClickListener(this);
-
-        blackImageView.setOnClickListener(this);
-        greenImageView.setOnClickListener(this);
-        blueImageView.setOnClickListener(this);
-        yellowImageView.setOnClickListener(this);
-        redImageView.setOnClickListener(this);
 
     }
 
@@ -92,43 +99,46 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.pencil_imageView:
-                mContext.drawPaintView.mPaint.setOrdinaryPen();
+                mPaint.setOrdinaryPen();
                 break;
 
             case R.id.fountain_imageView:
-                mContext.drawPaintView.mPaint.setDashPen();
+                mPaint.setDashPen();
                 break;
 
             case R.id.dropper_imageView:
-                mContext.drawPaintView.mPaint.setTransPen();
+                mPaint.setTransPen();
                 break;
 
             case R.id.brush_imageView:
-                mContext.drawPaintView.mPaint.setDiscretePen();
+                mPaint.setDiscretePen();
                 break;
 
             case R.id.brush_wide_imageView:
-                mContext.drawPaintView.mPaint.setInkPen();
+                mPaint.setInkPen();
                 break;
 
             case R.id.black_imageView:
-                mContext.drawPaintView.mPaint.setPenColor(Color.BLACK);
+                mPaint.setPenColor(Color.BLACK);
                 break;
 
             case R.id.green_imageView:
-                mContext.drawPaintView.mPaint.setPenColor(Color.GREEN);
+                mPaint.setPenColor(Color.GREEN);
                 break;
 
             case R.id.blue_imageView:
-                mContext.drawPaintView.mPaint.setPenColor(Color.BLUE);
+                mPaint.setPenColor(Color.BLUE);
                 break;
 
             case R.id.red_imageView:
-                mContext.drawPaintView.mPaint.setPenColor(Color.RED);
+                mPaint.setPenColor(Color.RED);
                 break;
 
             case R.id.yellow_imageView:
-                mContext.drawPaintView.mPaint.setPenColor(Color.YELLOW);
+                mPaint.setPenColor(Color.YELLOW);
+                break;
+
+            default:
                 break;
         }
     }

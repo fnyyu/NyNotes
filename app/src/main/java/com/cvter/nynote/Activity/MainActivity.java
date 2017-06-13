@@ -17,22 +17,21 @@ import com.cvter.nynote.View.IMainView;
 import com.yalantis.phoenix.PullToRefreshView;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
 public class MainActivity extends BaseActivity implements IMainView {
 
-    IMainPresenter mPresenter;
+    private IMainPresenter mPresenter;
     @BindView(R.id.new_note_floatingActionButton)
-    FloatingActionButton newNoteFloatingActionButton;
+    FloatingActionButton mNewNoteFloatingActionButton;
     @BindView(R.id.thumbnail_recyclerView)
-    RecyclerView thumbnailRecyclerView;
+    RecyclerView mThumbnailRecyclerView;
     @BindView(R.id.refresh_pullToRefreshView)
-    com.yalantis.phoenix.PullToRefreshView refreshPullToRefreshView;
+    com.yalantis.phoenix.PullToRefreshView mRefreshPullToRefreshView;
 
     private ThumbnailRecyclerAdapter mAdapter;
 
@@ -60,18 +59,18 @@ public class MainActivity extends BaseActivity implements IMainView {
     @Override
     public void setListener() {
 
-        refreshPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+        mRefreshPullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshPullToRefreshView.postDelayed(new Runnable() {
+                mRefreshPullToRefreshView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        refreshPullToRefreshView.setRefreshing(false);
+                        mRefreshPullToRefreshView.setRefreshing(false);
                     }
                 }, 1000);
 
                 mAdapter.clearData();
-                thumbnailRecyclerView.removeAllViews();
+                mThumbnailRecyclerView.removeAllViews();
                 doBusiness(MainActivity.this);
             }
         });
@@ -81,7 +80,7 @@ public class MainActivity extends BaseActivity implements IMainView {
     @Override
     public void doBusiness(Context context) {
 
-        File file = new File(Constants.PICTURE_PATH);
+        File file = new File(Constants.PICTURE_FILE_PATH);
         mPresenter.getNoteImage(file);
 
     }
@@ -94,22 +93,17 @@ public class MainActivity extends BaseActivity implements IMainView {
     }
 
     @Override
-    public void updateListCompleted() {
-
-    }
-
-    @Override
-    public void onLoadImagesCompleted(ArrayList<NoteInfo> notes) {
-        thumbnailRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+    public void onLoadImagesCompleted(List<NoteInfo> notes) {
+        mThumbnailRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         mAdapter = new ThumbnailRecyclerAdapter(MainActivity.this, notes);
-        thumbnailRecyclerView.setAdapter(mAdapter);
+        mThumbnailRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
     protected void onResume() {
         if (mAdapter != null) {
             mAdapter.clearData();
-            thumbnailRecyclerView.removeAllViews();
+            mThumbnailRecyclerView.removeAllViews();
             doBusiness(MainActivity.this);
         }
         super.onResume();

@@ -56,6 +56,10 @@ public class PaintInfo extends Paint {
         this.setStrokeWidth(mDrawSize);
     }
 
+    public int getPenRawSize(){
+        return mDrawSize;
+    }
+
     public void setPenColor(int color) {
         setColor(color);
     }
@@ -96,10 +100,6 @@ public class PaintInfo extends Paint {
         path.addCircle(0, 0, 3, Path.Direction.CCW);
         PathEffect pathEffect = new PathDashPathEffect(path, mDrawSize, mDrawSize, PathDashPathEffect.Style.ROTATE);
         setPathEffect(pathEffect);
-    }
-
-    public void setStroke(Paint.Cap strokeCap){
-        this.setStrokeCap(strokeCap);
     }
 
     public void setGraphType(int type){
