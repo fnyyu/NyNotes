@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.cvter.nynote.View.PaintView
+    <com.cvter.nynote.view.PaintView
         android:background="@android:color/transparent"
         android:layout_marginTop="50dp"
         android:id="@+id/draw_paintView"

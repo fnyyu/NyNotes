@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         >
 
-        <activity android:name=".Activity.BannerActivity"
+        <activity android:name=".activity.BannerActivity"
             android:theme="@style/NoTitleTheme"
             android:screenOrientation="portrait"
             >
@@ -24,12 +24,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activity.MainActivity"
+        <activity android:name=".activity.MainActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait"
             />
 
-        <activity android:name=".Activity.DrawActivity"
+        <activity android:name=".activity.DrawActivity"
             android:theme="@style/NoTitleTheme"
             android:screenOrientation="portrait"
             />
