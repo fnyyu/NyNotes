@@ -42,7 +42,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
     @Override
     public ThumbnailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView=View.inflate(mContext, R.layout.item_recyclerview,null);
+        View itemView=View.inflate(mContext, R.layout.item_thum_recyclerview,null);
         return new ThumbnailViewHolder(itemView);
     }
 
@@ -77,7 +77,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
         final AlertDialog isExit = new AlertDialog.Builder(mContext).create();
         isExit.setTitle(mContext.getString(R.string.tips));
-        isExit.setMessage(mContext.getString(R.string.delete_note));
+        isExit.setMessage(mContext.getString(R.string.delete_note) + " [ " + mNotes.get(position).getNoteName().replace(".jpg", " ]"));
         isExit.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.sure), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

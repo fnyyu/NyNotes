@@ -50,7 +50,6 @@ public class FileAlertDialog extends AlertDialog {
         saveAsXML = (CheckBox) fileView.findViewById(R.id.save_xml_checkBox);
         mSaveAsImgCheckBox = (CheckBox) fileView.findViewById(R.id.save_img_checkBox);
         mFilePresenter = new FilePresenterImpl(mContext);
-        setListener();
         setView(fileView);
     }
 
@@ -101,7 +100,9 @@ public class FileAlertDialog extends AlertDialog {
                 mContext.getDrawPaintView().getHeight(), Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(bitmap);
         if (mContext.getDrawPaintView().getIsHasBG()){ //若存在背景图片
-            mContext.getDrawPaintView().draw(canvas);
+            canvas.drawColor(Color.WHITE);
+            canvas.drawBitmap(mContext.getDrawPaintView().getBackgroundBitmap(), 0, 0, null);
+            canvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);
         } else {
             canvas.drawColor(Color.WHITE);
             canvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);

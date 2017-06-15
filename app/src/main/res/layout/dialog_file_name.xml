@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:background="@drawable/file_shape"
+    android:background="@drawable/dialog_shape"
     android:layout_width="match_parent"
     android:layout_gravity="center"
     android:padding="10dp"
@@ -59,14 +59,14 @@
         android:id="@+id/fileName_editText"
         android:inputType="text"
         android:layout_marginTop="5dp"
-        android:background="@drawable/file_shape"
+        android:background="@drawable/dialog_shape"
         android:layout_width="match_parent"
         android:textSize="14sp"
         android:padding="5dp"
         android:layout_height="40dp" />
 
     <Button
-        android:background="@drawable/file_shape"
+        android:background="@drawable/dialog_shape"
         android:id="@+id/fileSave_button"
         android:layout_marginTop="10dp"
         android:layout_width="70dp"

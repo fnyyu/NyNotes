@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
@@ -24,7 +23,6 @@ import com.cvter.nynote.utils.DrawPolygon;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by cvter on 2017/6/6.
@@ -48,9 +46,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private boolean mCanEraser;
     private boolean mIsHasBG;
     private Bitmap mBufferBitmap;
+    private Bitmap mBackgroundBitmap;
 
     private PathWFCallback mCallback;
-    private MyThread mMyThread;
 
     DrawPolygon mDrawPolygon;
     private static final String TAG = "PaintView";
@@ -99,7 +97,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
             default:
                 break;
         }
-
+        draw();
         return true;
     }
 
@@ -195,27 +193,26 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         this.setKeepScreenOn(true);
         mPaint = new PaintInfo();
         mPaint.setStrokeWidth(20);
-        mMyThread = new MyThread(mHolder);
         mBufferBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBufferBitmap);
         mDrawPolygon = new DrawPolygon();
     }
 
-    /*
-    @Override
-    protected void onDraw(Canvas canvas) {
-        if (mBufferBitmap != null && mPaint != null) {
-            canvas.drawBitmap(mBufferBitmap, 0, 0, null);
-        }
-        if (mPath != null && mPaint!= null) {
-            canvas.drawPath(mPath, mPaint);
-        }
-        if (mGraphPath != null && mPaint != null) {
-            canvas.drawPath(mGraphPath, mPaint);
+    //获取画布进行绘制
+    private void draw() {
+        Canvas canvas = mHolder.lockCanvas();
+        if (canvas != null) {
+            // 绘制背景色
+            canvas.drawColor(Color.WHITE);
+            if (mIsHasBG && mBackgroundBitmap != null) {
+                canvas.drawBitmap(mBackgroundBitmap, 0, 0, null);
+            }
+            drawBitmap(canvas);
+            mHolder.unlockCanvasAndPost(canvas);
         }
     }
-*/
-    //绘制
+
+    //绘制于bitmap上
     public void drawBitmap(Canvas canvas){
         if (mBufferBitmap != null && mPaint != null) {
             canvas.drawBitmap(mBufferBitmap, 0, 0, null);
@@ -235,17 +232,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
 
     @Override
     public void surfaceCreated(SurfaceHolder arg0) {
-
-        if (mMyThread.getState() == Thread.State.TERMINATED) {
-            mMyThread = new MyThread(mHolder);
-        }
-        mMyThread.isDrawing = true;
-        mMyThread.start();
+        draw();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder arg0) {
-        mMyThread.isDrawing = false;
     }
 
     //获取屏幕大小
@@ -325,6 +316,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 mCallback.pathWFState();
             }
         }
+
+        draw();
     }
 
     //撤销
@@ -347,6 +340,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 mCallback.pathWFState();
             }
         }
+
+        draw();
     }
 
     //清除
@@ -364,6 +359,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 mCallback.pathWFState();
             }
         }
+
+        draw();
     }
 
     @Override
@@ -379,32 +376,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     @Override
     public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {}
 
-    //线程
-    private class MyThread extends Thread {
-        private SurfaceHolder holder;
-        private boolean isDrawing = false;
-
-        MyThread(SurfaceHolder holder) {
-            this.holder = holder;
-        }
-
-        @Override
-        public void run() {
-            while (isDrawing) {
-                Canvas canvas = holder.lockCanvas();
-                if (canvas != null) {
-                    // 绘制背景色
-                    canvas.drawColor(Color.WHITE);
-                    drawBitmap(canvas);
-                    holder.unlockCanvasAndPost(canvas);
-                }
-                try {
-                    TimeUnit.MILLISECONDS.sleep(30);
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage());
-                }
-            }
-        }
+    //设置背景图片
+    public void setBackgroundBitmap(Bitmap backgroundBitmap) {
+        this.mBackgroundBitmap = Bitmap.createScaledBitmap(backgroundBitmap, getScreenSize()[0], getScreenSize()[1], true);
     }
 
+    public Bitmap getBackgroundBitmap() {
+        return mBackgroundBitmap;
+    }
 }

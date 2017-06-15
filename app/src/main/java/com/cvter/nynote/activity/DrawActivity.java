@@ -122,7 +122,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void doBusiness(Context context) {
-        String skipType = getIntent().getExtras().getString("skipType");
+        //String skipType = getIntent().getExtras().getString("skipType");
+        String skipType = "new_edit";
         if (skipType != null && !skipType.equals("")) {
             switch (skipType) {
                 case "new_edit":
@@ -291,7 +292,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void setPictureBG(Bitmap bitmap) {
-        mDrawPaintView.setBackground(new BitmapDrawable(bitmap));
+        mDrawPaintView.setBackgroundBitmap(bitmap);
         //mDrawPaintView.setZOrderOnTop(true);
         //mDrawPaintView.getHolder().setFormat(PixelFormat.TRANSPARENT);
         mDrawPaintView.setIsHasBG(true);
