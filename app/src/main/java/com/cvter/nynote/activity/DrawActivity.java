@@ -8,31 +8,33 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.cvter.nynote.R;
 import com.cvter.nynote.presenter.PathWFCallback;
 import com.cvter.nynote.presenter.PicturePresenter;
 import com.cvter.nynote.presenter.PicturePresenterImpl;
-import com.cvter.nynote.R;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.view.FileAlertDialog;
 import com.cvter.nynote.view.GraphPopupWindow;
 import com.cvter.nynote.view.IPictureView;
+import com.cvter.nynote.view.PagesPopupWindow;
 import com.cvter.nynote.view.PaintPopupWindow;
 import com.cvter.nynote.view.PaintView;
 import com.cvter.nynote.view.PictureAlertDialog;
-
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -64,11 +66,16 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @BindView(R.id.draw_paintView)
     PaintView mDrawPaintView;
+    @BindView(R.id.cur_pages_textView)
+    TextView mCurPagesTextView;
+    @BindView(R.id.all_pages_textView)
+    TextView mAllPagesTextView;
 
     private FileAlertDialog mFileAlertDialog;
     private PaintPopupWindow mPaintPopupWindow;
     private GraphPopupWindow mGraphPopupWindow;
     private PictureAlertDialog mPictureDialog;
+    private PagesPopupWindow mPagesPopupWindow;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -93,6 +100,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mFileAlertDialog = new FileAlertDialog(this);
         mPaintPopupWindow = new PaintPopupWindow(this, mDrawPaintView.getPaint(), 600, 400);
         mGraphPopupWindow = new GraphPopupWindow(this, mDrawPaintView.getPaint(), 500, 400);
+        mPagesPopupWindow = new PagesPopupWindow(this, getScreenSize()[0], getScreenSize()[1] / 3);
 
         mPicturePresenter = new PicturePresenterImpl(this);
 
@@ -118,12 +126,12 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mFileAlertDialog.setListener();
         mPaintPopupWindow.setListener();
         mGraphPopupWindow.setListener();
+        mPagesPopupWindow.setListener();
     }
 
     @Override
     public void doBusiness(Context context) {
-        //String skipType = getIntent().getExtras().getString("skipType");
-        String skipType = "new_edit";
+        String skipType = getIntent().getExtras().getString("skipType");
         if (skipType != null && !skipType.equals("")) {
             switch (skipType) {
                 case "new_edit":
@@ -207,7 +215,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 view.setSelected(true);
                 mEraserImageView.setSelected(false);
                 mDrawPaintView.getPaint().setMode(Constants.Mode.DRAW);
-                mDrawPaintView.getPaint().setGraphType(Constants.ORDINARY);
                 mDrawPaintView.getPaint().setPenRawSize(mDrawPaintView.getPaint().getPenRawSize());
                 mPaintPopupWindow.showAsDropDown(mDrawingTitleLayout, 0, 10);
                 break;
@@ -229,6 +236,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.graph_imageView:
+                mDrawPaintView.getPaint().setMode(Constants.Mode.DRAW);
                 mGraphPopupWindow.showAsDropDown(mDrawingTitleLayout, 330, 10);
                 break;
 
@@ -293,8 +301,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @Override
     public void setPictureBG(Bitmap bitmap) {
         mDrawPaintView.setBackgroundBitmap(bitmap);
-        //mDrawPaintView.setZOrderOnTop(true);
-        //mDrawPaintView.getHolder().setFormat(PixelFormat.TRANSPARENT);
         mDrawPaintView.setIsHasBG(true);
     }
 
@@ -315,7 +321,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mForwardImageView.setEnabled(mDrawPaintView.canForward());
     }
 
-    public PicturePresenter getPicturePresenter(){
+    public PicturePresenter getPicturePresenter() {
         return mPicturePresenter;
     }
 
@@ -327,4 +333,25 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         return mDrawPaintView;
     }
 
+    //获取屏幕大小
+    private int[] getScreenSize() {
+        WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(outMetrics);
+        return new int[]{outMetrics.widthPixels, outMetrics.heightPixels};
+    }
+
+    public TextView getCurPagesTextView() {
+        return mCurPagesTextView;
+    }
+
+    public TextView getAllPagesTextView() {
+        return mAllPagesTextView;
+    }
+
+    @OnClick(R.id.more_pages_linearLayout)
+    public void onPageViewClicked() {
+        mPagesPopupWindow.updateData(getScreenSize()[0], getScreenSize()[1]);
+        mPagesPopupWindow.showAsDropDown(mCurPagesTextView, 0, 50);
+    }
 }

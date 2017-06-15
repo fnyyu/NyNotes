@@ -37,8 +37,9 @@ public class PaintInfo extends Paint {
         setStyle(Paint.Style.STROKE);
         setFilterBitmap(true);
         setStrokeCap(Paint.Cap.ROUND);
+        setStrokeJoin(Join.ROUND);
         setColor(mPenColor);
-        mClearMode = new PorterDuffXfermode(PorterDuff.Mode.SRC);
+        mClearMode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
     }
 
     public void setMode(Constants.Mode mode) {
@@ -77,35 +78,31 @@ public class PaintInfo extends Paint {
 
     public void setOrdinaryPen(){
         setAlpha(255);
-        setStrokeCap(Paint.Cap.ROUND);
         setMaskFilter(null);
         setPathEffect(null);
     }
 
     public void setTransPen(){
         setAlpha(70);
-        setStrokeCap(Paint.Cap.SQUARE);
         setMaskFilter(null);
         setPathEffect(null);
     }
 
     public void setInkPen(){
         setAlpha(255);
-        setStrokeCap(Paint.Cap.ROUND);
+        setStrokeCap(Cap.SQUARE);
         setMaskFilter(new BlurMaskFilter(mDrawSize, BlurMaskFilter.Blur.NORMAL));
         setPathEffect(null);
     }
 
     public void setDiscretePen(){
         setAlpha(255);
-        setStrokeCap(Paint.Cap.ROUND);
         setMaskFilter(null);
         setPathEffect(new DiscretePathEffect(2.0F, 5.0F));
     }
 
     public void setDashPen(){
         setAlpha(255);
-        setStrokeCap(Paint.Cap.ROUND);
         setMaskFilter(null);
         Path path = new Path();
         path.addCircle(0, 0, 3, Path.Direction.CCW);

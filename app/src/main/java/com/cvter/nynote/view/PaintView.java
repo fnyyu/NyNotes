@@ -51,7 +51,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private PathWFCallback mCallback;
 
     DrawPolygon mDrawPolygon;
-    private static final String TAG = "PaintView";
 
     public PaintView(Context context) {
         super(context);
@@ -138,7 +137,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case Constants.DELTA:
-                mDrawPolygon.drawDelta(mGraphPath, y-mLastY, mLastX, mLastY);
+                mDrawPolygon.drawDelta(mGraphPath, ((y - mLastY) * 2 / 3), mLastX, mLastY);
                 break;
 
             case Constants.PENTAGON:
@@ -239,14 +238,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     public void surfaceDestroyed(SurfaceHolder arg0) {
     }
 
-    //获取屏幕大小
-    private int[] getScreenSize( ) {
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(outMetrics);
-        return new int[]{outMetrics.widthPixels, outMetrics.heightPixels};
-    }
-
     //保存路径
     private void saveDrawingPath(){
         Path cachePath;
@@ -272,25 +263,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         }
     }
 
-    public PaintInfo getPaint() {
-        return mPaint;
-    }
-
-    //是否有背景图片
-    public void setIsHasBG(boolean mIsHasBG) {
-        this.mIsHasBG = mIsHasBG;
-    }
-
-    //获取是否存在背景图片
-    public boolean getIsHasBG() {
-        return mIsHasBG;
-    }
-
-    //返回bitmap
-    public Bitmap getBitmap(){
-        return mBufferBitmap;
-    }
-
     //支持反撤销
     public boolean canWithdraw() {
         return mRemovedList != null && !mRemovedList.isEmpty();
@@ -301,7 +273,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         return mDrawingList != null && !mDrawingList.isEmpty();
     }
 
-    //反撤销
+    //恢复
     public void withdraw() {
         int size = mRemovedList == null ? 0 : mRemovedList.size();
         if (size > 0 && mRemovedList != null) {
@@ -376,6 +348,33 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     @Override
     public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {}
 
+    //获取屏幕大小
+    private int[] getScreenSize( ) {
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(outMetrics);
+        return new int[]{outMetrics.widthPixels, outMetrics.heightPixels};
+    }
+
+    public PaintInfo getPaint() {
+        return mPaint;
+    }
+
+    //是否有背景图片
+    public void setIsHasBG(boolean mIsHasBG) {
+        this.mIsHasBG = mIsHasBG;
+    }
+
+    //获取是否存在背景图片
+    public boolean getIsHasBG() {
+        return mIsHasBG;
+    }
+
+    //返回bitmap
+    public Bitmap getBitmap(){
+        return mBufferBitmap;
+    }
+
     //设置背景图片
     public void setBackgroundBitmap(Bitmap backgroundBitmap) {
         this.mBackgroundBitmap = Bitmap.createScaledBitmap(backgroundBitmap, getScreenSize()[0], getScreenSize()[1], true);
@@ -383,5 +382,13 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
 
     public Bitmap getBackgroundBitmap() {
         return mBackgroundBitmap;
+    }
+
+    public List<PathInfo> getDrawingList() {
+        return mDrawingList;
+    }
+
+    public void setDrawingList(List<PathInfo> mDrawingList) {
+        this.mDrawingList = mDrawingList;
     }
 }

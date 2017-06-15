@@ -97,25 +97,32 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
+
         switch (view.getId()){
+
             case R.id.pencil_imageView:
                 mPaint.setOrdinaryPen();
+                mPaint.setGraphType(Constants.ORDINARY);
                 break;
 
             case R.id.fountain_imageView:
                 mPaint.setDashPen();
+                mPaint.setGraphType(Constants.ORDINARY);
                 break;
 
             case R.id.dropper_imageView:
                 mPaint.setTransPen();
+                mPaint.setGraphType(Constants.ORDINARY);
                 break;
 
             case R.id.brush_imageView:
                 mPaint.setDiscretePen();
+                mPaint.setGraphType(Constants.ORDINARY);
                 break;
 
             case R.id.brush_wide_imageView:
                 mPaint.setInkPen();
+                mPaint.setGraphType(Constants.ORDINARY);
                 break;
 
             case R.id.black_imageView:

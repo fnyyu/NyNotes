@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         >
 
-        <activity android:name=".activity.DrawActivity"
+        <activity android:name=".activity.BannerActivity"
             android:theme="@style/NoTitleTheme"
             android:screenOrientation="portrait"
             >
@@ -29,7 +29,7 @@
             android:screenOrientation="portrait"
             />
 
-        <activity android:name=".activity.BannerActivity"
+        <activity android:name=".activity.DrawActivity"
             android:theme="@style/NoTitleTheme"
             android:screenOrientation="portrait"
             />

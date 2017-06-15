@@ -39,7 +39,8 @@
     <string name="delete_success">删除成功</string>
     <string name="delete_fail">删除失败</string>
 
-    <string name="page_num">1/1</string>
+    <string name="page">/</string>
+    <string name="current_page">1</string>
 
 
 </resources>

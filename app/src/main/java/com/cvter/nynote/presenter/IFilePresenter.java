@@ -13,5 +13,6 @@ public interface IFilePresenter {
     void saveAsXML();
     void saveAsImg(Bitmap bitmap, String path, SaveListener listener);
     void importXML();
+    Bitmap getCompressBitmap(Bitmap bitmap);
 
 }

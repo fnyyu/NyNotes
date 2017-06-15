@@ -37,8 +37,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <TextView
-        android:id="@+id/more_pages_textView"
+    <LinearLayout
+        android:id="@+id/more_pages_linearLayout"
         android:layout_centerHorizontal="true"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
@@ -47,9 +47,23 @@
         android:background="@drawable/text_view_shape"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:text="@string/page_num"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" >
+        <TextView
+            android:text="@string/current_page"
+            android:id="@+id/cur_pages_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="@string/page"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="@string/current_page"
+            android:id="@+id/all_pages_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 
 </RelativeLayout>
