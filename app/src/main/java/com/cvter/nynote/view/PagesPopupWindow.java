@@ -14,9 +14,8 @@ import android.widget.ImageView;
 import com.cvter.nynote.R;
 import com.cvter.nynote.activity.DrawActivity;
 import com.cvter.nynote.adapter.MorePagesRecyclerAdapter;
-import com.cvter.nynote.presenter.FilePresenterImpl;
-import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.presenter.RecyclerTouchCallback;
+import com.cvter.nynote.utils.Constants;
 
 
 /**
@@ -27,7 +26,6 @@ public class PagesPopupWindow extends BasePopupWindow {
 
     private DrawActivity mContext;
     private ImageView mMorePageImageView;
-    private IFilePresenter mFilePresenter;
 
     private MorePagesRecyclerAdapter mAdapter;
     private Bitmap mCurrentBitmap;
@@ -56,14 +54,12 @@ public class PagesPopupWindow extends BasePopupWindow {
         ItemTouchHelper touchHelper = new ItemTouchHelper(new RecyclerTouchCallback(mAdapter));
         touchHelper.attachToRecyclerView(morePageRecyclerView);
 
-        mFilePresenter = new FilePresenterImpl(mContext);
-
     }
 
     public void setListener(){
         Bitmap mAddBitmap = Bitmap.createBitmap(69, 110, Bitmap.Config.RGB_565);
         mAddBitmap.eraseColor(Color.WHITE);
-        final Bitmap finalBitmap = mFilePresenter.getCompressBitmap(mAddBitmap);
+        final Bitmap finalBitmap = Constants.getCompressBitmap(mAddBitmap);
         mMorePageImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -75,6 +71,7 @@ public class PagesPopupWindow extends BasePopupWindow {
         });
     }
 
+    //更新数据
     public void updateData(int width, int height){
         if (mAdapter.getPages().isEmpty()){
             setCurrentBitmap(width, height);
@@ -92,6 +89,7 @@ public class PagesPopupWindow extends BasePopupWindow {
         mCanvas.drawColor(Color.WHITE);
     }
 
+    //得到当前画布图片
     private Bitmap getCurrentBitmap(){
         mCurrentBitmap.eraseColor(Color.WHITE);
         mCanvas = new Canvas(mCurrentBitmap);

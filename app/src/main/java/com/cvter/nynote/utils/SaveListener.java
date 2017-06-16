@@ -1,4 +1,4 @@
-package com.cvter.nynote.view;
+package com.cvter.nynote.utils;
 
 /**
  * Created by cvter on 2017/6/9.

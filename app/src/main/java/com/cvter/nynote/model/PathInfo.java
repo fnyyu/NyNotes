@@ -15,8 +15,11 @@ public abstract class PathInfo {
 
     private Path mPath;
     private Paint mPaint;
-    private ArrayList<ArrayList<PointInfo>> mLines;
+    private ArrayList<PointInfo> mPointList;
+    private int mPaintType;
+    private int mGraphType;
 
+    public PathInfo(){}
 
     public abstract void draw(Canvas canvas, int type);
 
@@ -28,12 +31,28 @@ public abstract class PathInfo {
         this.mPath = mPath;
     }
 
-    public void List(ArrayList<ArrayList<PointInfo>> lines) {
-        this.mLines = lines;
+    public void setPaintType(int mPaintType) {
+        this.mPaintType = mPaintType;
     }
 
-    public List<ArrayList<PointInfo>> getmLines() {
-        return mLines;
+    public void setPointList(ArrayList<PointInfo> mPointList) {
+        this.mPointList = mPointList;
+    }
+
+    public void setGraphType(int mGraphType) {
+        this.mGraphType = mGraphType;
+    }
+
+    public int getGraphType() {
+        return mGraphType;
+    }
+
+    public ArrayList<PointInfo> getPointList() {
+        return mPointList;
+    }
+
+    public int getPaintType() {
+        return mPaintType;
     }
 
     public Paint getPaint() {
@@ -43,5 +62,6 @@ public abstract class PathInfo {
     public Path getPath() {
         return mPath;
     }
+
 
 }

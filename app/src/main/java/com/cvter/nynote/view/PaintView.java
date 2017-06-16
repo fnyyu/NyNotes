@@ -6,17 +6,20 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PixelFormat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 
 import com.cvter.nynote.model.PaintInfo;
 import com.cvter.nynote.model.PathDrawingInfo;
 import com.cvter.nynote.model.PathInfo;
+import com.cvter.nynote.model.PointInfo;
 import com.cvter.nynote.presenter.PathWFCallback;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.DrawPolygon;
@@ -37,11 +40,13 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private PaintInfo mPaint;
     private float mLastX;
     private float mLastY;
+    private int mMinDistance;
 
     private static final int MAX_CACHE_STEP = 20;
 
     private List<PathInfo> mDrawingList;
     private List<PathInfo> mRemovedList;
+    private ArrayList<PointInfo> mPointList;
 
     private boolean mCanEraser;
     private boolean mIsHasBG;
@@ -71,6 +76,22 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         mCallback = callback;
     }
 
+    //画板初始化
+    private void init() {
+        mHolder=getHolder();
+        mHolder.addCallback(this);
+        mHolder.setFormat(PixelFormat.TRANSLUCENT);
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+        this.setKeepScreenOn(true);
+        mPaint = new PaintInfo();
+        mPaint.setStrokeWidth(20);
+        mBufferBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
+        mCanvas = new Canvas(mBufferBitmap);
+        mDrawPolygon = new DrawPolygon();
+        mMinDistance = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -83,6 +104,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                if(Math.abs(x - mLastX) < mMinDistance && Math.abs(y - mLastY) < mMinDistance){
+                    return true;
+                }
                 if (mPaint.getMode() == Constants.Mode.ERASER && !mCanEraser) {
                     break;
                 }
@@ -90,7 +114,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case MotionEvent.ACTION_UP:
-                actionUp();
+                actionUp(x, y);
                 break;
 
             default:
@@ -102,6 +126,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
 
     //手指按下
     private void actionDown(float x, float y){
+        mPointList = new ArrayList<>();
+        mPointList.add(new PointInfo(x, y));
         mLastX = x;
         mLastY = y;
         if(mPaint.getGraphType() == Constants.ORDINARY){
@@ -117,8 +143,10 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
 
     //手指滑动
     private void actionMove(float x, float y){
+
         switch (mPaint.getGraphType()){
             case Constants.ORDINARY:
+                mPointList.add(new PointInfo(x, y));
                 mPath.quadTo(mLastX, mLastY, (x + mLastX) / 2, (y + mLastY) / 2);
                 mLastX = x;
                 mLastY = y;
@@ -167,7 +195,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     //手指抬起
-    private void actionUp(){
+    private void actionUp(float x, float y){
+        mPointList.add(new PointInfo(x, y));
+
         if (mPaint.getMode() == Constants.Mode.DRAW || mCanEraser) {
             saveDrawingPath();
         }
@@ -181,20 +211,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
             mCanvas.drawPath(mGraphPath, mPaint);
             mGraphPath.reset();
         }
-    }
 
-    //画笔初始化
-    private void init() {
-        mHolder=getHolder();
-        mHolder.addCallback(this);
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        this.setKeepScreenOn(true);
-        mPaint = new PaintInfo();
-        mPaint.setStrokeWidth(20);
-        mBufferBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
-        mCanvas = new Canvas(mBufferBitmap);
-        mDrawPolygon = new DrawPolygon();
+        mPointList = null;
     }
 
     //获取画布进行绘制
@@ -256,6 +274,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         PathDrawingInfo info = new PathDrawingInfo();
         info.setPath(cachePath);
         info.setPaint(cachePaint);
+        info.setPaintType(mPaint.getIntMode());
+        info.setPointList(mPointList);
+        info.setGraphType(mPaint.getGraphType());
         mDrawingList.add(info);
         mCanEraser = true;
         if (mCallback != null) {
@@ -263,12 +284,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         }
     }
 
-    //支持反撤销
+    //支持撤销
     public boolean canWithdraw() {
         return mRemovedList != null && !mRemovedList.isEmpty();
     }
 
-    //支持撤销
+    //支持恢复
     public boolean canForward(){
         return mDrawingList != null && !mDrawingList.isEmpty();
     }
@@ -384,11 +405,20 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         return mBackgroundBitmap;
     }
 
+    //获取当前全部路径
     public List<PathInfo> getDrawingList() {
         return mDrawingList;
     }
 
-    public void setDrawingList(List<PathInfo> mDrawingList) {
-        this.mDrawingList = mDrawingList;
+    // 设置要显示的路径
+    public void setDrawingList(List<PathInfo> newDrawPathList) {
+        this.mDrawingList = newDrawPathList;
+        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+            for(PathInfo drawPath : mDrawingList){
+                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+            }
+            draw();
+        }
     }
+
 }

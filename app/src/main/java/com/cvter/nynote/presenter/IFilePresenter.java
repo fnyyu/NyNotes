@@ -2,7 +2,11 @@ package com.cvter.nynote.presenter;
 
 import android.graphics.Bitmap;
 
-import com.cvter.nynote.view.SaveListener;
+import com.cvter.nynote.model.PathInfo;
+import com.cvter.nynote.utils.ImportListener;
+import com.cvter.nynote.utils.SaveListener;
+
+import java.util.List;
 
 /**
  * Created by cvter on 2017/6/9.
@@ -10,9 +14,8 @@ import com.cvter.nynote.view.SaveListener;
 
 public interface IFilePresenter {
 
-    void saveAsXML();
+    void saveAsXML(List<PathInfo> drawPaths, String path, SaveListener listener);
     void saveAsImg(Bitmap bitmap, String path, SaveListener listener);
-    void importXML();
-    Bitmap getCompressBitmap(Bitmap bitmap);
+    void importXML(String path, ImportListener listener);
 
 }

@@ -27,10 +27,8 @@ public class PaintInfo extends Paint {
     private int mPenColor = Color.BLACK;
 
     public PaintInfo(){
-
         super(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         init();
-
     }
 
     private void init() {
@@ -49,17 +47,22 @@ public class PaintInfo extends Paint {
                 setXfermode(null);
                 setPenColor(mPenColor);
             } else {
-
+                setAlpha(200);
+                //setColor(Color.WHITE);
                 setXfermode(mClearMode);
                 setStrokeWidth(40);
+
             }
         }
     }
 
-    @Override
-    public Xfermode setXfermode(Xfermode xfermode) {
-        setColor(Color.WHITE);
-        return super.setXfermode(xfermode);
+    public int getIntMode() {
+        if(mMode == Constants.Mode.DRAW){
+            return 0;
+        }else{
+            return 1;
+        }
+
     }
 
     public void setPenRawSize(int mDrawSize){
@@ -122,7 +125,4 @@ public class PaintInfo extends Paint {
         return mMode;
     }
 
-    public int getPenColor(){
-        return mPenColor;
-    }
 }

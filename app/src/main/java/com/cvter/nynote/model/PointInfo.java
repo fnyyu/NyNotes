@@ -1,26 +1,20 @@
 package com.cvter.nynote.model;
 
+import java.io.Serializable;
+
 /**
  * Created by cvter on 2017/6/10.
  */
 
-public class PointInfo {
-    private float mPointX;
-    private float mPointY;
+public class PointInfo implements Serializable{
 
-    public void setPointX(float pointX) {
-        this.mPointX = pointX;
-    }
+    public float mPointX;
+    public float mPointY;
 
-    public void setPointY(float pointY) {
-        this.mPointY = pointY;
-    }
+    public PointInfo(){}
 
-    public float getPointX() {
-        return mPointX;
-    }
-
-    public float getPointY() {
-        return mPointY;
+    public PointInfo(float x, float y){
+        this.mPointX = x;
+        this.mPointY = y;
     }
 }

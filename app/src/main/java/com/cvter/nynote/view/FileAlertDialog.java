@@ -11,11 +11,16 @@ import android.widget.EditText;
 import com.bigmercu.cBox.CheckBox;
 
 import com.cvter.nynote.activity.DrawActivity;
+import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.presenter.FilePresenterImpl;
 import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.R;
 import com.cvter.nynote.utils.Constants;
+import com.cvter.nynote.utils.SaveListener;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -66,19 +71,47 @@ public class FileAlertDialog extends AlertDialog {
                     mContext.showToast(mContext.getString(R.string.choose_saveWay));
                     return;
                 } else if (mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()){
+                    saveAsXML();
                     saveAsImage();
                 } else {
                     saveAsImage();
+                    saveAsXML();
                 }
             }
         });
 
     }
 
+    private void saveAsXML() {
+
+        File fatherFile = new File(Constants.XML_FILE_PATH);
+        if(!fatherFile.exists()){
+            fatherFile.mkdirs();
+        }
+
+        String filePath = Constants.XML_PATH +  mFileName + ".xml";
+
+        mFilePresenter.saveAsXML(getSavePath(), filePath, new SaveListener() {
+            @Override
+            public void onSuccess() {
+                saveSuccess();
+            }
+
+            @Override
+            public void onFail(String toastMessage) {
+                saveFail(toastMessage);
+            }
+        });
+    }
+
+    private List<PathInfo> getSavePath() {
+        return mContext.getDrawPaintView().getDrawingList();
+    }
+
     //保存成功
     private void saveSuccess(){
         mContext.showProgress();
-        Observable.timer(3, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Long>() {
+        Observable.timer(2, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Long>() {
             @Override
             public void call(Long aLong) {
                 mContext.hideProgress();

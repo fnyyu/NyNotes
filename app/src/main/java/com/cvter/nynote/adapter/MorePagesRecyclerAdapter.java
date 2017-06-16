@@ -62,14 +62,15 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     public void onItemSwipe(int fromPosition, int toPosition) {
         Collections.swap(mPages, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
-        notifyDataSetChanged();
+        notifyItemChanged(fromPosition);
+        notifyItemChanged(toPosition);
     }
 
     @Override
     public void onItemClear(int itemPosition) {
         mPages.remove(itemPosition);
         notifyItemRemoved(itemPosition);
-        notifyDataSetChanged();
+        notifyItemChanged(itemPosition);
         mContext.getAllPagesTextView().setText(Integer.toString(mPages.size()));
     }
 
