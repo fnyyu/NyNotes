@@ -55,6 +55,8 @@
         android:text="@string/fileName"/>
 
     <EditText
+        android:hint="@string/enter_way"
+        android:paddingLeft="10dp"
         android:labelFor="@+id/fileName_editText"
         android:id="@+id/fileName_editText"
         android:inputType="text"

@@ -17,6 +17,8 @@ import com.cvter.nynote.adapter.MorePagesRecyclerAdapter;
 import com.cvter.nynote.presenter.RecyclerTouchCallback;
 import com.cvter.nynote.utils.Constants;
 
+import java.util.ArrayList;
+
 
 /**
  * Created by cvter on 2017/6/14.
@@ -28,7 +30,6 @@ public class PagesPopupWindow extends BasePopupWindow {
     private ImageView mMorePageImageView;
 
     private MorePagesRecyclerAdapter mAdapter;
-    private Bitmap mCurrentBitmap;
     private Canvas mCanvas;
 
     public PagesPopupWindow(Activity context, int width, int height) {
@@ -65,33 +66,37 @@ public class PagesPopupWindow extends BasePopupWindow {
             public void onClick(View view) {
 
                 mAdapter.getPages().add(mAdapter.getItemCount(), finalBitmap);
-                mContext.getAllPagesTextView().setText(Integer.toString(mAdapter.getPages().size()));
+                mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
                 mAdapter.notifyDataSetChanged();
             }
         });
     }
 
     //更新数据
-    public void updateData(int width, int height){
+    public void updateData(int width, int height, int num){
         if (mAdapter.getPages().isEmpty()){
-            setCurrentBitmap(width, height);
             mAdapter.getPages().add(0, getCurrentBitmap());
+            mAdapter.notifyItemChanged(0);
         } else {
-            mAdapter.getPages().set(0, getCurrentBitmap());
+            mAdapter.getPages().remove(num -1 );
+
+            mAdapter.getPages().add(num - 1, getCurrentBitmap());
+            mAdapter.notifyItemChanged(num - 1);
         }
 
-        mAdapter.notifyDataSetChanged();
     }
 
     public void setCurrentBitmap(int width, int height) {
-        mCurrentBitmap = Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565);
+        Bitmap mCurrentBitmap = Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565);
         mCanvas = new Canvas(mCurrentBitmap);
         mCanvas.drawColor(Color.WHITE);
     }
 
     //得到当前画布图片
     private Bitmap getCurrentBitmap(){
-        mCurrentBitmap.eraseColor(Color.WHITE);
+        Bitmap mCurrentBitmap = Bitmap.createBitmap(Constants.getScreenSize(mContext)[0], Constants.getScreenSize(mContext)[1], Bitmap.Config.RGB_565);
+        mCanvas = new Canvas(mCurrentBitmap);
+        mCanvas.drawColor(Color.WHITE);
         mCanvas = new Canvas(mCurrentBitmap);
         mCanvas.drawColor(Color.WHITE);
 
@@ -104,6 +109,10 @@ public class PagesPopupWindow extends BasePopupWindow {
             mCanvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);
         }
         return mCurrentBitmap;
+    }
+
+    public void setSaveBitmapSize(int size){
+        mAdapter.setSaveBitmapSize(size);
     }
 
     @Override

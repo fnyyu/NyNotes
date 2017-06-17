@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,9 +20,13 @@ import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.SaveListener;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -40,7 +45,6 @@ public class FileAlertDialog extends AlertDialog {
     private CheckBox mSaveAsImgCheckBox;
     private String mFileName = "";
     private IFilePresenter mFilePresenter;
-
 
     public FileAlertDialog(Activity context) {
         super(context);
@@ -66,15 +70,23 @@ public class FileAlertDialog extends AlertDialog {
 
                 dismiss();
                 mFileName = mFileNameEditText.getText().toString();
+                if (mFileName.isEmpty() || mFileName.equals("")){
+                    mContext.showToast(mContext.getString(R.string.enter_null));
+                }
+
+                if(mFileName.equals(stringFilter(mFileName))){
+                    mContext.showToast(mContext.getString(R.string.enter_fail));
+                    mFileNameEditText.setText("");
+                }
+
                 if (!mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()){
                     mContext.hideProgress();
                     mContext.showToast(mContext.getString(R.string.choose_saveWay));
-                    return;
+
                 } else if (mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()){
-                    saveAsXML();
-                    saveAsImage();
+                    saveImage( Constants.PICTURE_PATH +  mFileName + ".png");
                 } else {
-                    saveAsImage();
+                    saveImage(Constants.PICTURE_PATH +  mFileName + ".png");
                     saveAsXML();
                 }
             }
@@ -84,14 +96,20 @@ public class FileAlertDialog extends AlertDialog {
 
     private void saveAsXML() {
 
-        File fatherFile = new File(Constants.XML_FILE_PATH);
-        if(!fatherFile.exists()){
-            fatherFile.mkdirs();
-        }
-
-        String filePath = Constants.XML_PATH +  mFileName + ".xml";
+        String filePath = Constants.TEMP_XML_PATH + "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".xml";
 
         mFilePresenter.saveAsXML(getSavePath(), filePath, new SaveListener() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onFail(String toastMessage) {
+                saveFail(toastMessage);
+            }
+        });
+
+        mFilePresenter.modifyTempFile(mFileName, new SaveListener() {
             @Override
             public void onSuccess() {
                 saveSuccess();
@@ -144,14 +162,11 @@ public class FileAlertDialog extends AlertDialog {
     }
 
     //保存为图片类型
-    private void saveAsImage(){
-
-        String filePath = Constants.PICTURE_PATH +  mFileName + ".jpg";
+    private void saveImage(String filePath){
 
         mFilePresenter.saveAsImg(getSaveBitmap(), filePath, new SaveListener() {
             @Override
             public void onSuccess() {
-                saveSuccess();
             }
 
             @Override
@@ -159,7 +174,15 @@ public class FileAlertDialog extends AlertDialog {
                 saveFail(toastMessage);
             }
         });
+
     }
 
+    private static String stringFilter(String str)throws PatternSyntaxException {
+        // 只允许字母、数字和汉字
+        String   regEx  =  "[^a-zA-Z0-9\u4E00-\u9FA5]";
+        Pattern p   =   Pattern.compile(regEx);
+        Matcher m   =   p.matcher(str);
+        return   m.replaceAll("").trim();
+    }
 
 }

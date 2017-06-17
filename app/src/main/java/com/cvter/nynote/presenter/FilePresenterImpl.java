@@ -2,7 +2,6 @@ package com.cvter.nynote.presenter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
@@ -68,6 +67,9 @@ public class FilePresenterImpl implements IFilePresenter {
                 OutputStream outputStream = null;
                 try {
                     File file = new File(path);
+                    if(file.exists()){
+                        file.delete();
+                    }
                     if(file.createNewFile()){
                         outputStream = new FileOutputStream(file);
 
@@ -144,6 +146,9 @@ public class FilePresenterImpl implements IFilePresenter {
             public void run() {
                 try{
                     File file = new File(path);
+                    if(file.exists()){
+                        file.delete();
+                    }
                     if (file.createNewFile()){
 
                         Bitmap compressBitmap = Constants.getCompressBitmap(bitmap);
@@ -333,6 +338,87 @@ public class FilePresenterImpl implements IFilePresenter {
 
     }
 
+    @Override
+    public void createTempFile( ) {
+
+        new HandlerThread("createTempFile"){
+            @Override
+            public void run() {
+                File file = new File(Constants.TEMP_PATH);
+                if(!file.exists()){
+                    file.mkdir();
+                }
+                File xmlFile = new File(Constants.TEMP_XML_PATH);
+                if(!xmlFile.exists()){
+                    xmlFile.mkdir();
+                }
+                File imageFile = new File(Constants.TEMP_IMG_PATH);
+                if(!imageFile.exists()){
+                    imageFile.mkdir();
+                }
+                File bgFile = new File(Constants.TEMP_BG_PATH);
+                if(!bgFile.exists()){
+                    bgFile.mkdir();
+                }
+            }
+        }.start();
+
+    }
+
+    @Override
+    public void modifyTempFile(final String fileName, final SaveListener listener) {
+        new HandlerThread("modifyTempFile"){
+            @Override
+            public void run() {
+                File file = new File(Constants.TEMP_PATH);
+                if(file.renameTo(new File(Constants.PATH + "/" + fileName))){
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onSuccess();
+                        }
+                    });
+                }else {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onFail(mContext.getString(R.string.save_fail));
+                        }
+                    });
+
+                }
+
+            }
+        }.start();
+    }
+
+    @Override
+    public void deleteTempFile() {
+        File fileXML = new File(Constants.TEMP_XML_PATH);
+        File fileImg = new File(Constants.TEMP_IMG_PATH);
+        if ( !fileXML.exists() || !fileXML.isDirectory())
+            return;
+        for (File file : fileXML.listFiles()) {
+            if (file.isFile())
+                file.delete(); // 删除所有文件
+        }
+        if (!fileImg.exists() || !fileImg.isDirectory())
+            return;
+        for (File file : fileImg.listFiles()) {
+            if (file.isFile())
+                file.delete(); // 删除所有文件
+        }
+    }
+
+    @Override
+    public int getFileSize(String filePath) {
+        File file = new File(filePath);
+        if(file.exists() && file.isDirectory()){
+           return file.listFiles().length;
+        }
+        return 0;
+    }
+
     private void saveFail(final SaveListener listener){
         mHandler.post(new Runnable() {
             @Override
@@ -423,5 +509,6 @@ public class FilePresenterImpl implements IFilePresenter {
                 break;
         }
     }
+
 
 }

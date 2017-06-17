@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -81,21 +82,21 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     private PictureAlertDialog mPictureDialog;
     private PagesPopupWindow mPagesPopupWindow;
 
-    private static final String NEW_EDIT = "new_edit";
-    private static final String READ_NOTE = "read_note";
     private String skipType = "";
+    private boolean ifCanDraw;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case AlertDialog.BUTTON_POSITIVE:// "保存"按钮弹出PopupWindow
-                    if(skipType.equals(NEW_EDIT)){
+                    if(skipType.equals(Constants.NEW_EDIT)){
                         mFileAlertDialog.show();
                     }
 
                     break;
 
                 case AlertDialog.BUTTON_NEGATIVE:// "取消"按钮退出该界面
+                    mFilePresenter.deleteTempFile();
                     finish();
                     break;
                 default:
@@ -125,7 +126,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void initParams(Bundle params) {
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Override
@@ -146,17 +147,23 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
         if (skipType != null && !skipType.equals("")) {
             switch (skipType) {
-                case NEW_EDIT:
+                case Constants.NEW_EDIT:
+                    mDrawPaintView.setIfCanDraw(true);
                     mFrontActivityLayout.setVisibility(View.GONE);
                     mReadingTitleLayout.setVisibility(View.GONE);
                     mDrawingTitleLayout.setVisibility(View.VISIBLE);
+                    ifCanDraw = true;
                     break;
 
-                case READ_NOTE:
+                case Constants.READ_NOTE:
+                    mDrawPaintView.setIfCanDraw(false);
+                    ifCanDraw = false;
                     mFrontActivityLayout.setVisibility(View.VISIBLE);
-                    mFrontActivityLayout.bringToFront();
+                    mAllPagesTextView.bringToFront();
+                    mAllPagesTextView.setClickable(true);
                     mFrontActivityLayout.setClickable(true);
-                    final String notePath = Constants.XML_PATH + getIntent().getStringExtra("noteName").replace(".jpg", ".xml");
+                    final String notePath = Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml/1.xml");
+                    mAllPagesTextView.setText(String.valueOf(mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml"))));
                     mFilePresenter.importXML(notePath, new ImportListener() {
                         @Override
                         public void onSuccess(List<PathInfo> info) {
@@ -188,7 +195,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             mReadingTitleLayout.animate().alpha(0f).setDuration(1000).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mReadingTitleLayout.setVisibility(View.GONE);
+                    if(mReadingTitleLayout != null){
+                        mReadingTitleLayout.setVisibility(View.GONE);
+                    }
                 }
             });
         }
@@ -197,7 +206,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && ifCanDraw) {
             AlertDialog isExit = new AlertDialog.Builder(this).create();
             isExit.setTitle(getString(R.string.tips));
             isExit.setMessage(getString(R.string.save_note));
@@ -220,6 +229,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 mReadingTitleLayout.setVisibility(View.GONE);
                 mDrawingTitleLayout.setVisibility(View.VISIBLE);
                 mFrontActivityLayout.setVisibility(View.GONE);
+                mDrawPaintView.setIfCanDraw(true);
+                ifCanDraw = true;
 
                 break;
 
@@ -302,12 +313,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
             case Constants.TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    if (data != null) {
-                        if (data.hasExtra("data")) {
-                            Bitmap bitmap = data.getParcelableExtra("data");
-                            setPictureBG(bitmap);
-                        }
-                    } else {
+                    if(mPictureDialog.getPhotoPath() != null){
                         mPicturePresenter.getSmallBitmap(mPictureDialog.getPhotoPath());
                     }
                 }
@@ -333,13 +339,17 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     public void showProgress() {
-        mSaveProgressBar.bringToFront();
-        mSaveProgressBar.setVisibility(View.VISIBLE);
+        if (mSaveProgressBar != null){
+            mSaveProgressBar.bringToFront();
+            mSaveProgressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public void hideProgress() {
-        mSaveProgressBar.setVisibility(View.GONE);
+        if (mSaveProgressBar != null){
+            mSaveProgressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -370,10 +380,10 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @OnClick(R.id.more_pages_linearLayout)
     public void onPageViewClicked() {
-        mPagesPopupWindow.updateData(Constants.getScreenSize(this)[0], Constants.getScreenSize(this)[1]);
+        mPagesPopupWindow.updateData(Constants.getScreenSize(this)[0], Constants.getScreenSize(this)[1],
+                Integer.parseInt(mCurPagesTextView.getText().toString()));
         mPagesPopupWindow.showAsDropDown(mCurPagesTextView, 0, 50);
+        mPagesPopupWindow.setSaveBitmapSize(mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml")));
     }
-
-
 
 }

@@ -30,6 +30,9 @@
     <string name="save_as_xml">XML文件</string>
 
     <string name="choose_saveWay">请选择保存方式</string>
+    <string name="enter_fail">请输入正确的文件名</string>
+    <string name="enter_way">支持中英文、数字</string>
+    <string name="enter_null">请输入文件名</string>
     <string name="save_success">保存成功</string>
     <string name="save_fail">保存失败</string>
     <string name="import_fail">读取失败</string>

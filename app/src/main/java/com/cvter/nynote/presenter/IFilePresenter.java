@@ -17,5 +17,9 @@ public interface IFilePresenter {
     void saveAsXML(List<PathInfo> drawPaths, String path, SaveListener listener);
     void saveAsImg(Bitmap bitmap, String path, SaveListener listener);
     void importXML(String path, ImportListener listener);
+    void createTempFile();
+    void modifyTempFile(String fileName, SaveListener listener);
+    void deleteTempFile();
+    int getFileSize(String filePath);
 
 }

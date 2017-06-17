@@ -41,6 +41,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private float mLastX;
     private float mLastY;
     private int mMinDistance;
+    private boolean ifCanDraw;
 
     private static final int MAX_CACHE_STEP = 20;
 
@@ -94,6 +95,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if(!ifCanDraw){
+            return false;
+        }
 
         final float x = event.getX();
         final float y = event.getY();
@@ -399,6 +403,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     //设置背景图片
     public void setBackgroundBitmap(Bitmap backgroundBitmap) {
         this.mBackgroundBitmap = Bitmap.createScaledBitmap(backgroundBitmap, getScreenSize()[0], getScreenSize()[1], true);
+        draw();
     }
 
     public Bitmap getBackgroundBitmap() {
@@ -421,4 +426,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         }
     }
 
+    public void setIfCanDraw(boolean ifCanDraw) {
+        this.ifCanDraw = ifCanDraw;
+    }
 }

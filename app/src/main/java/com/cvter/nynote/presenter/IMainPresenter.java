@@ -8,7 +8,7 @@ import java.io.File;
 
 public interface IMainPresenter {
 
-    boolean deleteNote(String path);
+    boolean deleteNote(File file);
     void getNoteImage(File file);
 
 }

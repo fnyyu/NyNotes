@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 
 import com.cvter.nynote.adapter.ThumbnailRecyclerAdapter;
 import com.cvter.nynote.model.NoteInfo;
+import com.cvter.nynote.presenter.FilePresenterImpl;
+import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.presenter.IMainPresenter;
 import com.cvter.nynote.presenter.MainPresenterImpl;
 import com.cvter.nynote.R;
@@ -26,6 +28,8 @@ import butterknife.OnClick;
 public class MainActivity extends BaseActivity implements IMainView {
 
     private IMainPresenter mIMainPresenter;
+    private IFilePresenter mIFilePresenter;
+
     @BindView(R.id.new_note_floatingActionButton)
     FloatingActionButton mNewNoteFloatingActionButton;
     @BindView(R.id.thumbnail_recyclerView)
@@ -42,6 +46,7 @@ public class MainActivity extends BaseActivity implements IMainView {
     @Override
     protected void initWidget(Bundle bundle) {
         mIMainPresenter = new MainPresenterImpl(this);
+        mIFilePresenter = new FilePresenterImpl(this);
     }
 
     @Override
@@ -80,6 +85,9 @@ public class MainActivity extends BaseActivity implements IMainView {
     public void doBusiness(Context context) {
 
         File file = new File(Constants.PICTURE_FILE_PATH);
+        if(!file.exists()){
+            file.mkdirs();
+        }
         mIMainPresenter.getNoteImage(file);
 
     }
@@ -88,6 +96,7 @@ public class MainActivity extends BaseActivity implements IMainView {
     public void onViewClicked() {
         Bundle bundle = new Bundle();
         bundle.putString("skipType", "new_edit");
+        mIFilePresenter.createTempFile();
         startActivity(DrawActivity.class, bundle);
     }
 

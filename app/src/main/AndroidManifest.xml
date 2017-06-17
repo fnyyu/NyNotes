@@ -13,8 +13,8 @@
         android:supportsRtl="true"
         >
 
-        <activity android:name=".activity.BannerActivity"
-            android:theme="@style/NoTitleTheme"
+        <activity android:name=".activity.MainActivity"
+            android:theme="@style/AppTheme"
             android:screenOrientation="portrait"
             >
             <intent-filter>
@@ -24,14 +24,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.MainActivity"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"
-            />
-
         <activity android:name=".activity.DrawActivity"
             android:theme="@style/NoTitleTheme"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             />
     </application>
 

@@ -37,7 +37,7 @@ public class PaintInfo extends Paint {
         setStrokeCap(Paint.Cap.ROUND);
         setStrokeJoin(Join.ROUND);
         setColor(mPenColor);
-        mClearMode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+        mClearMode = new PorterDuffXfermode(PorterDuff.Mode.DST_OUT);
     }
 
     public void setMode(Constants.Mode mode) {
@@ -48,7 +48,7 @@ public class PaintInfo extends Paint {
                 setPenColor(mPenColor);
             } else {
                 setAlpha(200);
-                //setColor(Color.WHITE);
+                setColor(Color.WHITE);
                 setXfermode(mClearMode);
                 setStrokeWidth(40);
 

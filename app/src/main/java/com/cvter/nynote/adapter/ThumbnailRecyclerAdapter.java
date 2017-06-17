@@ -22,6 +22,7 @@ import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.ImportListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
         if(mNotes != null && mNotes.get(position) != null){
             Glide.with(mContext).load(mNotes.get(position).getNotePic()).into(holder.thumbnailImageView);
-            String name = mNotes.get(position).getNoteName().replace(".jpg", "");
+            String name = mNotes.get(position).getNoteName().replace(".png", "");
             holder.thumbnailTextView.setText(name);
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -95,7 +96,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
         final AlertDialog isExit = new AlertDialog.Builder(mContext).create();
         isExit.setTitle(mContext.getString(R.string.tips));
-        isExit.setMessage(mContext.getString(R.string.delete_note) + " [ " + mNotes.get(position).getNoteName().replace(".jpg", " ]"));
+        isExit.setMessage(mContext.getString(R.string.delete_note) + " [ " + mNotes.get(position).getNoteName().replace(".png", " ]"));
         isExit.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.sure), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -118,7 +119,11 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
             @Override
             public void run() {
                 try {
-                    ifDeleteSuccess = mContext.getIMainPresenter().deleteNote(mNotes.get(position).getNoteName());
+                    File file1 = new File(Constants.PICTURE_PATH + mNotes.get(position).getNoteName());
+                    ifDeleteSuccess = mContext.getIMainPresenter().deleteNote(file1);
+                    File file = new File(Constants.PATH + "/" +mNotes.get(position).getNoteName().replace(".png", ""));
+                    mContext.getIMainPresenter().deleteNote(file);
+
                 } catch (Exception e) {
                     Log.d(TAG, e.getMessage());
                 }

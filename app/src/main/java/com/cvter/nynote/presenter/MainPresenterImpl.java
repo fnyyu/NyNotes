@@ -3,7 +3,6 @@ package com.cvter.nynote.presenter;
 import android.util.Log;
 
 import com.cvter.nynote.model.NoteInfo;
-import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.view.IMainView;
 
 
@@ -33,18 +32,23 @@ public class MainPresenterImpl implements IMainPresenter{
     }
 
     @Override
-    public boolean deleteNote(String path) {
-        File file = new File(Constants.PICTURE_PATH  + path);
-        if (file.exists()) { // 是否存在
+    public boolean deleteNote(File file) {
+        if (!file.exists()) {
+            return false;
+        } else {
             if (file.isFile()) {
                 return file.delete();
-            } else if (file.isDirectory()) { // 如果它是一个目录
-                File[] files = file.listFiles();
-                for (File file1 : files) { // 遍历目录下所有的文件
-                    this.deleteNote(file1.getName()); // 迭代删除
-                }
             }
-            return file.delete();
+            if (file.isDirectory()) {
+                File[] childFile = file.listFiles();
+                if (childFile == null || childFile.length == 0) {
+                    return file.delete();
+                }
+                for (File f : childFile) {
+                    deleteNote(f);
+                }
+                return file.delete();
+            }
         }
         return false;
     }
@@ -57,6 +61,7 @@ public class MainPresenterImpl implements IMainPresenter{
                     @Override
                     public Observable<File> call(File file) {//遍历文件夹
                         return Observable.from(file.listFiles());
+
                     }
                 })
                 .filter(new Func1<File, Boolean>() {//过滤图片
@@ -84,7 +89,7 @@ public class MainPresenterImpl implements IMainPresenter{
                     }
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, e.getMessage());
+                        //Log.e(TAG, e.getMessage());
                     }
                     @Override
                     public void onNext(NoteInfo note) {
