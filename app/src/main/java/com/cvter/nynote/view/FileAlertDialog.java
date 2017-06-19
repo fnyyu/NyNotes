@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import com.bigmercu.cBox.CheckBox;
 
 import com.cvter.nynote.activity.DrawActivity;
@@ -45,6 +47,7 @@ public class FileAlertDialog extends AlertDialog {
     private CheckBox mSaveAsImgCheckBox;
     private String mFileName = "";
     private IFilePresenter mFilePresenter;
+    private static final String TAG = "FileAlertDialog";
 
     public FileAlertDialog(Activity context) {
         super(context);
@@ -72,11 +75,13 @@ public class FileAlertDialog extends AlertDialog {
                 mFileName = mFileNameEditText.getText().toString();
                 if (mFileName.isEmpty() || mFileName.equals("")){
                     mContext.showToast(mContext.getString(R.string.enter_null));
+                    return;
                 }
 
                 if(mFileName.equals(stringFilter(mFileName))){
                     mContext.showToast(mContext.getString(R.string.enter_fail));
                     mFileNameEditText.setText("");
+                    return;
                 }
 
                 if (!mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()){
@@ -85,8 +90,11 @@ public class FileAlertDialog extends AlertDialog {
 
                 } else if (mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()){
                     saveImage( Constants.PICTURE_PATH +  mFileName + ".png");
+                    saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
+
                 } else {
                     saveImage(Constants.PICTURE_PATH +  mFileName + ".png");
+                    saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
                     saveAsXML();
                 }
             }
@@ -109,6 +117,9 @@ public class FileAlertDialog extends AlertDialog {
             }
         });
 
+    }
+
+    private void changeTempFile(){
         mFilePresenter.modifyTempFile(mFileName, new SaveListener() {
             @Override
             public void onSuccess() {
@@ -141,7 +152,7 @@ public class FileAlertDialog extends AlertDialog {
 
     //保存失败
     private void saveFail(String toastMessage){
-        mContext.showToast(toastMessage);
+        Log.e(TAG, toastMessage);
         mContext.finish();
     }
 
@@ -167,6 +178,7 @@ public class FileAlertDialog extends AlertDialog {
         mFilePresenter.saveAsImg(getSaveBitmap(), filePath, new SaveListener() {
             @Override
             public void onSuccess() {
+                changeTempFile();
             }
 
             @Override
@@ -179,7 +191,7 @@ public class FileAlertDialog extends AlertDialog {
 
     private static String stringFilter(String str)throws PatternSyntaxException {
         // 只允许字母、数字和汉字
-        String   regEx  =  "[^a-zA-Z0-9\u4E00-\u9FA5]";
+        String   regEx  =  "[\\u4e00-\\u9fa5_a-zA-Z0-9_]{2,10}";
         Pattern p   =   Pattern.compile(regEx);
         Matcher m   =   p.matcher(str);
         return   m.replaceAll("").trim();

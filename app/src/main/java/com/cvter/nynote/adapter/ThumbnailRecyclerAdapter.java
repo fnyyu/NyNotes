@@ -96,20 +96,23 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
         final AlertDialog isExit = new AlertDialog.Builder(mContext).create();
         isExit.setTitle(mContext.getString(R.string.tips));
-        isExit.setMessage(mContext.getString(R.string.delete_note) + " [ " + mNotes.get(position).getNoteName().replace(".png", " ]"));
-        isExit.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.sure), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                onDeleteHandle(position);
-            }
-        });
-        isExit.setButton(AlertDialog.BUTTON_NEGATIVE, mContext.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                isExit.dismiss();
-            }
-        });
-        isExit.show();
+        if(position < mNotes.size() && mNotes.get(position) != null && !mNotes.get(position).getNoteName().isEmpty()){
+            isExit.setMessage(mContext.getString(R.string.delete_note) + " [ " + mNotes.get(position).getNoteName().replace(".png", " ]"));
+            isExit.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.sure), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    onDeleteHandle(position);
+                }
+            });
+            isExit.setButton(AlertDialog.BUTTON_NEGATIVE, mContext.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    isExit.dismiss();
+                }
+            });
+            isExit.show();
+        }
+
 
     }
 

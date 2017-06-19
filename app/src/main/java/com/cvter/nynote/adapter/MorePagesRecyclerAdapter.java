@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.v4.util.LruCache;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -37,9 +38,10 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     private DrawActivity mContext;
     private ArrayList<Bitmap> mPages;
     private IFilePresenter mPresenter;
+    private int MAX_MEMORY = (int) (Runtime.getRuntime() .maxMemory() / 1024);
+    private static final String TAG = "MorePagesAdapter";
 
-    LruCache<Integer, Bitmap> mBitmapCache;
-    LruCache<Integer, File> mXMLCache ;
+    private LruCache<Integer, List<PathInfo>> mPathCache ;
 
     private static String mType;
     private static int mSavePosition = 1;
@@ -48,8 +50,11 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     public MorePagesRecyclerAdapter(DrawActivity mContext){
         this.mContext = mContext;
         mPages = new ArrayList<>();
-        mBitmapCache = new LruCache<>(5);
-        mXMLCache = new LruCache<>(5);
+        if (mPathCache != null){
+            mPathCache.evictAll();
+        }
+        mPathCache = new LruCache<>(MAX_MEMORY/8);
+
         mType = mContext.getIntent().getExtras().getString("skipType");
         mPresenter = new FilePresenterImpl(mContext);
 
@@ -76,47 +81,44 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
             final int savePosition = position + 1;
             holder.pagesImageView.setImageBitmap(mPages.get(position));
             holder.pagesTextView.setText(String.valueOf(position + 1));
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mContext.getCurPagesTextView().setText(String.valueOf(position + 1));
-                    mPresenter.saveAsXML(mContext.getDrawPaintView().getDrawingList(),
+                    List<PathInfo> curList = new ArrayList<>(mContext.getDrawPaintView().getDrawingList());
+                    mPathCache.put(mSavePosition, curList);
+                    mPresenter.saveAsXML(mPathCache.get(mSavePosition),
                             Constants.TEMP_XML_PATH + "/" + mSavePosition + ".xml", new SaveListener() {
-                        @Override
-                        public void onSuccess() {
+                                @Override
+                                public void onSuccess() {
+                                }
 
-                        }
+                                @Override
+                                public void onFail(String toastMessage) {
+                                    Log.e(TAG, toastMessage);
+                                }
+                            });
 
-                        @Override
-                        public void onFail(String toastMessage) {
-                            mContext.showToast(mContext.getString(R.string.save_fail));
-                        }
-                    });
                     mPresenter.saveAsImg(mPages.get(position), Constants.TEMP_IMG_PATH + "/" + savePosition + ".png",
                             new SaveListener() {
                         @Override
                         public void onSuccess() {
                             mSavePosition = position + 1;
+                            mContext.getDrawPaintView().clear();
+                            if (mPathCache.get(savePosition) != null){
+                                mContext.getDrawPaintView().setDrawingList(mPathCache.get(savePosition));
+                            }
                         }
 
                         @Override
-                        public void onFail(String toastMessage) {
-                            mContext.showToast(mContext.getString(R.string.save_fail));
+                        public void onFail(String message) {
+                            Log.e(TAG, message);
                         }
                     });
 
-                    mPresenter.importXML(Constants.TEMP_XML_PATH + "/" + (position + 1) + ".xml", new ImportListener() {
-                        @Override
-                        public void onSuccess(List<PathInfo> info) {
-                            mContext.getDrawPaintView().clear();
-                            mContext.getDrawPaintView().setDrawingList(info);
-                        }
 
-                        @Override
-                        public void onFail(String toastMessage) {
-                            mContext.getDrawPaintView().clear();
-                        }
-                    });
+
                 }
             });
         }
@@ -167,11 +169,16 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
 
     @Override
     public void onItemClear(int itemPosition) {
-        mPages.remove(itemPosition);
-        notifyItemRemoved(itemPosition);
-        notifyItemChanged(itemPosition);
-        mContext.getAllPagesTextView().setText(String.valueOf(mPages.size()));
+        if (itemPosition > 0){
+            mPages.remove(itemPosition);
+            notifyItemRemoved(itemPosition);
+            notifyItemChanged(itemPosition);
+            mContext.getAllPagesTextView().setText(String.valueOf(mPages.size()));
+        }
+
     }
+
+
 
     class PagesViewHolder extends RecyclerView.ViewHolder{
         ImageView pagesImageView;

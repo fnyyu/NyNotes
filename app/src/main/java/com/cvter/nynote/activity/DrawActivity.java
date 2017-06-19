@@ -383,7 +383,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mPagesPopupWindow.updateData(Constants.getScreenSize(this)[0], Constants.getScreenSize(this)[1],
                 Integer.parseInt(mCurPagesTextView.getText().toString()));
         mPagesPopupWindow.showAsDropDown(mCurPagesTextView, 0, 50);
-        mPagesPopupWindow.setSaveBitmapSize(mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml")));
+
     }
 
 }

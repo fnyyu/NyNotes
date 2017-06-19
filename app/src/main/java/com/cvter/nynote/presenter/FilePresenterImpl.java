@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Xml;
 
 import com.cvter.nynote.R;
@@ -50,6 +51,7 @@ public class FilePresenterImpl implements IFilePresenter {
     private static final String POINT = "point";
     private static final String CODE_TYPE = "UTF-8";
 
+    private HandlerThread mHandlerThread;
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private Context mContext;
 
@@ -123,13 +125,14 @@ public class FilePresenterImpl implements IFilePresenter {
                     }
 
                 } catch (Exception e){
-                    saveFail(listener);
+                    saveFail(listener, e.getMessage());
+
                 } finally {
                     if (outputStream != null){
                         try {
                             outputStream.close();
                         } catch (IOException e) {
-                            saveFail(listener);
+                            saveFail(listener, e.getMessage());
                         }
                     }
                 }
@@ -165,7 +168,7 @@ public class FilePresenterImpl implements IFilePresenter {
                     }
 
                 }catch (final Exception e){
-                    saveFail(listener);
+                    saveFail(listener, "saveAsImg" + e.getMessage());
                 }
             }
         }.start();
@@ -329,7 +332,7 @@ public class FilePresenterImpl implements IFilePresenter {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            listener.onFail(mContext.getString(R.string.import_fail));
+                            listener.onFail(mContext.getString(R.string.import_fail) + e.getMessage());
                         }
                     });
                 }
@@ -394,20 +397,27 @@ public class FilePresenterImpl implements IFilePresenter {
 
     @Override
     public void deleteTempFile() {
-        File fileXML = new File(Constants.TEMP_XML_PATH);
-        File fileImg = new File(Constants.TEMP_IMG_PATH);
-        if ( !fileXML.exists() || !fileXML.isDirectory())
-            return;
-        for (File file : fileXML.listFiles()) {
-            if (file.isFile())
-                file.delete(); // 删除所有文件
-        }
-        if (!fileImg.exists() || !fileImg.isDirectory())
-            return;
-        for (File file : fileImg.listFiles()) {
-            if (file.isFile())
-                file.delete(); // 删除所有文件
-        }
+        mHandlerThread = new HandlerThread("deleteTempFile"){
+            @Override
+            public void run() {
+                File fileXML = new File(Constants.TEMP_XML_PATH);
+                File fileImg = new File(Constants.TEMP_IMG_PATH);
+                if ( !fileXML.exists() || !fileXML.isDirectory())
+                    return;
+                for (File file : fileXML.listFiles()) {
+                    if (file.isFile())
+                        file.delete(); // 删除所有文件
+                }
+                if (!fileImg.exists() || !fileImg.isDirectory())
+                    return;
+                for (File file : fileImg.listFiles()) {
+                    if (file.isFile())
+                        file.delete(); // 删除所有文件
+                }
+            }
+        };
+        mHandlerThread.start();
+
     }
 
     @Override
@@ -419,11 +429,11 @@ public class FilePresenterImpl implements IFilePresenter {
         return 0;
     }
 
-    private void saveFail(final SaveListener listener){
+    private void saveFail(final SaveListener listener, final String message){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                listener.onFail(mContext.getString(R.string.save_fail));
+                listener.onFail(message);
             }
         });
     }
