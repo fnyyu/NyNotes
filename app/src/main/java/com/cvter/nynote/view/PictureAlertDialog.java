@@ -66,7 +66,7 @@ public class PictureAlertDialog extends AlertDialog {
     //跳转到相机
     private void skipToCamera(){
         Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File file = mContext.getPicturePresenter().createImgFile();
+        File file = mContext.getPicturePresenter().createImgFile(mContext.getCurPagesTextView().getText().toString());
         mPhotoPath = file.getPath();
         Uri uri = Uri.fromFile(file);
         intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, uri);

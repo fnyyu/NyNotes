@@ -22,14 +22,6 @@
         tools:targetApi="lollipop"
         />
 
-    <LinearLayout
-        android:layout_marginTop="40dp"
-        style="@android:style/Theme.Translucent"
-        android:orientation="vertical"
-        android:id="@+id/front_activity_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
     <com.cvter.nynote.view.PaintView
         android:background="@android:color/transparent"
         android:layout_marginTop="50dp"

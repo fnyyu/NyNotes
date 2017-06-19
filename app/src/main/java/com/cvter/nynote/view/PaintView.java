@@ -281,6 +281,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         info.setPaintType(mPaint.getIntMode());
         info.setPointList(mPointList);
         info.setGraphType(mPaint.getGraphType());
+        info.setPenType(mPaint.getPenType());
         mDrawingList.add(info);
         mCanEraser = true;
         if (mCallback != null) {

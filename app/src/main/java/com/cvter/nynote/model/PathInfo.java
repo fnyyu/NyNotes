@@ -18,6 +18,7 @@ public abstract class PathInfo {
     private ArrayList<PointInfo> mPointList;
     private int mPaintType;
     private int mGraphType;
+    private int mPenType;
 
     public PathInfo(){}
 
@@ -41,6 +42,14 @@ public abstract class PathInfo {
 
     public void setGraphType(int mGraphType) {
         this.mGraphType = mGraphType;
+    }
+
+    public void setPenType(int mPenType) {
+        this.mPenType = mPenType;
+    }
+
+    public int getPenType() {
+        return mPenType;
     }
 
     public int getGraphType() {

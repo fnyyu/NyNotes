@@ -10,10 +10,10 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
 import android.util.Xml;
 
 import com.cvter.nynote.R;
+import com.cvter.nynote.model.PaintInfo;
 import com.cvter.nynote.model.PathDrawingInfo;
 import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.model.PointInfo;
@@ -43,7 +43,7 @@ public class FilePresenterImpl implements IFilePresenter {
     private static final String DRAW_PATH = "DrawPath";
     private static final String PAINT = "Paint";
     private static final String COLOR = "color";
-    private static final String ALPHA = "alpha";
+    private static final String PEN_TYPE = "PenType";
     private static final String WIDTH = "width";
     private static final String TYPE = "type";
     private static final String GRAPH_TYPE = "GraphType";
@@ -62,7 +62,7 @@ public class FilePresenterImpl implements IFilePresenter {
     @Override
     public void saveAsXML(final List<PathInfo> pathList, final String path, final SaveListener listener) {
 
-        new HandlerThread("saveASXml"){
+        mHandlerThread = new HandlerThread("saveASXml"){
             @Override
             public void run() {
 
@@ -85,15 +85,15 @@ public class FilePresenterImpl implements IFilePresenter {
                             serializer.startTag(null, PAINT);
 
                             serializer.startTag(null, COLOR);
-                            serializer.text(paint.getColor() + "");
+                            serializer.text(String.valueOf(paint.getColor()));
                             serializer.endTag(null, COLOR);
 
-                            serializer.startTag(null, ALPHA);
-                            serializer.text(paint.getAlpha() + "");
-                            serializer.endTag(null, ALPHA);
+                            serializer.startTag(null, PEN_TYPE);
+                            serializer.text(String.valueOf(pathInfo.getPenType()));
+                            serializer.endTag(null, PEN_TYPE);
 
                             serializer.startTag(null, WIDTH);
-                            serializer.text(paint.getStrokeWidth() + "");
+                            serializer.text(String.valueOf(paint.getStrokeWidth()));
                             serializer.endTag(null, WIDTH);
 
                             serializer.startTag(null, TYPE);
@@ -137,14 +137,15 @@ public class FilePresenterImpl implements IFilePresenter {
                     }
                 }
             }
-        }.start();
+        };
+        mHandlerThread.start();
 
     }
 
     @Override
     public void saveAsImg(final Bitmap bitmap, final String path, final SaveListener listener) {
 
-        new HandlerThread("saveAsPicture"){
+        mHandlerThread = new HandlerThread("saveAsPicture"){
             @Override
             public void run() {
                 try{
@@ -171,21 +172,22 @@ public class FilePresenterImpl implements IFilePresenter {
                     saveFail(listener, "saveAsImg" + e.getMessage());
                 }
             }
-        }.start();
+        };
+        mHandlerThread.start();
 
     }
 
     @Override
     public void importXML(final String filePath, final ImportListener listener) {
 
-        new HandlerThread("importXml"){
+        mHandlerThread = new HandlerThread("importXml"){
             @Override
             public void run() {
                 try {
                     final ArrayList<PathInfo> drawPathList = new ArrayList<>();
                     PathInfo drawPath = null;
                     Path path = null;
-                    Paint paint = null;
+                    PaintInfo paint = null;
                     ArrayList<PointInfo> pointList = null;
                     boolean isFirstPoint = true;
                     float startX = 0f;
@@ -209,7 +211,7 @@ public class FilePresenterImpl implements IFilePresenter {
                                         isFirstPoint = true;
                                         break;
                                     case PAINT:
-                                        paint = new Paint();
+                                        paint = new PaintInfo();
                                         paint.setStyle(Paint.Style.STROKE);
                                         paint.setStrokeCap(Paint.Cap.ROUND);
                                         paint.setAntiAlias(true);
@@ -222,10 +224,39 @@ public class FilePresenterImpl implements IFilePresenter {
                                         }
                                         break;
 
-                                    case ALPHA:
-                                        if (paint != null){
-                                            paint.setAlpha(Integer.parseInt(parser.nextText().trim()));
+                                    case PEN_TYPE:
+                                        int penType = Integer.parseInt(parser.nextText().trim());
+                                        switch (penType){
+                                            case Constants.ORDINARY:
+                                                if (paint != null){
+                                                    paint.setOrdinaryPen();
+                                                }
+                                                break;
+                                            case Constants.TRANS_PEN:
+                                                if (paint != null){
+                                                    paint.setTransPen();
+                                                }
+                                                break;
+                                            case Constants.INK_PEN:
+                                                if (paint != null){
+                                                    paint.setInkPen();
+                                                }
+                                                break;
+                                            case Constants.DISCRETE_PEN:
+                                                if (paint != null){
+                                                    paint.setDiscretePen();
+                                                }
+                                                break;
+                                            case Constants.DASH_PEN:
+                                                if (paint != null){
+                                                    paint.setDashPen();
+                                                }
+                                                break;
+                                            default:
+                                                break;
+
                                         }
+
                                         break;
 
                                     case WIDTH:
@@ -235,15 +266,15 @@ public class FilePresenterImpl implements IFilePresenter {
                                         break;
 
                                     case TYPE:
-                                        int type = Integer.parseInt(parser.nextText().trim());
-                                        PorterDuff.Mode mode = ( type == 0) ? null : PorterDuff.Mode.CLEAR;
+                                        int drawType = Integer.parseInt(parser.nextText().trim());
+                                        PorterDuff.Mode mode = ( drawType == 0) ? null : PorterDuff.Mode.CLEAR;
                                         if(mode != null && paint != null){
                                             paint.setXfermode(new PorterDuffXfermode(mode));
                                         }else if(mode == null && paint != null){
                                             paint.setXfermode(null);
                                         }
                                         if (drawPath != null){
-                                            drawPath.setPaintType(type);
+                                            drawPath.setPaintType(drawType);
                                         }
                                         break;
 
@@ -337,14 +368,15 @@ public class FilePresenterImpl implements IFilePresenter {
                     });
                 }
             }
-        }.start();
+        };
+        mHandlerThread.start();
 
     }
 
     @Override
     public void createTempFile( ) {
 
-        new HandlerThread("createTempFile"){
+        mHandlerThread = new HandlerThread("createTempFile"){
             @Override
             public void run() {
                 File file = new File(Constants.TEMP_PATH);
@@ -364,13 +396,14 @@ public class FilePresenterImpl implements IFilePresenter {
                     bgFile.mkdir();
                 }
             }
-        }.start();
+        };
+        mHandlerThread.start();
 
     }
 
     @Override
     public void modifyTempFile(final String fileName, final SaveListener listener) {
-        new HandlerThread("modifyTempFile"){
+        mHandlerThread = new HandlerThread("modifyTempFile"){
             @Override
             public void run() {
                 File file = new File(Constants.TEMP_PATH);
@@ -392,7 +425,8 @@ public class FilePresenterImpl implements IFilePresenter {
                 }
 
             }
-        }.start();
+        };
+        mHandlerThread.start();
     }
 
     @Override

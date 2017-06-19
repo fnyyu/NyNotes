@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -57,8 +58,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     RelativeLayout mDrawActivityLayout;
     @BindView(R.id.drawing_title_layout)
     LinearLayout mDrawingTitleLayout;
-    @BindView(R.id.front_activity_layout)
-    LinearLayout mFrontActivityLayout;
 
     @BindView(R.id.pen_imageView)
     ImageView mPenImageView;
@@ -84,6 +83,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private String skipType = "";
     private boolean ifCanDraw;
+    private static final String TAG = "DrawActivity";
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -149,7 +149,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             switch (skipType) {
                 case Constants.NEW_EDIT:
                     mDrawPaintView.setIfCanDraw(true);
-                    mFrontActivityLayout.setVisibility(View.GONE);
                     mReadingTitleLayout.setVisibility(View.GONE);
                     mDrawingTitleLayout.setVisibility(View.VISIBLE);
                     ifCanDraw = true;
@@ -158,12 +157,16 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 case Constants.READ_NOTE:
                     mDrawPaintView.setIfCanDraw(false);
                     ifCanDraw = false;
-                    mFrontActivityLayout.setVisibility(View.VISIBLE);
                     mAllPagesTextView.bringToFront();
                     mAllPagesTextView.setClickable(true);
-                    mFrontActivityLayout.setClickable(true);
+
                     final String notePath = Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml/1.xml");
-                    mAllPagesTextView.setText(String.valueOf(mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml"))));
+                    final String imagePath = Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/bg/1.png");
+
+                    int pageSize = mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml"));
+                    mAllPagesTextView.setText(String.valueOf(pageSize));
+                    mPagesPopupWindow.setSaveBitmapSize(pageSize);
+
                     mFilePresenter.importXML(notePath, new ImportListener() {
                         @Override
                         public void onSuccess(List<PathInfo> info) {
@@ -172,9 +175,11 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
                         @Override
                         public void onFail(String toastMessage) {
-                            showToast(getString(R.string.import_fail));
+                            Log.e(TAG, toastMessage);
                         }
+
                     });
+                    mPicturePresenter.getSmallBitmap(imagePath);
                     break;
 
                 default:
@@ -184,7 +189,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     }
 
-    @OnClick(R.id.front_activity_layout)
+    @OnClick(R.id.draw_activity_layout)
     public void onViewClicked() {
         if (mReadingTitleLayout.getVisibility() == View.GONE) {
             mReadingTitleLayout.setAlpha(0f);
@@ -228,7 +233,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             case R.id.draw_imageView:
                 mReadingTitleLayout.setVisibility(View.GONE);
                 mDrawingTitleLayout.setVisibility(View.VISIBLE);
-                mFrontActivityLayout.setVisibility(View.GONE);
                 mDrawPaintView.setIfCanDraw(true);
                 ifCanDraw = true;
 

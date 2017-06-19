@@ -7,11 +7,10 @@ import android.util.Log;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.view.IPictureView;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by cvter on 2017/6/6.
@@ -29,13 +28,13 @@ public class PicturePresenterImpl implements PicturePresenter{
 
     //图片存放文件目录
     @Override
-    public File createImgFile() {
+    public File createImgFile(String curPage) {
         //确定文件名
-        File path = new File(Constants.PATH);
+        File path = new File(Constants.TEMP_BG_PATH);
         if(!path.exists()){
             path.mkdirs();
         }
-        String fileName = new SimpleDateFormat("HH:mm:ss").format(new Date()) + ".jpg";
+        String fileName = curPage + ".png";
         File tempFile = new File(path, fileName);
         try {
             if (tempFile.exists() && !tempFile.delete()) {
@@ -57,51 +56,50 @@ public class PicturePresenterImpl implements PicturePresenter{
     @Override
     public void getSmallBitmap (String photoPath) {
 
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(photoPath, options);
-
-        options.inSampleSize = calculateInSampleSize(options, 480, 800);
-        options.inJustDecodeBounds = false;
-
-        Bitmap bm = BitmapFactory.decodeFile(photoPath, options);
-        if (bm == null) {
-            mIPictureView.onCreateError();
-        }
-        ByteArrayOutputStream b = null;
-
-        try {
-            b = new ByteArrayOutputStream();
-            if(bm != null){
-                bm.compress(Bitmap.CompressFormat.JPEG, 30, b);
+        if(new File(photoPath).exists()){
+            BitmapFactory.Options newOpts = new BitmapFactory.Options();
+            newOpts.inJustDecodeBounds = true;
+            Bitmap bitmap = BitmapFactory.decodeFile(photoPath, newOpts);
+            newOpts.inJustDecodeBounds = false;
+            int width = newOpts.outWidth;
+            int height = newOpts.outHeight;
+            int be = 1;
+            if (width > height && width > 480f) {
+                be = (int) (newOpts.outWidth / 480f);
+            } else if (width < height && height > 800f) {
+                be = (int) (newOpts.outHeight / 800f);
             }
-
-        }finally {
-            try {
-                if (b != null)
-                    b.close();
-            } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
-            }
+            if (be <= 0)
+                be = 1;
+            newOpts.inSampleSize = be;// 设置缩放比例
+            // 重新读入图片
+            bitmap = BitmapFactory.decodeFile(photoPath, newOpts);
+            bitmap = compressImage(bitmap);// 压缩好比例大小后再进行质量压缩
+            mIPictureView.setPictureBG(bitmap);
         }
-        mIPictureView.setPictureBG(bm);
 
     }
 
-    //计算图片压缩大小
-    @Override
-    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
+    private static Bitmap compressImage(Bitmap image) {
 
-        if (height > reqHeight || width > reqWidth) {
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        int options = 90;
 
-            inSampleSize = heightRatio < widthRatio ? widthRatio : heightRatio;
+        while (stream.toByteArray().length / 1024 > 100) {
+            stream.reset();
+            image.compress(Bitmap.CompressFormat.JPEG, options, stream);
+            options -= 10;
+        }
+        Bitmap bitmap = null;
+        try{
+           bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(stream.toByteArray()), null, null);
+        }
+        catch (Exception e){
+            Log.e(TAG, "compressImage" + e.getMessage());
         }
 
-        return inSampleSize;
+        return bitmap;
     }
+
 }

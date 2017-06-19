@@ -25,6 +25,7 @@ public class PaintInfo extends Paint {
     private Constants.Mode mMode = Constants.Mode.DRAW;
     private Xfermode mClearMode;
     private int mPenColor = Color.BLACK;
+    private int mPenType = Constants.ORDINARY_PEN;
 
     public PaintInfo(){
         super(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
@@ -80,18 +81,21 @@ public class PaintInfo extends Paint {
     }
 
     public void setOrdinaryPen(){
+        mPenType = Constants.ORDINARY_PEN;
         setAlpha(255);
         setMaskFilter(null);
         setPathEffect(null);
     }
 
     public void setTransPen(){
+        mPenType = Constants.TRANS_PEN;
         setAlpha(70);
         setMaskFilter(null);
         setPathEffect(null);
     }
 
     public void setInkPen(){
+        mPenType = Constants.INK_PEN;
         setAlpha(255);
         setStrokeCap(Cap.SQUARE);
         setMaskFilter(new BlurMaskFilter(mDrawSize, BlurMaskFilter.Blur.NORMAL));
@@ -99,12 +103,14 @@ public class PaintInfo extends Paint {
     }
 
     public void setDiscretePen(){
+        mPenType = Constants.DISCRETE_PEN;
         setAlpha(255);
         setMaskFilter(null);
         setPathEffect(new DiscretePathEffect(2.0F, 5.0F));
     }
 
     public void setDashPen(){
+        mPenType = Constants.DASH_PEN;
         setAlpha(255);
         setMaskFilter(null);
         Path path = new Path();
@@ -119,6 +125,10 @@ public class PaintInfo extends Paint {
 
     public int getGraphType(){
         return type;
+    }
+
+    public int getPenType() {
+        return mPenType;
     }
 
     public Constants.Mode getMode() {

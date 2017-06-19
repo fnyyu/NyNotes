@@ -52,6 +52,14 @@ public class Constants {
     public static final int PENTAGON = 8;
     public static final int STAR = 9;
 
+    public static final int ORDINARY_PEN = 1;
+    public static final int TRANS_PEN = 2;
+    public static final int INK_PEN = 3;
+    public static final int DISCRETE_PEN = 4;
+    public static final int DASH_PEN = 5;
+
+
+
     //图片压缩
     public static Bitmap getCompressBitmap(Bitmap bitmap){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -63,7 +71,7 @@ public class Constants {
         Bitmap resultBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         byteArrayOutputStream.reset();
         resultBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-        while (byteArrayOutputStream.toByteArray().length > 8 * 1024){
+        while (byteArrayOutputStream.toByteArray().length > 5 * 1024){
             matrix.setScale(0.9f, 0.9f);
             resultBitmap = Bitmap.createBitmap(resultBitmap, 0, 0, resultBitmap.getWidth(), resultBitmap.getHeight(), matrix, true);
             byteArrayOutputStream.reset();

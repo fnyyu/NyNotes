@@ -1,7 +1,5 @@
 package com.cvter.nynote.presenter;
 
-import android.graphics.BitmapFactory;
-
 import java.io.File;
 
 /**
@@ -10,8 +8,7 @@ import java.io.File;
 
 public interface PicturePresenter {
 
-    File createImgFile();
+    File createImgFile(String curPage);
     void getSmallBitmap(String photoPath);
-    int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight);
 
 }
