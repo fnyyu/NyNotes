@@ -2,15 +2,19 @@ package com.cvter.nynote.presenter;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import com.cvter.nynote.utils.Constants;
+import com.cvter.nynote.utils.SaveListener;
 import com.cvter.nynote.view.IPictureView;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Created by cvter on 2017/6/6.
@@ -54,7 +58,7 @@ public class PicturePresenterImpl implements PicturePresenter{
 
     //图片压缩
     @Override
-    public void getSmallBitmap (String photoPath) {
+    public void getSmallBitmap (String photoPath, int type, String  page) {
 
         if(new File(photoPath).exists()){
             BitmapFactory.Options newOpts = new BitmapFactory.Options();
@@ -75,6 +79,11 @@ public class PicturePresenterImpl implements PicturePresenter{
             // 重新读入图片
             bitmap = BitmapFactory.decodeFile(photoPath, newOpts);
             bitmap = compressImage(bitmap);// 压缩好比例大小后再进行质量压缩
+
+            if (type == Constants.GALLEY_PICK){
+                saveAsImg(bitmap, createImgFile(page).getPath());
+            }
+
             mIPictureView.setPictureBG(bitmap);
         }
 
@@ -100,6 +109,31 @@ public class PicturePresenterImpl implements PicturePresenter{
         }
 
         return bitmap;
+    }
+
+    private void saveAsImg(final Bitmap bitmap, final String path) {
+
+        new HandlerThread("saveAsPicture"){
+            @Override
+            public void run() {
+                try{
+                    File file = new File(path);
+                    if(file.exists()){
+                        file.delete();
+                    }
+                    if (file.createNewFile()){
+                        Bitmap compressBitmap = Constants.getCompressBitmap(bitmap);
+                        OutputStream outputStream = new FileOutputStream(file);
+                        compressBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+                        outputStream.close();
+                    }
+
+                }catch (final Exception e){
+                    Log.e(TAG, "saveAsImg" + e.getMessage());
+                }
+            }
+        }.start();
+
     }
 
 }

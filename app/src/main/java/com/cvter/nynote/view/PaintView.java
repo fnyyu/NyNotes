@@ -430,4 +430,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     public void setIfCanDraw(boolean ifCanDraw) {
         this.ifCanDraw = ifCanDraw;
     }
+
+    public boolean getIfCanDraw(){
+        return  ifCanDraw;
+    }
 }

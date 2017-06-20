@@ -9,6 +9,6 @@ import java.io.File;
 public interface PicturePresenter {
 
     File createImgFile(String curPage);
-    void getSmallBitmap(String photoPath);
+    void getSmallBitmap(String photoPath, int type, String page);
 
 }

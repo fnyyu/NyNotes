@@ -2,6 +2,7 @@ package com.cvter.nynote.view;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,8 +17,6 @@ import com.cvter.nynote.activity.DrawActivity;
 import com.cvter.nynote.adapter.MorePagesRecyclerAdapter;
 import com.cvter.nynote.presenter.RecyclerTouchCallback;
 import com.cvter.nynote.utils.Constants;
-
-import java.util.ArrayList;
 
 
 /**
@@ -64,32 +63,27 @@ public class PagesPopupWindow extends BasePopupWindow {
         mMorePageImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(mContext.getDrawPaintView().getIfCanDraw()){
+                    mAdapter.getPages().add(mAdapter.getItemCount(), finalBitmap);
+                    mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
+                    mAdapter.notifyDataSetChanged();
+                }
 
-                mAdapter.getPages().add(mAdapter.getItemCount(), finalBitmap);
-                mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
-                mAdapter.notifyDataSetChanged();
             }
         });
     }
 
     //更新数据
-    public void updateData(int width, int height, int num){
+    public void updateData(int num){
         if (mAdapter.getPages().isEmpty()){
             mAdapter.getPages().add(0, getCurrentBitmap());
             mAdapter.notifyItemChanged(0);
         } else {
             mAdapter.getPages().remove(num -1 );
-
             mAdapter.getPages().add(num - 1, getCurrentBitmap());
             mAdapter.notifyItemChanged(num - 1);
         }
 
-    }
-
-    public void setCurrentBitmap(int width, int height) {
-        Bitmap mCurrentBitmap = Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565);
-        mCanvas = new Canvas(mCurrentBitmap);
-        mCanvas.drawColor(Color.WHITE);
     }
 
     //得到当前画布图片
@@ -117,7 +111,10 @@ public class PagesPopupWindow extends BasePopupWindow {
 
     @Override
     public void dismiss() {
-        mContext.getAllPagesTextView().setText(Integer.toString(mAdapter.getPages().size()));
+        if (mContext.getDrawPaintView().getIfCanDraw()){
+            mContext.getAllPagesTextView().setText(Integer.toString(mAdapter.getPages().size()));
+        }
+
         super.dismiss();
     }
 

@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Xml;
 
 import com.cvter.nynote.R;
@@ -175,6 +176,43 @@ public class FilePresenterImpl implements IFilePresenter {
         };
         mHandlerThread.start();
 
+    }
+
+    @Override
+    public void saveAsBg(final Bitmap bitmap, final String fileName, final SaveListener listener) {
+        new HandlerThread("saveAsPicture"){
+            @Override
+            public void run() {
+                OutputStream outputStream = null;
+                try{
+                    File file = new File(fileName);
+                    if(file.exists()){
+                        file.delete();
+                    }
+
+                    if (file.createNewFile()){
+                        outputStream = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+                        outputStream.close();
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onSuccess();
+                            }
+                        });
+                    }
+
+                }catch (final Exception e){
+                    saveFail(listener, "saveAsImg" + e.getMessage());
+                }finally {
+                    try {
+                        outputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 
     @Override
@@ -461,6 +499,28 @@ public class FilePresenterImpl implements IFilePresenter {
            return file.listFiles().length;
         }
         return 0;
+    }
+
+    @Override
+    public boolean deleteFile(File file) {
+        if (!file.exists()) {
+            return false;
+        } else {
+            if (file.isFile()) {
+                return file.delete();
+            }
+            if (file.isDirectory()) {
+                File[] childFile = file.listFiles();
+                if (childFile == null || childFile.length == 0) {
+                    return file.delete();
+                }
+                for (File f : childFile) {
+                    deleteFile(f);
+                }
+                return file.delete();
+            }
+        }
+        return false;
     }
 
     private void saveFail(final SaveListener listener, final String message){

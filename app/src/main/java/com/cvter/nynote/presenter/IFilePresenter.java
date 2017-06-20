@@ -6,6 +6,7 @@ import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.utils.ImportListener;
 import com.cvter.nynote.utils.SaveListener;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -16,10 +17,11 @@ public interface IFilePresenter {
 
     void saveAsXML(List<PathInfo> drawPaths, String path, SaveListener listener);
     void saveAsImg(Bitmap bitmap, String path, SaveListener listener);
+    void saveAsBg(Bitmap bitmap, String fileName, SaveListener listener);
     void importXML(String path, ImportListener listener);
     void createTempFile();
     void modifyTempFile(String fileName, SaveListener listener);
     void deleteTempFile();
     int getFileSize(String filePath);
-
+    boolean deleteFile(File file);
 }

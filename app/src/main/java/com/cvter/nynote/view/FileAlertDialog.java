@@ -123,7 +123,6 @@ public class FileAlertDialog extends AlertDialog {
         mFilePresenter.modifyTempFile(mFileName, new SaveListener() {
             @Override
             public void onSuccess() {
-                saveSuccess();
             }
 
             @Override
@@ -157,7 +156,7 @@ public class FileAlertDialog extends AlertDialog {
     }
 
     //得到要保存的bitmap
-    private Bitmap getSaveBitmap(){
+    public Bitmap getSaveBitmap(){
         Bitmap bitmap = Bitmap.createBitmap(mContext.getDrawPaintView().getWidth(),
                 mContext.getDrawPaintView().getHeight(), Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(bitmap);
@@ -179,6 +178,7 @@ public class FileAlertDialog extends AlertDialog {
             @Override
             public void onSuccess() {
                 changeTempFile();
+                saveSuccess();
             }
 
             @Override

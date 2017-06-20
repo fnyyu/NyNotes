@@ -1,6 +1,7 @@
 package com.cvter.nynote.adapter;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.v4.util.LruCache;
@@ -44,6 +45,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     private LruCache<Integer, List<PathInfo>> mPathCache ;
 
     private static String mType;
+    private static String mNoteName = "";
     private static int mSavePosition = 1;
     private int mSaveBitmapSize;
 
@@ -56,6 +58,10 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
         mPathCache = new LruCache<>(MAX_MEMORY/8);
 
         mType = mContext.getIntent().getExtras().getString("skipType");
+        if(mType.equals(Constants.READ_NOTE)){
+            mNoteName = Constants.PATH + "/" + mContext.getIntent().getStringExtra("noteName").replace(".png", "/");
+        }
+
         mPresenter = new FilePresenterImpl(mContext);
 
     }
@@ -77,7 +83,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     @Override
     public void onBindViewHolder(final PagesViewHolder holder, final int position) {
 
-        if(mType.equals(Constants.NEW_EDIT) && mPages != null && mPages.get(position) != null){
+        if (mType.equals(Constants.NEW_EDIT) && mPages != null && mPages.get(position) != null){
             final int savePosition = position + 1;
             holder.pagesImageView.setImageBitmap(mPages.get(position));
             holder.pagesTextView.setText(String.valueOf(position + 1));
@@ -86,7 +92,13 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                 @Override
                 public void onClick(View view) {
                     mContext.getCurPagesTextView().setText(String.valueOf(position + 1));
-                    List<PathInfo> curList = new ArrayList<>(mContext.getDrawPaintView().getDrawingList());
+                    List<PathInfo> curList;
+                    if(mContext.getDrawPaintView().getDrawingList() != null){
+                        curList = new ArrayList<>(mContext.getDrawPaintView().getDrawingList());
+                    } else {
+                        curList = new ArrayList<>();
+                    }
+
                     mPathCache.put(mSavePosition, curList);
                     mPresenter.saveAsXML(mPathCache.get(mSavePosition),
                             Constants.TEMP_XML_PATH + "/" + mSavePosition + ".xml", new SaveListener() {
@@ -123,15 +135,16 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
             });
         }
 
-        if(mType.equals(Constants.READ_NOTE)){
-            int showPosition = position + 1;
-            Glide.with(mContext).load( Constants.PATH + "/" + mContext.getIntent().getStringExtra("noteName").replace(".png", "/pic/")
-                   + showPosition + ".png").into(holder.pagesImageView);
-            holder.pagesTextView.setText(String.valueOf(showPosition));
+        if (!mContext.getDrawPaintView().getIfCanDraw() && mType.equals(Constants.READ_NOTE)){
+            final int drawPosition = position + 1;
+            Glide.with(mContext).load(mNoteName + "pic/"
+                   + drawPosition + ".png").into(holder.pagesImageView);
+            holder.pagesTextView.setText(String.valueOf(drawPosition));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mPresenter.importXML(Constants.PATH + "/" + mContext.getIntent().getStringExtra("noteName").replace(".png", "/xml/") + (position + 1) + ".xml", new ImportListener() {
+                    mContext.getCurPagesTextView().setText(String.valueOf(position+1));
+                    mPresenter.importXML(mNoteName + "xml/" + (position + 1) + ".xml", new ImportListener() {
                         @Override
                         public void onSuccess(List<PathInfo> info) {
                             mContext.getDrawPaintView().clear();
@@ -143,6 +156,73 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                             mContext.getDrawPaintView().clear();
                         }
                     });
+
+                }
+            });
+
+        }
+
+        if (mType .equals(Constants.READ_NOTE) && mContext.getDrawPaintView().getIfCanDraw()){
+            final int savePosition = position + 1;
+            holder.pagesImageView.setImageBitmap(mPages.get(position));
+            holder.pagesTextView.setText(String.valueOf(position + 1));
+            mContext.getAllPagesTextView().setText(String.valueOf(mSaveBitmapSize));
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mContext.getCurPagesTextView().setText(String.valueOf(position + 1));
+                    final List<PathInfo> curList;
+                    if(mContext.getDrawPaintView().getDrawingList() != null){
+                        curList = new ArrayList<>(mContext.getDrawPaintView().getDrawingList());
+                    } else {
+                        curList = new ArrayList<>();
+                    }
+
+                    mPathCache.put(mSavePosition, curList);
+                    mPresenter.saveAsXML(mPathCache.get(mSavePosition),
+                            Constants.TEMP_XML_PATH + "/" + mSavePosition + ".xml", new SaveListener() {
+                                @Override
+                                public void onSuccess() {
+                                }
+
+                                @Override
+                                public void onFail(String toastMessage) {
+                                    Log.e(TAG, toastMessage);
+                                }
+                            });
+
+                    mPresenter.saveAsImg(mPages.get(position), Constants.TEMP_IMG_PATH + "/" + savePosition + ".png",
+                            new SaveListener() {
+                                @Override
+                                public void onSuccess() {
+                                    mSavePosition = position + 1;
+                                    mContext.getDrawPaintView().clear();
+                                    if (mPathCache.get(savePosition) != null){
+                                        mContext.getDrawPaintView().setDrawingList(mPathCache.get(savePosition));
+                                    }else{
+                                        mPresenter.importXML(mNoteName + "xml/" + savePosition + ".xml", new ImportListener() {
+                                            @Override
+                                            public void onSuccess(List<PathInfo> info) {
+                                                mContext.getDrawPaintView().setDrawingList(info);
+                                                mPathCache.put(mSavePosition, info);
+                                            }
+
+                                            @Override
+                                            public void onFail(String toastMessage) {
+
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onFail(String message) {
+                                    Log.e(TAG, message);
+                                }
+                            });
+
+
+
                 }
             });
         }
@@ -151,9 +231,9 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
 
     @Override
     public int getItemCount() {
-        if (mPages != null && !mPages.isEmpty() && mType.equals(Constants.NEW_EDIT)){
+        if (mPages != null && !mPages.isEmpty() && mContext.getDrawPaintView().getIfCanDraw()){
             return mPages.size();
-        } else if(mType.equals(Constants.READ_NOTE)){
+        } else if(!mContext.getDrawPaintView().getIfCanDraw()){
             return mSaveBitmapSize;
         }
         return 0;
@@ -177,8 +257,6 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
         }
 
     }
-
-
 
     class PagesViewHolder extends RecyclerView.ViewHolder{
         ImageView pagesImageView;

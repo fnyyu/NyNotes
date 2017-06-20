@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.util.Log;
@@ -31,6 +32,7 @@ import com.cvter.nynote.presenter.PicturePresenter;
 import com.cvter.nynote.presenter.PicturePresenterImpl;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.ImportListener;
+import com.cvter.nynote.utils.SaveListener;
 import com.cvter.nynote.view.FileAlertDialog;
 import com.cvter.nynote.view.GraphPopupWindow;
 import com.cvter.nynote.view.IPictureView;
@@ -39,10 +41,18 @@ import com.cvter.nynote.view.PaintPopupWindow;
 import com.cvter.nynote.view.PaintView;
 import com.cvter.nynote.view.PictureAlertDialog;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 
 public class DrawActivity extends BaseActivity implements IPictureView, PathWFCallback {
@@ -89,8 +99,10 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case AlertDialog.BUTTON_POSITIVE:// "保存"按钮弹出PopupWindow
-                    if(skipType.equals(Constants.NEW_EDIT)){
+                    if (skipType.equals(Constants.NEW_EDIT)){
                         mFileAlertDialog.show();
+                    } else {
+                        EditFileSave();
                     }
 
                     break;
@@ -159,14 +171,11 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     ifCanDraw = false;
                     mAllPagesTextView.bringToFront();
                     mAllPagesTextView.setClickable(true);
-
                     final String notePath = Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml/1.xml");
                     final String imagePath = Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/bg/1.png");
-
                     int pageSize = mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml"));
                     mAllPagesTextView.setText(String.valueOf(pageSize));
                     mPagesPopupWindow.setSaveBitmapSize(pageSize);
-
                     mFilePresenter.importXML(notePath, new ImportListener() {
                         @Override
                         public void onSuccess(List<PathInfo> info) {
@@ -179,7 +188,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                         }
 
                     });
-                    mPicturePresenter.getSmallBitmap(imagePath);
+                    mPicturePresenter.getSmallBitmap(imagePath, 3, "");
                     break;
 
                 default:
@@ -235,6 +244,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 mDrawingTitleLayout.setVisibility(View.VISIBLE);
                 mDrawPaintView.setIfCanDraw(true);
                 ifCanDraw = true;
+                mFilePresenter.createTempFile();
 
                 break;
 
@@ -288,8 +298,10 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.save_imageView:
-                if(getIntent().getExtras().getString("skipType").equals("new_edit")){
+                if (getIntent().getExtras().getString("skipType").equals("new_edit")){
                     mFileAlertDialog.show();
+                } else {
+                    EditFileSave();
                 }
                 break;
 
@@ -311,14 +323,14 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     cursor.moveToFirst();
                     String path = cursor.getString(cursor.getColumnIndex(filePathColumn[0]));
                     cursor.close();
-                    mPicturePresenter.getSmallBitmap(path);
+                    mPicturePresenter.getSmallBitmap(path, Constants.GALLEY_PICK, String.valueOf(getCurPagesTextView().getText().toString()));
                 }
                 break;
 
             case Constants.TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
                     if(mPictureDialog.getPhotoPath() != null){
-                        mPicturePresenter.getSmallBitmap(mPictureDialog.getPhotoPath());
+                        mPicturePresenter.getSmallBitmap(mPictureDialog.getPhotoPath(), Constants.TAKE_PHOTO, "");
                     }
                 }
                 break;
@@ -382,10 +394,77 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         return mAllPagesTextView;
     }
 
+    private void EditFileSave(){
+
+        if (mDrawPaintView.getIsHasBG() && mDrawPaintView.getBackgroundBitmap() != null){
+            mFilePresenter.saveAsBg(mDrawPaintView.getBackgroundBitmap(),
+                    Constants.TEMP_BG_PATH + "/" + Integer.parseInt(getCurPagesTextView().getText().toString()) + ".png",
+                    new SaveListener() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onFail(String toastMessage) {
+                            Log.e(TAG, toastMessage);
+                        }
+                    });
+        }
+
+        mFilePresenter.saveAsImg(mFileAlertDialog.getSaveBitmap(), Constants.PICTURE_PATH +  getIntent().getStringExtra("noteName"), new SaveListener() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onFail(String toastMessage) {
+                Log.e(TAG, toastMessage);
+            }
+        });
+
+        String filePath = Constants.TEMP_XML_PATH + "/" + Integer.parseInt(getCurPagesTextView().getText().toString()) + ".xml";
+
+        mFilePresenter.deleteFile(new File(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "")));
+        mFilePresenter.saveAsXML(mDrawPaintView.getDrawingList(), filePath, new SaveListener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFail(String toastMessage) {
+                Log.e(TAG, toastMessage);
+            }
+        });
+
+        mFilePresenter.modifyTempFile(getIntent().getStringExtra("noteName").replace(".png", ""), new SaveListener() {
+            @Override
+            public void onSuccess() {
+                showProgress();
+                Observable.timer(2, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        hideProgress();
+                        showToast(getString(R.string.save_success));
+                        finish();
+                    }
+                });
+            }
+
+            @Override
+            public void onFail(String toastMessage) {
+                Log.e(TAG, toastMessage);
+            }
+        });
+
+    }
+
     @OnClick(R.id.more_pages_linearLayout)
     public void onPageViewClicked() {
-        mPagesPopupWindow.updateData(Constants.getScreenSize(this)[0], Constants.getScreenSize(this)[1],
-                Integer.parseInt(mCurPagesTextView.getText().toString()));
+        if(mDrawPaintView.getIfCanDraw()){
+            mPagesPopupWindow.updateData(Integer.parseInt(mCurPagesTextView.getText().toString()));
+        }
         mPagesPopupWindow.showAsDropDown(mCurPagesTextView, 0, 50);
 
     }
