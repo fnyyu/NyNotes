@@ -10,7 +10,6 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
 import android.util.Xml;
 
 import com.cvter.nynote.R;
@@ -146,7 +145,7 @@ public class FilePresenterImpl implements IFilePresenter {
     @Override
     public void saveAsImg(final Bitmap bitmap, final String path, final SaveListener listener) {
 
-        mHandlerThread = new HandlerThread("saveAsPicture"){
+        mHandlerThread = new HandlerThread("saveAsImg"){
             @Override
             public void run() {
                 try{
@@ -180,7 +179,7 @@ public class FilePresenterImpl implements IFilePresenter {
 
     @Override
     public void saveAsBg(final Bitmap bitmap, final String fileName, final SaveListener listener) {
-        new HandlerThread("saveAsPicture"){
+        new HandlerThread("saveAsBg"){
             @Override
             public void run() {
                 OutputStream outputStream = null;
@@ -203,12 +202,12 @@ public class FilePresenterImpl implements IFilePresenter {
                     }
 
                 }catch (final Exception e){
-                    saveFail(listener, "saveAsImg" + e.getMessage());
+                    saveFail(listener, "saveAsBg" + e.getMessage());
                 }finally {
                     try {
                         outputStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        saveFail(listener, "saveAsBg" + e.getMessage());
                     }
                 }
             }
@@ -445,7 +444,7 @@ public class FilePresenterImpl implements IFilePresenter {
             @Override
             public void run() {
                 File file = new File(Constants.TEMP_PATH);
-                if(file.renameTo(new File(Constants.PATH + "/" + fileName))){
+                if(file.renameTo(new File(Constants.NOTE_PATH + fileName))){
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {

@@ -16,14 +16,9 @@ import com.cvter.nynote.activity.DrawActivity;
 import com.cvter.nynote.activity.MainActivity;
 import com.cvter.nynote.model.NoteInfo;
 import com.cvter.nynote.R;
-import com.cvter.nynote.model.PathInfo;
-import com.cvter.nynote.presenter.FilePresenterImpl;
-import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.utils.Constants;
-import com.cvter.nynote.utils.ImportListener;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,7 +68,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mNotes.get(position) != null){
+                    if (mNotes.get(position) != null ){
                         Intent intent = new Intent(mContext, DrawActivity.class);
                         intent.putExtra("noteName", mNotes.get(position).getNoteName());
                         intent.putExtra("skipType", "read_note");
@@ -127,7 +122,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
                 try {
                     File file1 = new File(Constants.PICTURE_PATH + mNotes.get(position).getNoteName());
                     ifDeleteSuccess = mContext.getIMainPresenter().deleteNote(file1);
-                    File file = new File(Constants.PATH + "/" +mNotes.get(position).getNoteName().replace(".png", ""));
+                    File file = new File(Constants.NOTE_PATH +mNotes.get(position).getNoteName().replace(".png", ""));
                     mContext.getIMainPresenter().deleteNote(file);
 
                 } catch (Exception e) {

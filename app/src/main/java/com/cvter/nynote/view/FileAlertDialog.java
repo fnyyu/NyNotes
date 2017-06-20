@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.bigmercu.cBox.CheckBox;
 
@@ -21,15 +20,10 @@ import com.cvter.nynote.R;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.SaveListener;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -90,11 +84,9 @@ public class FileAlertDialog extends AlertDialog {
 
                 } else if (mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()){
                     saveImage( Constants.PICTURE_PATH +  mFileName + ".png");
-                    //saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
 
                 } else {
                     saveImage(Constants.PICTURE_PATH +  mFileName + ".png");
-                    //saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
                     saveAsXML();
                 }
             }
@@ -104,7 +96,7 @@ public class FileAlertDialog extends AlertDialog {
 
     private void saveAsXML() {
 
-        String filePath = Constants.TEMP_XML_PATH + "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".xml";
+        String filePath = Constants.TEMP_XML_PATHS + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".xml";
 
         mFilePresenter.saveAsXML(getSavePath(), filePath, new SaveListener() {
             @Override
@@ -189,7 +181,7 @@ public class FileAlertDialog extends AlertDialog {
 
     }
 
-    private static String stringFilter(String str)throws PatternSyntaxException {
+    private static String stringFilter(String str) {
         // 只允许字母、数字和汉字
         String   regEx  =  "[\\u4e00-\\u9fa5_a-zA-Z0-9_]{2,10}";
         Pattern p   =   Pattern.compile(regEx);

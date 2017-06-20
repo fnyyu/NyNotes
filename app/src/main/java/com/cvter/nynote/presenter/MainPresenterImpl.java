@@ -89,7 +89,7 @@ public class MainPresenterImpl implements IMainPresenter{
                     }
                     @Override
                     public void onError(Throwable e) {
-                        //Log.e(TAG, e.getMessage());
+                        Log.e(TAG, e.getMessage());
                     }
                     @Override
                     public void onNext(NoteInfo note) {

@@ -2,7 +2,6 @@ package com.cvter.nynote.view;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,7 +28,6 @@ public class PagesPopupWindow extends BasePopupWindow {
     private ImageView mMorePageImageView;
 
     private MorePagesRecyclerAdapter mAdapter;
-    private Canvas mCanvas;
     private Bitmap mAddBitmap;
 
     public PagesPopupWindow(Activity context, int width, int height) {
@@ -97,18 +95,18 @@ public class PagesPopupWindow extends BasePopupWindow {
     //得到当前画布图片
     private Bitmap getCurrentBitmap(){
         Bitmap mCurrentBitmap = Bitmap.createBitmap(Constants.getScreenSize(mContext)[0], Constants.getScreenSize(mContext)[1], Bitmap.Config.RGB_565);
-        mCanvas = new Canvas(mCurrentBitmap);
-        mCanvas.drawColor(Color.WHITE);
-        mCanvas = new Canvas(mCurrentBitmap);
-        mCanvas.drawColor(Color.WHITE);
+        Canvas canvas = new Canvas(mCurrentBitmap);
+        canvas.drawColor(Color.WHITE);
+        canvas = new Canvas(mCurrentBitmap);
+        canvas.drawColor(Color.WHITE);
 
         if ( ! mContext.getDrawPaintView().getIsHasBG()){ //若不存在背景图片
 
-            mCanvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);
+            canvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);
 
         } else {
-            mCanvas.drawBitmap(mContext.getDrawPaintView().getBackgroundBitmap(), 0, 0, null);
-            mCanvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);
+            canvas.drawBitmap(mContext.getDrawPaintView().getBackgroundBitmap(), 0, 0, null);
+            canvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);
         }
         return mCurrentBitmap;
     }

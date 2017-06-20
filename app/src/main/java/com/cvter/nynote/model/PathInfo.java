@@ -5,7 +5,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by cvter on 2017/6/6.

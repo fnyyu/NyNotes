@@ -16,14 +16,14 @@ import java.io.ByteArrayOutputStream;
 public class Constants {
 
     public static final String PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote";//sd路径
+    public static final String NOTE_PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote/";//sd路径
 
     public static final String PICTURE_FILE_PATH = PATH + "/pic";//note图片文件夹路径
     public static final String PICTURE_PATH = PATH + "/pic/";//note图片路径
-    public static final String XML_FILE_PATH = PATH + "/xml";//noteXML文件夹路径
-    public static final String XML_PATH = PATH + "/xml/";//noteXML文件路径
 
     public static final String TEMP_PATH = PATH + "/temp";//临时文件路径
     public static final String TEMP_XML_PATH = TEMP_PATH + "/xml";//临时文件夹路径
+    public static final String TEMP_XML_PATHS = TEMP_PATH + "/xml/";//临时文件夹路径
     public static final String TEMP_IMG_PATH = TEMP_PATH + "/pic";//临时文件夹路径
     public static final String TEMP_BG_PATH = TEMP_PATH + "/bg";//临时文件夹路径
 
@@ -38,6 +38,12 @@ public class Constants {
     public enum Mode{
         DRAW,
         ERASER
+    }
+
+    public enum ScaleMode{
+        NONE,
+        DRAG,
+        ZOOM
     }
 
     //绘制图形

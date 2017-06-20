@@ -5,7 +5,7 @@
     <string name="notifyMsg">是否允许打开系统设置进行权限设置</string>
     <string name="cancel">取消</string>
     <string name="allow">允许</string>
-    <string name="import_note">导入</string>
+    <string name="scale">手势</string>
     <string name="export_note">导出</string>
     <string name="share_note">分享</string>
     <string name="draw_note">编辑</string>
