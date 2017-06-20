@@ -73,10 +73,13 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(mContext, DrawActivity.class);
-                    intent.putExtra("noteName", mNotes.get(position).getNoteName());
-                    intent.putExtra("skipType", "read_note");
-                    mContext.startActivity(intent);
+                    if (mNotes.get(position) != null){
+                        Intent intent = new Intent(mContext, DrawActivity.class);
+                        intent.putExtra("noteName", mNotes.get(position).getNoteName());
+                        intent.putExtra("skipType", "read_note");
+                        mContext.startActivity(intent);
+                    }
+
                 }
             });
         }

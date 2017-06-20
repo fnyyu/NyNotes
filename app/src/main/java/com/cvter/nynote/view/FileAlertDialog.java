@@ -90,11 +90,11 @@ public class FileAlertDialog extends AlertDialog {
 
                 } else if (mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()){
                     saveImage( Constants.PICTURE_PATH +  mFileName + ".png");
-                    saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
+                    //saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
 
                 } else {
                     saveImage(Constants.PICTURE_PATH +  mFileName + ".png");
-                    saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
+                    //saveImage( Constants.TEMP_IMG_PATH +  "/" + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".png");
                     saveAsXML();
                 }
             }

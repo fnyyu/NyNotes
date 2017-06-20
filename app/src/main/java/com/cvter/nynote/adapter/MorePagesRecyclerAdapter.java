@@ -47,6 +47,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     private static String mType;
     private static String mNoteName = "";
     private static int mSavePosition = 1;
+    private static int mEditPosition = 1;
     private int mSaveBitmapSize;
 
     public MorePagesRecyclerAdapter(DrawActivity mContext){
@@ -81,7 +82,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     }
 
     @Override
-    public void onBindViewHolder(final PagesViewHolder holder, final int position) {
+        public void onBindViewHolder(final PagesViewHolder holder, final int position) {
 
         if (mType.equals(Constants.NEW_EDIT) && mPages != null && mPages.get(position) != null){
             final int savePosition = position + 1;
@@ -164,9 +165,12 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
 
         if (mType .equals(Constants.READ_NOTE) && mContext.getDrawPaintView().getIfCanDraw()){
             final int savePosition = position + 1;
+            if(position < mSaveBitmapSize){
+                Glide.with(mContext).load(mNoteName + "pic/"
+                        + savePosition + ".png").into(holder.pagesImageView);
+            }
             holder.pagesImageView.setImageBitmap(mPages.get(position));
             holder.pagesTextView.setText(String.valueOf(position + 1));
-            mContext.getAllPagesTextView().setText(String.valueOf(mSaveBitmapSize));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -178,9 +182,9 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                         curList = new ArrayList<>();
                     }
 
-                    mPathCache.put(mSavePosition, curList);
-                    mPresenter.saveAsXML(mPathCache.get(mSavePosition),
-                            Constants.TEMP_XML_PATH + "/" + mSavePosition + ".xml", new SaveListener() {
+                    mPathCache.put(mEditPosition, curList);
+                    mPresenter.saveAsXML(mPathCache.get(mEditPosition),
+                            Constants.TEMP_XML_PATH + "/" + mEditPosition + ".xml", new SaveListener() {
                                 @Override
                                 public void onSuccess() {
                                 }
@@ -195,7 +199,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                             new SaveListener() {
                                 @Override
                                 public void onSuccess() {
-                                    mSavePosition = position + 1;
+                                    mEditPosition = position + 1;
                                     mContext.getDrawPaintView().clear();
                                     if (mPathCache.get(savePosition) != null){
                                         mContext.getDrawPaintView().setDrawingList(mPathCache.get(savePosition));
@@ -204,7 +208,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                                             @Override
                                             public void onSuccess(List<PathInfo> info) {
                                                 mContext.getDrawPaintView().setDrawingList(info);
-                                                mPathCache.put(mSavePosition, info);
+                                                mPathCache.put(savePosition, info);
                                             }
 
                                             @Override

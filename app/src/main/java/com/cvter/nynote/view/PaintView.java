@@ -48,6 +48,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private List<PathInfo> mDrawingList;
     private List<PathInfo> mRemovedList;
     private ArrayList<PointInfo> mPointList;
+    private DrawPolygon mDrawPolygon;
 
     private boolean mCanEraser;
     private boolean mIsHasBG;
@@ -55,8 +56,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private Bitmap mBackgroundBitmap;
 
     private PathWFCallback mCallback;
-
-    DrawPolygon mDrawPolygon;
 
     public PaintView(Context context) {
         super(context);
@@ -107,6 +106,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 actionDown(x, y);
                 break;
 
+            case MotionEvent.ACTION_POINTER_DOWN:
+                break;
+
             case MotionEvent.ACTION_MOVE:
                 if(Math.abs(x - mLastX) < mMinDistance && Math.abs(y - mLastY) < mMinDistance){
                     return true;
@@ -115,6 +117,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                     break;
                 }
                 actionMove(x, y);
+                break;
+
+            case MotionEvent.ACTION_POINTER_UP:
                 break;
 
             case MotionEvent.ACTION_UP:

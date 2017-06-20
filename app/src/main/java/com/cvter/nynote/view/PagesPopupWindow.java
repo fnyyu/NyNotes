@@ -30,6 +30,7 @@ public class PagesPopupWindow extends BasePopupWindow {
 
     private MorePagesRecyclerAdapter mAdapter;
     private Canvas mCanvas;
+    private Bitmap mAddBitmap;
 
     public PagesPopupWindow(Activity context, int width, int height) {
         super(context, width, height);
@@ -54,11 +55,12 @@ public class PagesPopupWindow extends BasePopupWindow {
         ItemTouchHelper touchHelper = new ItemTouchHelper(new RecyclerTouchCallback(mAdapter));
         touchHelper.attachToRecyclerView(morePageRecyclerView);
 
+        mAddBitmap = Bitmap.createBitmap(69, 110, Bitmap.Config.RGB_565);
+        mAddBitmap.eraseColor(Color.WHITE);
+
     }
 
     public void setListener(){
-        Bitmap mAddBitmap = Bitmap.createBitmap(69, 110, Bitmap.Config.RGB_565);
-        mAddBitmap.eraseColor(Color.WHITE);
         final Bitmap finalBitmap = Constants.getCompressBitmap(mAddBitmap);
         mMorePageImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +68,7 @@ public class PagesPopupWindow extends BasePopupWindow {
                 if(mContext.getDrawPaintView().getIfCanDraw()){
                     mAdapter.getPages().add(mAdapter.getItemCount(), finalBitmap);
                     mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter.notifyItemChanged(mAdapter.getItemCount());
                 }
 
             }
@@ -78,6 +80,12 @@ public class PagesPopupWindow extends BasePopupWindow {
         if (mAdapter.getPages().isEmpty()){
             mAdapter.getPages().add(0, getCurrentBitmap());
             mAdapter.notifyItemChanged(0);
+            if(mContext.getIntent().getExtras().getString("skipType").equals(Constants.READ_NOTE) ){
+                for(int i = 1; i < mContext.getPageSize(); i++){
+                    mAdapter.getPages().add(i, mAddBitmap);
+                }
+
+            }
         } else {
             mAdapter.getPages().remove(num -1 );
             mAdapter.getPages().add(num - 1, getCurrentBitmap());

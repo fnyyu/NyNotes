@@ -94,6 +94,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     private String skipType = "";
     private boolean ifCanDraw;
     private static final String TAG = "DrawActivity";
+    private int pageSize = 0;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -173,7 +174,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     mAllPagesTextView.setClickable(true);
                     final String notePath = Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml/1.xml");
                     final String imagePath = Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/bg/1.png");
-                    int pageSize = mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml"));
+                    pageSize = mFilePresenter.getFileSize(Constants.PATH + "/" + getIntent().getStringExtra("noteName").replace(".png", "/xml"));
                     mAllPagesTextView.setText(String.valueOf(pageSize));
                     mPagesPopupWindow.setSaveBitmapSize(pageSize);
                     mFilePresenter.importXML(notePath, new ImportListener() {
@@ -458,6 +459,10 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             }
         });
 
+    }
+
+    public int getPageSize() {
+        return pageSize;
     }
 
     @OnClick(R.id.more_pages_linearLayout)
