@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cvter.nynote.R;
@@ -20,6 +21,7 @@ import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.ImportListener;
 import com.cvter.nynote.utils.SaveListener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.List;
 public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecyclerAdapter.PagesViewHolder> implements RecyclerTouchPresenter {
 
     private DrawActivity mContext;
-    private LinkedList<Bitmap> mPages;
+    private List<Bitmap> mPages;
     private IFilePresenter mPresenter;
     private int MAX_MEM = (int) (Runtime.getRuntime().maxMemory() / 1024);
     private static final String TAG = "MorePagesAdapter";
@@ -51,7 +53,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
         if (mPathCache != null) {
             mPathCache.evictAll();
         }
-        mPathCache = new LruCache<>(MAX_MEM / 8);
+        mPathCache = new LruCache<>(MAX_MEM / 16);
 
         mType = mContext.getIntent().getExtras().getString("skipType");
         if (mType.equals(Constants.READ_NOTE)) {
@@ -62,7 +64,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
 
     }
 
-    public LinkedList<Bitmap> getPages() {
+    public List<Bitmap> getPages() {
         return mPages;
     }
 

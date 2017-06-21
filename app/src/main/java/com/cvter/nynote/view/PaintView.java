@@ -7,6 +7,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Xfermode;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -39,6 +42,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private Path mPath;
     private Path mGraphPath;
     private PaintInfo mPaint;
+
     private float mLastX;
     private float mLastY;
     private int mMinDistance;
@@ -189,11 +193,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case Constants.CONE:
-                mDrawPolygon.drawCone(mGraphPath);
+                mDrawPolygon.drawCone(mGraphPath, x - mLastX, y - mLastY, mLastX, mLastY);
                 break;
 
             case Constants.CUBE:
-                mDrawPolygon.drawCube(mGraphPath);
+                mDrawPolygon.drawCube(mGraphPath, x - mLastX, mLastX, mLastY);
                 break;
 
             default:
@@ -375,8 +379,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     @Override
-    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
-    }
+    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {}
 
     //获取屏幕大小
     private int[] getScreenSize() {

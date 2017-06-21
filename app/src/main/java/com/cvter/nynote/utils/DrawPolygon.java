@@ -101,13 +101,81 @@ public class DrawPolygon {
     }
 
     //画圆锥
-    public void drawCone(Path path) {
+    public void drawCone(Path path, float radius, float radiusY, float x, float y) {
         path.rewind();
+        path.moveTo(x + radius / 6, y);
+
+        float spaceX = radius / 2;
+        float spaceY = radius * 2;
+        float spaceX2 = radius * 3 / 2;
+        float spaceY2 = radius * 3 / 2;
+
+        if (radiusY * radius > 0) {
+            path.lineTo(x - spaceX, y + spaceY);
+            path.lineTo(x + radius, y + spaceY);
+            path.lineTo(x + radius / 6, y);
+            path.lineTo(x + spaceX2, y + spaceY2);
+            path.lineTo(x + radius, y + spaceY);
+
+            path.moveTo(x + spaceX2, y + spaceY2);
+            path.lineTo(x, y + spaceY2);
+            path.lineTo(x - spaceX, y + spaceY);
+            path.moveTo(x + radius / 6, y);
+            path.lineTo(x, y + spaceY2);
+        } else {
+            path.lineTo(x - spaceX, y - spaceY);
+            path.lineTo(x + radius, y - spaceY);
+            path.lineTo(x + radius / 6, y);
+            path.lineTo(x + spaceX2, y - spaceY2);
+            path.lineTo(x + radius, y - spaceY);
+
+            path.moveTo(x + spaceX2, y - spaceY2);
+            path.lineTo(x, y - spaceY2);
+            path.lineTo(x - spaceX, y - spaceY);
+            path.moveTo(x + radius / 6, y);
+            path.lineTo(x, y - spaceY2);
+        }
+
+
     }
 
     //画正方体
-    public void drawCube(Path path) {
+    public void drawCube(Path path, float radius, float x, float y) {
         path.rewind();
+        path.moveTo(x, y);
+
+        float spaceX = (radius * 1) / 3;
+        float spaceY = (radius * 1) / 3;
+        float spaceX2 = (radius * 4) / 3;
+        float spaceY2 = (radius * 2) / 3;
+
+        if (radius > 0) {
+            path.lineTo(x + radius, y);
+            path.lineTo(x + radius, y + radius);
+            path.lineTo(x, y + radius);
+            path.lineTo(x, y);
+            path.lineTo(x + spaceX, y - spaceY);
+            path.lineTo(x + spaceX2, y - spaceY);
+            path.lineTo(x + spaceX2, y + spaceY2);
+            path.moveTo(x + radius, y + radius);
+            path.lineTo(x + spaceX2, y + spaceY2);
+            path.moveTo(x + radius, y);
+            path.lineTo(x + spaceX2, y - spaceY);
+        } else {
+            path.lineTo(x + radius, y);
+            path.lineTo(x + radius, y - radius);
+            path.lineTo(x, y - radius);
+            path.lineTo(x, y);
+            path.lineTo(x + spaceX, y + spaceY);
+            path.lineTo(x + spaceX2, y + spaceY);
+            path.lineTo(x + spaceX2, y - spaceY2);
+            path.moveTo(x + radius, y - radius);
+            path.lineTo(x + spaceX2, y - spaceY2);
+            path.moveTo(x + radius, y);
+            path.lineTo(x + spaceX2, y + spaceY);
+        }
+
+
     }
 
 }

@@ -51,8 +51,10 @@ public class PagesPopupWindow extends BasePopupWindow {
         mAdapter = new MorePagesRecyclerAdapter(mContext);
         morePageRecyclerView.setAdapter(mAdapter);
 
-        ItemTouchHelper touchHelper = new ItemTouchHelper(new RecyclerTouchCallback(mAdapter));
-        touchHelper.attachToRecyclerView(morePageRecyclerView);
+        if (mContext.getIntent().getExtras().getString("skipType").equals(Constants.NEW_EDIT)) {
+            ItemTouchHelper touchHelper = new ItemTouchHelper(new RecyclerTouchCallback(mAdapter));
+            touchHelper.attachToRecyclerView(morePageRecyclerView);
+        }
 
         mAddBitmap = Bitmap.createBitmap(69, 110, Bitmap.Config.RGB_565);
         mAddBitmap.eraseColor(Color.WHITE);
