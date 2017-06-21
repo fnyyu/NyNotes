@@ -30,11 +30,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by cvter on 2017/6/9.
+ * 文件处理逻辑实现类
  */
 
 public class FilePresenterImpl implements IFilePresenter {
@@ -55,24 +56,24 @@ public class FilePresenterImpl implements IFilePresenter {
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private Context mContext;
 
-    public FilePresenterImpl(Context context){
+    public FilePresenterImpl(Context context) {
         this.mContext = context;
     }
 
     @Override
     public void saveAsXML(final List<PathInfo> pathList, final String path, final SaveListener listener) {
 
-        mHandlerThread = new HandlerThread("saveASXml"){
+        mHandlerThread = new HandlerThread("saveASXml") {
             @Override
             public void run() {
 
                 OutputStream outputStream = null;
                 try {
                     File file = new File(path);
-                    if(file.exists()){
+                    if (file.exists()) {
                         file.delete();
                     }
-                    if(file.createNewFile()){
+                    if (file.createNewFile()) {
                         outputStream = new FileOutputStream(file);
 
                         XmlSerializer serializer = Xml.newSerializer();
@@ -107,7 +108,7 @@ public class FilePresenterImpl implements IFilePresenter {
                             serializer.endTag(null, PAINT);
 
                             serializer.startTag(null, PATH);
-                            ArrayList<PointInfo> mPoints = pathInfo.getPointList();
+                            LinkedList<PointInfo> mPoints = pathInfo.getPointList();
                             for (PointInfo points : mPoints) {
                                 serializer.startTag(null, POINT);
                                 serializer.text(points.mPointX + "," + points.mPointY);
@@ -124,11 +125,11 @@ public class FilePresenterImpl implements IFilePresenter {
                         outputStream.close();
                     }
 
-                } catch (Exception e){
+                } catch (Exception e) {
                     saveFail(listener, e.getMessage());
 
                 } finally {
-                    if (outputStream != null){
+                    if (outputStream != null) {
                         try {
                             outputStream.close();
                         } catch (IOException e) {
@@ -145,15 +146,15 @@ public class FilePresenterImpl implements IFilePresenter {
     @Override
     public void saveAsImg(final Bitmap bitmap, final String path, final SaveListener listener) {
 
-        mHandlerThread = new HandlerThread("saveAsImg"){
+        mHandlerThread = new HandlerThread("saveAsImg") {
             @Override
             public void run() {
-                try{
+                try {
                     File file = new File(path);
-                    if(file.exists()){
+                    if (file.exists()) {
                         file.delete();
                     }
-                    if (file.createNewFile()){
+                    if (file.createNewFile()) {
 
                         Bitmap compressBitmap = Constants.getCompressBitmap(bitmap);
                         OutputStream outputStream = new FileOutputStream(file);
@@ -168,7 +169,7 @@ public class FilePresenterImpl implements IFilePresenter {
                         });
                     }
 
-                }catch (final Exception e){
+                } catch (final Exception e) {
                     saveFail(listener, "saveAsImg" + e.getMessage());
                 }
             }
@@ -179,17 +180,17 @@ public class FilePresenterImpl implements IFilePresenter {
 
     @Override
     public void saveAsBg(final Bitmap bitmap, final String fileName, final SaveListener listener) {
-        new HandlerThread("saveAsBg"){
+        new HandlerThread("saveAsBg") {
             @Override
             public void run() {
                 OutputStream outputStream = null;
-                try{
+                try {
                     File file = new File(fileName);
-                    if(file.exists()){
+                    if (file.exists()) {
                         file.delete();
                     }
 
-                    if (file.createNewFile()){
+                    if (file.createNewFile()) {
                         outputStream = new FileOutputStream(file);
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
                         outputStream.close();
@@ -201,9 +202,9 @@ public class FilePresenterImpl implements IFilePresenter {
                         });
                     }
 
-                }catch (final Exception e){
+                } catch (final Exception e) {
                     saveFail(listener, "saveAsBg" + e.getMessage());
-                }finally {
+                } finally {
                     try {
                         outputStream.close();
                     } catch (IOException e) {
@@ -217,15 +218,15 @@ public class FilePresenterImpl implements IFilePresenter {
     @Override
     public void importXML(final String filePath, final ImportListener listener) {
 
-        mHandlerThread = new HandlerThread("importXml"){
+        mHandlerThread = new HandlerThread("importXml") {
             @Override
             public void run() {
                 try {
-                    final ArrayList<PathInfo> drawPathList = new ArrayList<>();
+                    final LinkedList<PathInfo> drawPathList = new LinkedList<>();
                     PathInfo drawPath = null;
                     Path path = null;
                     PaintInfo paint = null;
-                    ArrayList<PointInfo> pointList = null;
+                    LinkedList<PointInfo> pointList = null;
                     boolean isFirstPoint = true;
                     float startX = 0f;
                     float startY = 0f;
@@ -256,36 +257,36 @@ public class FilePresenterImpl implements IFilePresenter {
                                         break;
 
                                     case COLOR:
-                                        if (paint != null){
+                                        if (paint != null) {
                                             paint.setColor(Integer.parseInt(parser.nextText().trim()));
                                         }
                                         break;
 
                                     case PEN_TYPE:
                                         int penType = Integer.parseInt(parser.nextText().trim());
-                                        switch (penType){
+                                        switch (penType) {
                                             case Constants.ORDINARY:
-                                                if (paint != null){
+                                                if (paint != null) {
                                                     paint.setOrdinaryPen();
                                                 }
                                                 break;
                                             case Constants.TRANS_PEN:
-                                                if (paint != null){
+                                                if (paint != null) {
                                                     paint.setTransPen();
                                                 }
                                                 break;
                                             case Constants.INK_PEN:
-                                                if (paint != null){
+                                                if (paint != null) {
                                                     paint.setInkPen();
                                                 }
                                                 break;
                                             case Constants.DISCRETE_PEN:
-                                                if (paint != null){
+                                                if (paint != null) {
                                                     paint.setDiscretePen();
                                                 }
                                                 break;
                                             case Constants.DASH_PEN:
-                                                if (paint != null){
+                                                if (paint != null) {
                                                     paint.setDashPen();
                                                 }
                                                 break;
@@ -297,34 +298,34 @@ public class FilePresenterImpl implements IFilePresenter {
                                         break;
 
                                     case WIDTH:
-                                        if (paint != null){
+                                        if (paint != null) {
                                             paint.setStrokeWidth(Float.parseFloat(parser.nextText().trim()));
                                         }
                                         break;
 
                                     case TYPE:
                                         int drawType = Integer.parseInt(parser.nextText().trim());
-                                        PorterDuff.Mode mode = ( drawType == 0) ? null : PorterDuff.Mode.CLEAR;
-                                        if(mode != null && paint != null){
+                                        PorterDuff.Mode mode = (drawType == 0) ? null : PorterDuff.Mode.CLEAR;
+                                        if (mode != null && paint != null) {
                                             paint.setXfermode(new PorterDuffXfermode(mode));
-                                        }else if(mode == null && paint != null){
+                                        } else if (mode == null && paint != null) {
                                             paint.setXfermode(null);
                                         }
-                                        if (drawPath != null){
+                                        if (drawPath != null) {
                                             drawPath.setPaintType(drawType);
                                         }
                                         break;
 
                                     case GRAPH_TYPE:
                                         int graphType = Integer.parseInt(parser.nextText().trim());
-                                        if (drawPath != null){
+                                        if (drawPath != null) {
                                             drawPath.setGraphType(graphType);
                                         }
                                         break;
 
                                     case PATH:
                                         path = new Path();
-                                        pointList = new ArrayList<>();
+                                        pointList = new LinkedList<>();
                                         break;
 
                                     case POINT:
@@ -338,11 +339,11 @@ public class FilePresenterImpl implements IFilePresenter {
                                             path.moveTo(startX, startY);
                                             isFirstPoint = false;
                                         }
-                                        if (pointList != null ){
+                                        if (pointList != null) {
                                             pointList.add(point);
                                         }
 
-                                        if (drawPath != null){
+                                        if (drawPath != null) {
                                             handleGraphType(path, startX, startY, point.mPointX, point.mPointY, drawPath.getGraphType());
                                         }
                                         startX = point.mPointX;
@@ -359,20 +360,20 @@ public class FilePresenterImpl implements IFilePresenter {
                                 switch (endTag) {
 
                                     case PATH:
-                                        if(drawPath != null ){
+                                        if (drawPath != null) {
                                             drawPath.setPath(path);
                                             drawPath.setPointList(pointList);
                                         }
                                         break;
 
                                     case PAINT:
-                                        if(drawPath != null ) {
+                                        if (drawPath != null) {
                                             drawPath.setPaint(paint);
                                         }
                                         break;
 
                                     case DRAW_PATH:
-                                        if(drawPath != null ) {
+                                        if (drawPath != null) {
                                             drawPathList.add(drawPath);
                                         }
                                         break;
@@ -411,25 +412,25 @@ public class FilePresenterImpl implements IFilePresenter {
     }
 
     @Override
-    public void createTempFile( ) {
+    public void createTempFile() {
 
-        mHandlerThread = new HandlerThread("createTempFile"){
+        mHandlerThread = new HandlerThread("createTempFile") {
             @Override
             public void run() {
                 File file = new File(Constants.TEMP_PATH);
-                if(!file.exists()){
+                if (!file.exists()) {
                     file.mkdir();
                 }
                 File xmlFile = new File(Constants.TEMP_XML_PATH);
-                if(!xmlFile.exists()){
+                if (!xmlFile.exists()) {
                     xmlFile.mkdir();
                 }
                 File imageFile = new File(Constants.TEMP_IMG_PATH);
-                if(!imageFile.exists()){
+                if (!imageFile.exists()) {
                     imageFile.mkdir();
                 }
                 File bgFile = new File(Constants.TEMP_BG_PATH);
-                if(!bgFile.exists()){
+                if (!bgFile.exists()) {
                     bgFile.mkdir();
                 }
             }
@@ -440,18 +441,18 @@ public class FilePresenterImpl implements IFilePresenter {
 
     @Override
     public void modifyTempFile(final String fileName, final SaveListener listener) {
-        mHandlerThread = new HandlerThread("modifyTempFile"){
+        mHandlerThread = new HandlerThread("modifyTempFile") {
             @Override
             public void run() {
                 File file = new File(Constants.TEMP_PATH);
-                if(file.renameTo(new File(Constants.NOTE_PATH + fileName))){
+                if (file.renameTo(new File(Constants.NOTE_PATH + fileName))) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             listener.onSuccess();
                         }
                     });
-                }else {
+                } else {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -468,12 +469,12 @@ public class FilePresenterImpl implements IFilePresenter {
 
     @Override
     public void deleteTempFile() {
-        mHandlerThread = new HandlerThread("deleteTempFile"){
+        mHandlerThread = new HandlerThread("deleteTempFile") {
             @Override
             public void run() {
                 File fileXML = new File(Constants.TEMP_XML_PATH);
                 File fileImg = new File(Constants.TEMP_IMG_PATH);
-                if ( !fileXML.exists() || !fileXML.isDirectory())
+                if (!fileXML.exists() || !fileXML.isDirectory())
                     return;
                 for (File file : fileXML.listFiles()) {
                     if (file.isFile())
@@ -494,8 +495,8 @@ public class FilePresenterImpl implements IFilePresenter {
     @Override
     public int getFileSize(String filePath) {
         File file = new File(filePath);
-        if(file.exists() && file.isDirectory()){
-           return file.listFiles().length;
+        if (file.exists() && file.isDirectory()) {
+            return file.listFiles().length;
         }
         return 0;
     }
@@ -522,7 +523,7 @@ public class FilePresenterImpl implements IFilePresenter {
         return false;
     }
 
-    private void saveFail(final SaveListener listener, final String message){
+    private void saveFail(final SaveListener listener, final String message) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -553,8 +554,8 @@ public class FilePresenterImpl implements IFilePresenter {
             case Constants.DELTA:
                 float radiusD = (y - startY) * 2 / 3;
                 path.moveTo(startX, startY);
-                float spaceXD = (float) (radiusD*(Math.sin(Math.PI*60/180)));
-                float spaceYD = (float) (radiusD + radiusD*(Math.cos(Math.PI*60/180)));
+                float spaceXD = (float) (radiusD * (Math.sin(Math.PI * 60 / 180)));
+                float spaceYD = (float) (radiusD + radiusD * (Math.cos(Math.PI * 60 / 180)));
                 path.lineTo((startX + spaceXD), (startY + spaceYD));
                 path.moveTo((startX + spaceXD), (startY + spaceYD));
                 path.lineTo((startX - spaceXD), (startY + spaceYD));
@@ -564,11 +565,11 @@ public class FilePresenterImpl implements IFilePresenter {
             case Constants.PENTAGON:
                 float radiusP = y - startY;
                 path.moveTo(startX, startY - radiusP);
-                float spaceXP = (float) (radiusP*(Math.sin(Math.PI*72/180)));
-                float spaceYP = (float) (radiusP*(Math.cos(Math.PI*72/180)));
+                float spaceXP = (float) (radiusP * (Math.sin(Math.PI * 72 / 180)));
+                float spaceYP = (float) (radiusP * (Math.cos(Math.PI * 72 / 180)));
 
-                float spaceX2P = (float)(radiusP*(Math.sin(Math.PI*36/180)));
-                float spaceY2P = (float)(radiusP*(Math.cos(Math.PI*36/180)));
+                float spaceX2P = (float) (radiusP * (Math.sin(Math.PI * 36 / 180)));
+                float spaceY2P = (float) (radiusP * (Math.cos(Math.PI * 36 / 180)));
 
                 path.lineTo((startX + spaceXP), (startY - spaceYP));
                 path.moveTo((startX + spaceXP), (startY - spaceYP));
@@ -587,11 +588,11 @@ public class FilePresenterImpl implements IFilePresenter {
             case Constants.STAR:
                 float radiusS = y - startY;
                 path.moveTo(startX, startY - radiusS);
-                float spaceXS = (float) (radiusS*(Math.sin(Math.PI*72/180)));
-                float spaceYS = (float) (radiusS*(Math.cos(Math.PI*72/180)));
+                float spaceXS = (float) (radiusS * (Math.sin(Math.PI * 72 / 180)));
+                float spaceYS = (float) (radiusS * (Math.cos(Math.PI * 72 / 180)));
 
-                float spaceX2S = (float)(radiusS*(Math.sin(Math.PI*36/180)));
-                float spaceY2S = (float)(radiusS*(Math.cos(Math.PI*36/180)));
+                float spaceX2S = (float) (radiusS * (Math.sin(Math.PI * 36 / 180)));
+                float spaceY2S = (float) (radiusS * (Math.cos(Math.PI * 36 / 180)));
 
                 path.lineTo((startX + spaceX2S), (startY + spaceY2S));
                 path.moveTo((startX + spaceX2S), (startY + spaceY2S));

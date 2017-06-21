@@ -6,7 +6,6 @@ import android.os.HandlerThread;
 import android.util.Log;
 
 import com.cvter.nynote.utils.Constants;
-import com.cvter.nynote.utils.SaveListener;
 import com.cvter.nynote.view.IPictureView;
 
 import java.io.ByteArrayInputStream;
@@ -18,15 +17,16 @@ import java.io.OutputStream;
 
 /**
  * Created by cvter on 2017/6/6.
+ * 图片处理逻辑实现类
  */
 
-public class PicturePresenterImpl implements PicturePresenter{
+public class PicturePresenterImpl implements PicturePresenter {
 
     private IPictureView mIPictureView;
 
     private static final String TAG = "PicturePresenterImpl";
 
-    public PicturePresenterImpl(IPictureView iPictureView){
+    public PicturePresenterImpl(IPictureView iPictureView) {
         this.mIPictureView = iPictureView;
     }
 
@@ -35,7 +35,7 @@ public class PicturePresenterImpl implements PicturePresenter{
     public File createImgFile(String curPage) {
         //确定文件名
         File path = new File(Constants.TEMP_BG_PATH);
-        if(!path.exists()){
+        if (!path.exists()) {
             path.mkdirs();
         }
         String fileName = curPage + ".png";
@@ -58,9 +58,9 @@ public class PicturePresenterImpl implements PicturePresenter{
 
     //图片压缩
     @Override
-    public void getSmallBitmap (String photoPath, int type, String  page) {
+    public void getSmallBitmap(String photoPath, int type, String page) {
 
-        if(new File(photoPath).exists()){
+        if (new File(photoPath).exists()) {
             BitmapFactory.Options newOpts = new BitmapFactory.Options();
             newOpts.inJustDecodeBounds = true;
             Bitmap bitmap = BitmapFactory.decodeFile(photoPath, newOpts);
@@ -80,7 +80,7 @@ public class PicturePresenterImpl implements PicturePresenter{
             bitmap = BitmapFactory.decodeFile(photoPath, newOpts);
             bitmap = compressImage(bitmap);// 压缩好比例大小后再进行质量压缩
 
-            if (type == Constants.GALLEY_PICK){
+            if (type == Constants.GALLEY_PICK) {
                 saveAsImg(bitmap, createImgFile(page).getPath());
             }
 
@@ -101,10 +101,9 @@ public class PicturePresenterImpl implements PicturePresenter{
             options -= 10;
         }
         Bitmap bitmap = null;
-        try{
-           bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(stream.toByteArray()), null, null);
-        }
-        catch (Exception e){
+        try {
+            bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(stream.toByteArray()), null, null);
+        } catch (Exception e) {
             Log.e(TAG, "compressImage" + e.getMessage());
         }
 
@@ -113,22 +112,22 @@ public class PicturePresenterImpl implements PicturePresenter{
 
     private void saveAsImg(final Bitmap bitmap, final String path) {
 
-        new HandlerThread("saveAsPicture"){
+        new HandlerThread("saveAsPicture") {
             @Override
             public void run() {
-                try{
+                try {
                     File file = new File(path);
-                    if(file.exists()){
+                    if (file.exists()) {
                         file.delete();
                     }
-                    if (file.createNewFile()){
+                    if (file.createNewFile()) {
                         Bitmap compressBitmap = Constants.getCompressBitmap(bitmap);
                         OutputStream outputStream = new FileOutputStream(file);
                         compressBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
                         outputStream.close();
                     }
 
-                }catch (final Exception e){
+                } catch (final Exception e) {
                     Log.e(TAG, "saveAsImg" + e.getMessage());
                 }
             }

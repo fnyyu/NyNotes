@@ -20,6 +20,7 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/14.
+ * 多页PopupWindow
  */
 
 public class PagesPopupWindow extends BasePopupWindow {
@@ -58,12 +59,12 @@ public class PagesPopupWindow extends BasePopupWindow {
 
     }
 
-    public void setListener(){
+    public void setListener() {
         final Bitmap finalBitmap = Constants.getCompressBitmap(mAddBitmap);
         mMorePageImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mContext.getDrawPaintView().getIfCanDraw()){
+                if (mContext.getDrawPaintView().getIfCanDraw()) {
                     mAdapter.getPages().add(mAdapter.getItemCount(), finalBitmap);
                     mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
                     mAdapter.notifyItemChanged(mAdapter.getItemCount());
@@ -74,18 +75,18 @@ public class PagesPopupWindow extends BasePopupWindow {
     }
 
     //更新数据
-    public void updateData(int num){
-        if (mAdapter.getPages().isEmpty()){
+    public void updateData(int num) {
+        if (mAdapter.getPages().isEmpty()) {
             mAdapter.getPages().add(0, getCurrentBitmap());
             mAdapter.notifyItemChanged(0);
-            if(mContext.getIntent().getExtras().getString("skipType").equals(Constants.READ_NOTE) ){
-                for(int i = 1; i < mContext.getPageSize(); i++){
+            if (mContext.getIntent().getExtras().getString("skipType").equals(Constants.READ_NOTE)) {
+                for (int i = 1; i < mContext.getPageSize(); i++) {
                     mAdapter.getPages().add(i, mAddBitmap);
                 }
 
             }
         } else {
-            mAdapter.getPages().remove(num -1 );
+            mAdapter.getPages().remove(num - 1);
             mAdapter.getPages().add(num - 1, getCurrentBitmap());
             mAdapter.notifyItemChanged(num - 1);
         }
@@ -93,14 +94,14 @@ public class PagesPopupWindow extends BasePopupWindow {
     }
 
     //得到当前画布图片
-    private Bitmap getCurrentBitmap(){
+    private Bitmap getCurrentBitmap() {
         Bitmap mCurrentBitmap = Bitmap.createBitmap(Constants.getScreenSize(mContext)[0], Constants.getScreenSize(mContext)[1], Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(mCurrentBitmap);
         canvas.drawColor(Color.WHITE);
         canvas = new Canvas(mCurrentBitmap);
         canvas.drawColor(Color.WHITE);
 
-        if ( ! mContext.getDrawPaintView().getIsHasBG()){ //若不存在背景图片
+        if (!mContext.getDrawPaintView().getIsHasBG()) { //若不存在背景图片
 
             canvas.drawBitmap(mContext.getDrawPaintView().getBitmap(), 0, 0, null);
 
@@ -111,13 +112,13 @@ public class PagesPopupWindow extends BasePopupWindow {
         return mCurrentBitmap;
     }
 
-    public void setSaveBitmapSize(int size){
+    public void setSaveBitmapSize(int size) {
         mAdapter.setSaveBitmapSize(size);
     }
 
     @Override
     public void dismiss() {
-        if (mContext.getDrawPaintView().getIfCanDraw()){
+        if (mContext.getDrawPaintView().getIfCanDraw()) {
             mContext.getAllPagesTextView().setText(Integer.toString(mAdapter.getPages().size()));
         }
 

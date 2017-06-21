@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 
 /**
  * Created by cvter on 2017/6/5.
+ * 公共常量类
  */
 
 public class Constants {
@@ -35,12 +36,12 @@ public class Constants {
     public static final String READ_NOTE = "read_note";
 
     //画笔模式
-    public enum Mode{
+    public enum Mode {
         DRAW,
         ERASER
     }
 
-    public enum ScaleMode{
+    public enum ScaleMode {
         NONE,
         DRAG,
         ZOOM
@@ -65,9 +66,8 @@ public class Constants {
     public static final int DASH_PEN = 5;
 
 
-
     //图片压缩
-    public static Bitmap getCompressBitmap(Bitmap bitmap){
+    public static Bitmap getCompressBitmap(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
 
@@ -77,7 +77,7 @@ public class Constants {
         Bitmap resultBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         byteArrayOutputStream.reset();
         resultBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-        while (byteArrayOutputStream.toByteArray().length > 5 * 1024){
+        while (byteArrayOutputStream.toByteArray().length > 5 * 1024) {
             matrix.setScale(0.9f, 0.9f);
             resultBitmap = Bitmap.createBitmap(resultBitmap, 0, 0, resultBitmap.getWidth(), resultBitmap.getHeight(), matrix, true);
             byteArrayOutputStream.reset();

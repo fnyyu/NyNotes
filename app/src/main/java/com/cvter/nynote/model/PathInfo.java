@@ -4,22 +4,25 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
+
 
 /**
  * Created by cvter on 2017/6/6.
+ * 路径bean类
  */
 
 public abstract class PathInfo {
 
     private Path mPath;
     private Paint mPaint;
-    private ArrayList<PointInfo> mPointList;
+    private LinkedList<PointInfo> mPointList;
     private int mPaintType;
     private int mGraphType;
     private int mPenType;
 
-    public PathInfo(){}
+    public PathInfo() {
+    }
 
     public abstract void draw(Canvas canvas, int type);
 
@@ -35,7 +38,7 @@ public abstract class PathInfo {
         this.mPaintType = mPaintType;
     }
 
-    public void setPointList(ArrayList<PointInfo> mPointList) {
+    public void setPointList(LinkedList<PointInfo> mPointList) {
         this.mPointList = mPointList;
     }
 
@@ -55,7 +58,7 @@ public abstract class PathInfo {
         return mGraphType;
     }
 
-    public ArrayList<PointInfo> getPointList() {
+    public LinkedList<PointInfo> getPointList() {
         return mPointList;
     }
 

@@ -15,6 +15,7 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/8.
+ * 画笔类型PopupWindow
  */
 
 public class PaintPopupWindow extends BasePopupWindow implements View.OnClickListener {
@@ -35,7 +36,7 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
     private SeekBar mWidthSeekBar;
 
 
-    public PaintPopupWindow(DrawActivity context, Paint paint, int width, int height){
+    public PaintPopupWindow(DrawActivity context, Paint paint, int width, int height) {
         super(context, width, height);
         this.mPaint = (PaintInfo) paint;
         this.mContext = context;
@@ -98,7 +99,7 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
     @Override
     public void onClick(View view) {
 
-        switch (view.getId()){
+        switch (view.getId()) {
 
             case R.id.pencil_imageView:
                 mPaint.setOrdinaryPen();

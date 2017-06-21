@@ -1,7 +1,6 @@
 package com.cvter.nynote.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.GridLayoutManager;
@@ -24,6 +23,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 
+/**
+ * Created by cvter on 2017/6/2.
+ * 缩略图展示主页面Activity
+ */
 
 public class MainActivity extends BaseActivity implements IMainView {
 
@@ -38,10 +41,6 @@ public class MainActivity extends BaseActivity implements IMainView {
     com.yalantis.phoenix.PullToRefreshView mRefreshPullToRefreshView;
 
     private ThumbnailRecyclerAdapter mThumbnailRecyclerAdapter;
-
-    public static void launch(Context context) {
-        context.startActivity(new Intent(context, MainActivity.class));
-    }
 
     @Override
     protected void initWidget(Bundle bundle) {

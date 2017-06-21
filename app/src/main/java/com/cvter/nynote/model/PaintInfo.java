@@ -16,6 +16,7 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/8.
+ * 画笔封装类
  */
 
 public class PaintInfo extends Paint {
@@ -27,7 +28,7 @@ public class PaintInfo extends Paint {
     private int mPenColor = Color.BLACK;
     private int mPenType = Constants.ORDINARY_PEN;
 
-    public PaintInfo(){
+    public PaintInfo() {
         super(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         init();
     }
@@ -58,20 +59,20 @@ public class PaintInfo extends Paint {
     }
 
     public int getIntMode() {
-        if(mMode == Constants.Mode.DRAW){
+        if (mMode == Constants.Mode.DRAW) {
             return 0;
-        }else{
+        } else {
             return 1;
         }
 
     }
 
-    public void setPenRawSize(int mDrawSize){
+    public void setPenRawSize(int mDrawSize) {
         this.mDrawSize = mDrawSize;
         this.setStrokeWidth(mDrawSize);
     }
 
-    public int getPenRawSize(){
+    public int getPenRawSize() {
         return mDrawSize;
     }
 
@@ -80,36 +81,36 @@ public class PaintInfo extends Paint {
         setColor(mPenColor);
     }
 
-    public void setOrdinaryPen(){
+    public void setOrdinaryPen() {
         mPenType = Constants.ORDINARY_PEN;
         setAlpha(255);
         setMaskFilter(null);
         setPathEffect(null);
     }
 
-    public void setTransPen(){
+    public void setTransPen() {
         mPenType = Constants.TRANS_PEN;
         setAlpha(70);
         setMaskFilter(null);
         setPathEffect(null);
     }
 
-    public void setInkPen(){
+    public void setInkPen() {
         mPenType = Constants.INK_PEN;
         setAlpha(255);
-        setStrokeCap(Cap.SQUARE);
+        //setStrokeCap(Cap.SQUARE);
         setMaskFilter(new BlurMaskFilter(mDrawSize, BlurMaskFilter.Blur.NORMAL));
         setPathEffect(null);
     }
 
-    public void setDiscretePen(){
+    public void setDiscretePen() {
         mPenType = Constants.DISCRETE_PEN;
         setAlpha(255);
         setMaskFilter(null);
         setPathEffect(new DiscretePathEffect(2.0F, 5.0F));
     }
 
-    public void setDashPen(){
+    public void setDashPen() {
         mPenType = Constants.DASH_PEN;
         setAlpha(255);
         setMaskFilter(null);
@@ -119,11 +120,11 @@ public class PaintInfo extends Paint {
         setPathEffect(pathEffect);
     }
 
-    public void setGraphType(int type){
+    public void setGraphType(int type) {
         this.type = type;
     }
 
-    public int getGraphType(){
+    public int getGraphType() {
         return type;
     }
 

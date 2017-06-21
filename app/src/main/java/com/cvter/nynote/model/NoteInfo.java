@@ -2,6 +2,7 @@ package com.cvter.nynote.model;
 
 /**
  * Created by cvter on 2017/6/5.
+ * 笔记bean类
  */
 
 public class NoteInfo {

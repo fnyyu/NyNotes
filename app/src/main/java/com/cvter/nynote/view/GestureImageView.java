@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 /**
  * Created by cvter on 2017/6/20.
+ * 手势ImageView类
  */
 
 public class GestureImageView extends ImageView {
@@ -20,11 +21,12 @@ public class GestureImageView extends ImageView {
     private PointF mPoint;
     private float mDistance;
 
-    private enum Mode{
+    private enum Mode {
         NONE,
         DRAG,
         ZOOM
     }
+
     private Mode mMode = Mode.NONE;
 
     private static final float MAX_SCALE = 3;
@@ -91,11 +93,11 @@ public class GestureImageView extends ImageView {
     //使图像缩放不越界
     private void checkMaxScale(float scale, float[] values) {
         float newScale = scale;
-        if (scale * values[Matrix.MSCALE_X] > MAX_SCALE){
+        if (scale * values[Matrix.MSCALE_X] > MAX_SCALE) {
             newScale = MAX_SCALE / values[Matrix.MSCALE_X];
         }
 
-        if (scale * values[Matrix.MSCALE_X] < MIN_SCALE){
+        if (scale * values[Matrix.MSCALE_X] < MIN_SCALE) {
             newScale = MIN_SCALE / values[Matrix.MSCALE_X];
         }
 
@@ -109,7 +111,7 @@ public class GestureImageView extends ImageView {
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    public void setNormalScale(){
+    public void setNormalScale() {
         this.setImageMatrix(null);
     }
 

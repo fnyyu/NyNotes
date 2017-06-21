@@ -5,13 +5,14 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 /**
  * Created by cvter on 2017/6/15.
+ * ItemTouchHelper监听类
  */
 
 public class RecyclerTouchCallback extends ItemTouchHelper.Callback {
 
     RecyclerTouchPresenter mPresenter;
 
-    public RecyclerTouchCallback(RecyclerTouchPresenter presenter){
+    public RecyclerTouchCallback(RecyclerTouchPresenter presenter) {
         this.mPresenter = presenter;
     }
 

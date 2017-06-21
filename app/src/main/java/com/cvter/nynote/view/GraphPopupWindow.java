@@ -13,9 +13,10 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/8.
+ * 图形PopupWindow
  */
 
-public class GraphPopupWindow extends BasePopupWindow implements View.OnClickListener{
+public class GraphPopupWindow extends BasePopupWindow implements View.OnClickListener {
 
     private Activity mContext;
     private PaintInfo mPaint;
@@ -71,7 +72,7 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.circle_imageView:
                 mPaint.setGraphType(Constants.CIRCLE);
                 break;
@@ -85,7 +86,7 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
                 break;
 
             case R.id.cone_imageView:
-               mPaint.setGraphType(Constants.CONE);
+                mPaint.setGraphType(Constants.CONE);
                 break;
 
             case R.id.sphere_imageView:

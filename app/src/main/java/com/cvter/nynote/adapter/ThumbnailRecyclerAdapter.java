@@ -23,9 +23,10 @@ import java.util.List;
 
 /**
  * Created by cvter on 2017/6/5.
+ * 主页面缩略图适配器RecyclerViewAdapter
  */
 
-public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecyclerAdapter.ThumbnailViewHolder>{
+public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecyclerAdapter.ThumbnailViewHolder> {
 
     private MainActivity mContext;
     private List<NoteInfo> mNotes;
@@ -33,26 +34,26 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
     private boolean ifDeleteSuccess;
     private static final String TAG = "ThumbnailAdapter";
 
-    public ThumbnailRecyclerAdapter(Activity mContext, List<NoteInfo> notes){
+    public ThumbnailRecyclerAdapter(Activity mContext, List<NoteInfo> notes) {
         this.mContext = (MainActivity) mContext;
         this.mNotes = notes;
     }
 
     //清除笔记列表
-    public void clearData(){
+    public void clearData() {
         mNotes.clear();
     }
 
     @Override
     public ThumbnailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView=View.inflate(mContext, R.layout.item_thum_recyclerview,null);
+        View itemView = View.inflate(mContext, R.layout.item_thum_recyclerview, null);
         return new ThumbnailViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(ThumbnailViewHolder holder, final int position) {
 
-        if(mNotes != null && mNotes.get(position) != null){
+        if (mNotes != null && mNotes.get(position) != null) {
             Glide.with(mContext).load(mNotes.get(position).getNotePic()).into(holder.thumbnailImageView);
             String name = mNotes.get(position).getNoteName().replace(".png", "");
             holder.thumbnailTextView.setText(name);
@@ -68,7 +69,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mNotes.get(position) != null ){
+                    if (mNotes.get(position) != null) {
                         Intent intent = new Intent(mContext, DrawActivity.class);
                         intent.putExtra("noteName", mNotes.get(position).getNoteName());
                         intent.putExtra("skipType", "read_note");
@@ -83,7 +84,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
     @Override
     public int getItemCount() {
-        if (mNotes != null && !mNotes.isEmpty()){
+        if (mNotes != null && !mNotes.isEmpty()) {
             return mNotes.size();
         }
         return 0;
@@ -94,7 +95,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
         final AlertDialog isExit = new AlertDialog.Builder(mContext).create();
         isExit.setTitle(mContext.getString(R.string.tips));
-        if(position < mNotes.size() && mNotes.get(position) != null && !mNotes.get(position).getNoteName().isEmpty()){
+        if (position < mNotes.size() && mNotes.get(position) != null && !mNotes.get(position).getNoteName().isEmpty()) {
             isExit.setMessage(mContext.getString(R.string.delete_note) + " [ " + mNotes.get(position).getNoteName().replace(".png", " ]"));
             isExit.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.sure), new DialogInterface.OnClickListener() {
                 @Override
@@ -115,14 +116,14 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
     }
 
     //具体删除操作
-    private void onDeleteHandle(final int position){
+    private void onDeleteHandle(final int position) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     File file1 = new File(Constants.PICTURE_PATH + mNotes.get(position).getNoteName());
                     ifDeleteSuccess = mContext.getIMainPresenter().deleteNote(file1);
-                    File file = new File(Constants.NOTE_PATH +mNotes.get(position).getNoteName().replace(".png", ""));
+                    File file = new File(Constants.NOTE_PATH + mNotes.get(position).getNoteName().replace(".png", ""));
                     mContext.getIMainPresenter().deleteNote(file);
 
                 } catch (Exception e) {
@@ -131,7 +132,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
                 mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (ifDeleteSuccess){
+                        if (ifDeleteSuccess) {
                             mNotes.remove(position);
                             notifyItemRemoved(position);
                             mContext.showToast(mContext.getString(R.string.delete_success));
@@ -145,9 +146,10 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
         }).start();
     }
 
-    class ThumbnailViewHolder extends RecyclerView.ViewHolder{
+    class ThumbnailViewHolder extends RecyclerView.ViewHolder {
         ImageView thumbnailImageView;
         TextView thumbnailTextView;
+
         private ThumbnailViewHolder(View itemView) {
             super(itemView);
             thumbnailImageView = (ImageView) itemView.findViewById(R.id.thumbnail_imageView);

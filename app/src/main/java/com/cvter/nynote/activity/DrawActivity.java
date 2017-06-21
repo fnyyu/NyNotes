@@ -42,7 +42,7 @@ import com.cvter.nynote.view.PaintView;
 import com.cvter.nynote.view.PictureAlertDialog;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +52,10 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
+/**
+ * Created by cvter on 2017/6/2.
+ * 绘制页面Activity
+ */
 
 public class DrawActivity extends BaseActivity implements IPictureView, PathWFCallback {
 
@@ -107,7 +111,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     if (skipType.equals(Constants.NEW_EDIT)) {
                         mFileAlertDialog.show();
                     } else {
-                        EditFileSave();
+                        editFileSave();
                     }
 
                     break;
@@ -317,7 +321,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 if (getIntent().getExtras().getString("skipType").equals("new_edit")) {
                     mFileAlertDialog.show();
                 } else {
-                    EditFileSave();
+                    editFileSave();
                 }
                 break;
 
@@ -408,7 +412,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         return mAllPagesTextView;
     }
 
-    private void EditFileSave() {
+    private void editFileSave() {
 
         if (mDrawPaintView.getIsHasBG() && mDrawPaintView.getBackgroundBitmap() != null) {
             mFilePresenter.saveAsBg(mDrawPaintView.getBackgroundBitmap(),
@@ -478,8 +482,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         return pageSize;
     }
 
-    public void setCanScale(){
-        mRevertList = new ArrayList<>(mDrawPaintView.getDrawingList());
+    public void setCanScale() {
+        mRevertList = new LinkedList<>(mDrawPaintView.getDrawingList());
         scaleImageView.setImageBitmap(mFileAlertDialog.getSaveBitmap());
         mDrawPaintView.clear();
         scaleImageView.bringToFront();
@@ -487,7 +491,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         morePagesLinearLayout.bringToFront();
     }
 
-    public void setNoScale(){
+    public void setNoScale() {
         mDrawPaintView.setDrawingList(mRevertList);
         scaleImageView.setVisibility(View.GONE);
         mDrawPaintView.setVisibility(View.VISIBLE);

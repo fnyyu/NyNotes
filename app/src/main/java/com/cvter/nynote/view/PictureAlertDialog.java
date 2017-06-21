@@ -15,6 +15,7 @@ import java.io.File;
 
 /**
  * Created by cvter on 2017/6/9.
+ * 图片选择AlertDialog
  */
 
 public class PictureAlertDialog extends AlertDialog {
@@ -57,14 +58,14 @@ public class PictureAlertDialog extends AlertDialog {
     }
 
     //跳转到相册
-    private void skipToGallery(){
+    private void skipToGallery() {
         Intent intentGallery = new Intent(Intent.ACTION_PICK, null);
         intentGallery.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         mContext.startActivityForResult(intentGallery, Constants.GALLEY_PICK);
     }
 
     //跳转到相机
-    private void skipToCamera(){
+    private void skipToCamera() {
         Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File file = mContext.getPicturePresenter().createImgFile(mContext.getCurPagesTextView().getText().toString());
         mPhotoPath = file.getPath();

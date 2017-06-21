@@ -24,14 +24,15 @@ import com.cvter.nynote.presenter.PathWFCallback;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.DrawPolygon;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by cvter on 2017/6/6.
+ * 绘制SurfaceView
  */
 
-public class PaintView extends SurfaceView implements SurfaceHolder.Callback, ScaleGestureDetector.OnScaleGestureListener{
+public class PaintView extends SurfaceView implements SurfaceHolder.Callback, ScaleGestureDetector.OnScaleGestureListener {
 
     private SurfaceHolder mHolder;
     private Canvas mCanvas;
@@ -43,11 +44,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private int mMinDistance;
     private boolean ifCanDraw;
 
-    private static final int MAX_CACHE_STEP = 20;
-
     private List<PathInfo> mDrawingList;
     private List<PathInfo> mRemovedList;
-    private ArrayList<PointInfo> mPointList;
+    private LinkedList<PointInfo> mPointList;
     private DrawPolygon mDrawPolygon;
 
     private boolean mCanEraser;
@@ -72,13 +71,13 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         init();
     }
 
-    public void setCallback(PathWFCallback callback){
+    public void setCallback(PathWFCallback callback) {
         mCallback = callback;
     }
 
     //画板初始化
     private void init() {
-        mHolder=getHolder();
+        mHolder = getHolder();
         mHolder.addCallback(this);
         mHolder.setFormat(PixelFormat.TRANSLUCENT);
         setFocusable(true);
@@ -94,7 +93,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(!ifCanDraw){
+        if (!ifCanDraw) {
             return false;
         }
 
@@ -110,7 +109,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if(Math.abs(x - mLastX) < mMinDistance && Math.abs(y - mLastY) < mMinDistance){
+                if (Math.abs(x - mLastX) < mMinDistance && Math.abs(y - mLastY) < mMinDistance) {
                     return true;
                 }
                 if (mPaint.getMode() == Constants.Mode.ERASER && !mCanEraser) {
@@ -134,26 +133,26 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     //手指按下
-    private void actionDown(float x, float y){
-        mPointList = new ArrayList<>();
+    private void actionDown(float x, float y) {
+        mPointList = new LinkedList<>();
         mPointList.add(new PointInfo(x, y));
         mLastX = x;
         mLastY = y;
-        if(mPaint.getGraphType() == Constants.ORDINARY){
+        if (mPaint.getGraphType() == Constants.ORDINARY) {
             if (mPath == null) {
                 mPath = new Path();
             }
             mPath.moveTo(x, y);
-        }else{
+        } else {
             mGraphPath = new Path();
             mGraphPath.moveTo(x, y);
         }
     }
 
     //手指滑动
-    private void actionMove(float x, float y){
+    private void actionMove(float x, float y) {
 
-        switch (mPaint.getGraphType()){
+        switch (mPaint.getGraphType()) {
             case Constants.ORDINARY:
                 mPointList.add(new PointInfo(x, y));
                 mPath.quadTo(mLastX, mLastY, (x + mLastX) / 2, (y + mLastY) / 2);
@@ -178,11 +177,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
                 break;
 
             case Constants.PENTAGON:
-                mDrawPolygon.drawPentagon(mGraphPath, y-mLastY, mLastX, mLastY);
+                mDrawPolygon.drawPentagon(mGraphPath, y - mLastY, mLastX, mLastY);
                 break;
 
             case Constants.STAR:
-                mDrawPolygon.drawStar(mGraphPath, y-mLastY, mLastX, mLastY);
+                mDrawPolygon.drawStar(mGraphPath, y - mLastY, mLastX, mLastY);
                 break;
 
             case Constants.SPHERE:
@@ -204,19 +203,19 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     //手指抬起
-    private void actionUp(float x, float y){
+    private void actionUp(float x, float y) {
         mPointList.add(new PointInfo(x, y));
 
         if (mPaint.getMode() == Constants.Mode.DRAW || mCanEraser) {
             saveDrawingPath();
         }
 
-        if ( mPaint.getGraphType() == Constants.ORDINARY && mPath != null){
-            mCanvas.drawPath(mPath,mPaint);
+        if (mPaint.getGraphType() == Constants.ORDINARY && mPath != null) {
+            mCanvas.drawPath(mPath, mPaint);
             mPath.reset();
         }
 
-        if (mPaint.getGraphType() != Constants.ORDINARY && mGraphPath != null){
+        if (mPaint.getGraphType() != Constants.ORDINARY && mGraphPath != null) {
             mCanvas.drawPath(mGraphPath, mPaint);
             mGraphPath.reset();
         }
@@ -239,12 +238,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     //绘制于bitmap上
-    public void drawBitmap(Canvas canvas){
+    public void drawBitmap(Canvas canvas) {
         if (mBufferBitmap != null && mPaint != null) {
             canvas.drawBitmap(mBufferBitmap, 0, 0, null);
         }
 
-        if (mPath != null && mPaint!= null) {
+        if (mPath != null && mPaint != null) {
             canvas.drawPath(mPath, mPaint);
         }
 
@@ -254,7 +253,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {}
+    public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
+    }
 
     @Override
     public void surfaceCreated(SurfaceHolder arg0) {
@@ -266,17 +266,15 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     //保存路径
-    private void saveDrawingPath(){
+    private void saveDrawingPath() {
         Path cachePath;
         Paint cachePaint;
         if (mDrawingList == null) {
-            mDrawingList = new ArrayList<>(MAX_CACHE_STEP);
-        } else if (mDrawingList.size() == MAX_CACHE_STEP) {
-            mDrawingList.remove(0);
+            mDrawingList = new LinkedList<>();
         }
-        if(mPaint.getGraphType() == Constants.ORDINARY){
+        if (mPaint.getGraphType() == Constants.ORDINARY) {
             cachePath = new Path(mPath);
-        }else{
+        } else {
             cachePath = new Path(mGraphPath);
         }
         cachePaint = new Paint(mPaint);
@@ -300,7 +298,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     //支持恢复
-    public boolean canForward(){
+    public boolean canForward() {
         return mDrawingList != null && !mDrawingList.isEmpty();
     }
 
@@ -329,7 +327,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         if (size > 0 && mDrawingList != null) {
             PathInfo info = mDrawingList.remove(size - 1);
             if (mRemovedList == null) {
-                mRemovedList = new ArrayList<>(MAX_CACHE_STEP);
+                mRemovedList = new LinkedList<>();
             }
             if (size == 1) {
                 mCanEraser = false;
@@ -377,10 +375,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     @Override
-    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {}
+    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+    }
 
     //获取屏幕大小
-    private int[] getScreenSize( ) {
+    private int[] getScreenSize() {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
@@ -402,7 +401,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     }
 
     //返回bitmap
-    public Bitmap getBitmap(){
+    public Bitmap getBitmap() {
         return mBufferBitmap;
     }
 
@@ -425,7 +424,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     public void setDrawingList(List<PathInfo> newDrawPathList) {
         this.mDrawingList = newDrawPathList;
         if (null != mDrawingList && !mDrawingList.isEmpty()) {
-            for(PathInfo drawPath : mDrawingList){
+            for (PathInfo drawPath : mDrawingList) {
                 mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
             }
             draw();
@@ -436,7 +435,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         this.ifCanDraw = ifCanDraw;
     }
 
-    public boolean getIfCanDraw(){
-        return  ifCanDraw;
+    public boolean getIfCanDraw() {
+        return ifCanDraw;
     }
 }

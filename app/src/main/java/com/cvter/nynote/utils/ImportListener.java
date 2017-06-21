@@ -6,11 +6,13 @@ import java.util.List;
 
 /**
  * Created by cvter on 2017/6/9.
+ * 导入监听类
  */
 
 public interface ImportListener {
 
     void onSuccess(List<PathInfo> info);
+
     void onFail(String toastMessage);
 
 }

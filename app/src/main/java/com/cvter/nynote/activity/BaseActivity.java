@@ -29,6 +29,7 @@ import butterknife.Unbinder;
 
 /**
  * Created by cvter on 2017/6/2.
+ * Activity基类
  */
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -37,8 +38,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //需要进行检测的权限数组
     protected String[] mNeedPermissions = {
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
     };
 
     private static final int PERMISSION_REQUEST_CODE = 0;
@@ -46,7 +47,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         Bundle bundle = getIntent().getExtras();
         initParams(bundle);
 
@@ -56,7 +57,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mUnBinder = ButterKnife.bind(this);
 
         checkPermissions(mNeedPermissions);
-        
+
         initWidget(savedInstanceState);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //不可横屏
@@ -87,7 +88,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     //页面跳转
     public void startActivity(Class<?> clz) {
-        startActivity(new Intent(BaseActivity.this,clz));
+        startActivity(new Intent(BaseActivity.this, clz));
     }
 
     // 携带数据的页面跳转
@@ -112,13 +113,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     // 简化Toast
-    public void showToast(String msg){
-        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+    public void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
 
     //检查应用权限设置
-    private void checkPermissions(String... permissions){
+    private void checkPermissions(String... permissions) {
         List<String> needRequestPermissionList = findDeniedPermissions(permissions);
         if (!needRequestPermissionList.isEmpty()) {
             ActivityCompat.requestPermissions(this,

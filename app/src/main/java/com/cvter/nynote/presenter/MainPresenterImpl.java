@@ -7,7 +7,7 @@ import com.cvter.nynote.view.IMainView;
 
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -18,16 +18,17 @@ import rx.schedulers.Schedulers;
 
 /**
  * Created by cvter on 2017/6/2.
+ * 主页面逻辑实现类
  */
 
-public class MainPresenterImpl implements IMainPresenter{
+public class MainPresenterImpl implements IMainPresenter {
 
     private IMainView mIMainView;
     private static final String TAG = "MainPresenterImpl";
 
-    private ArrayList<NoteInfo> mNotes = new ArrayList<>();
+    private LinkedList<NoteInfo> mNotes = new LinkedList<>();
 
-    public MainPresenterImpl(IMainView iMainView){
+    public MainPresenterImpl(IMainView iMainView) {
         this.mIMainView = iMainView;
     }
 
@@ -68,7 +69,7 @@ public class MainPresenterImpl implements IMainPresenter{
                     @Override
                     public Boolean call(File file) {
 
-                        return file.getName().endsWith(".png")||file.getName().endsWith(".jpg")||file.getName().endsWith(".jpeg");
+                        return file.getName().endsWith(".png") || file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg");
                     }
                 })
                 .map(new Func1<File, NoteInfo>() {
@@ -87,10 +88,12 @@ public class MainPresenterImpl implements IMainPresenter{
                     public void onCompleted() {//onNext（）执行完后调用
                         mIMainView.onLoadImagesCompleted(mNotes);
                     }
+
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, e.getMessage());
                     }
+
                     @Override
                     public void onNext(NoteInfo note) {
                         mNotes.add(note);
