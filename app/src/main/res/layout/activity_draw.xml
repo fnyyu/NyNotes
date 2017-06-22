@@ -22,23 +22,6 @@
         tools:targetApi="lollipop"
         />
 
-    <TextView
-        android:layout_marginTop="70dp"
-        android:background="@drawable/dialog_shape"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scale_textView"/>
-
-    <com.cvter.nynote.view.GestureImageView
-        android:visibility="gone"
-        android:scaleType="matrix"
-        android:layout_marginTop="50dp"
-        android:id="@+id/scale_imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <com.cvter.nynote.view.PaintView
         android:background="@android:color/transparent"
         android:layout_marginTop="50dp"

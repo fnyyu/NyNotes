@@ -9,6 +9,7 @@ import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.RectF;
 import android.graphics.Xfermode;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -83,12 +84,13 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     private void init() {
         mHolder = getHolder();
         mHolder.addCallback(this);
-        mHolder.setFormat(PixelFormat.TRANSLUCENT);
+        //mHolder.setFormat(PixelFormat.OPAQUE);
+
         setFocusable(true);
         setFocusableInTouchMode(true);
         this.setKeepScreenOn(true);
         mPaint = new PaintInfo();
-        mPaint.setStrokeWidth(20);
+        mPaint.setStrokeWidth(7);
         mBufferBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBufferBitmap);
         mDrawPolygon = new DrawPolygon();

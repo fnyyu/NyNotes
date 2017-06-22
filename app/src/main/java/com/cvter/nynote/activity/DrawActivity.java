@@ -33,16 +33,15 @@ import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.ImportListener;
 import com.cvter.nynote.utils.SaveListener;
 import com.cvter.nynote.view.FileAlertDialog;
-import com.cvter.nynote.view.GestureImageView;
-import com.cvter.nynote.view.GraphPopupWindow;
+import com.cvter.nynote.view.GraphDialog;
 import com.cvter.nynote.view.IPictureView;
-import com.cvter.nynote.view.PagesPopupWindow;
-import com.cvter.nynote.view.PaintPopupWindow;
+import com.cvter.nynote.view.MatrixView;
+import com.cvter.nynote.view.PagesDialog;
+import com.cvter.nynote.view.PaintDialog;
 import com.cvter.nynote.view.PaintView;
 import com.cvter.nynote.view.PictureAlertDialog;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -59,10 +58,7 @@ import rx.functions.Action1;
 
 public class DrawActivity extends BaseActivity implements IPictureView, PathWFCallback {
 
-    @BindView(R.id.scale_imageView)
-    GestureImageView scaleImageView;
-    @BindView(R.id.more_pages_linearLayout)
-    LinearLayout morePagesLinearLayout;
+    private MatrixView matrixView;
     private PicturePresenter mPicturePresenter;
     private IFilePresenter mFilePresenter;
 
@@ -84,6 +80,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @BindView(R.id.forward_imageView)
     ImageView mForwardImageView;
 
+    @BindView(R.id.more_pages_linearLayout)
+    LinearLayout morePagesLinearLayout;
     @BindView(R.id.draw_paintView)
     PaintView mDrawPaintView;
     @BindView(R.id.cur_pages_textView)
@@ -92,17 +90,16 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     TextView mAllPagesTextView;
 
     private FileAlertDialog mFileAlertDialog;
-    private PaintPopupWindow mPaintPopupWindow;
-    private GraphPopupWindow mGraphPopupWindow;
+    private PaintDialog mPaintDialog;
+    private GraphDialog mGraphDialog;
     private PictureAlertDialog mPictureDialog;
-    private PagesPopupWindow mPagesPopupWindow;
+    private PagesDialog mPagesDialog;
 
     private String skipType = "";
     private boolean ifCanDraw;
     private static final String TAG = "DrawActivity";
     private int pageSize = 0;
     private String noteName = "";
-    private List<PathInfo> mRevertList;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -131,9 +128,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mDrawActivityLayout.setClickable(true);
 
         mFileAlertDialog = new FileAlertDialog(this);
-        mPaintPopupWindow = new PaintPopupWindow(this, mDrawPaintView.getPaint(), 600, 400);
-        mGraphPopupWindow = new GraphPopupWindow(this, mDrawPaintView.getPaint(), 500, 400);
-        mPagesPopupWindow = new PagesPopupWindow(this, Constants.getScreenSize(this)[0], Constants.getScreenSize(this)[1] / 3);
+        mPaintDialog = new PaintDialog(this, mDrawPaintView.getPaint());
+        mGraphDialog = new GraphDialog(this, mDrawPaintView.getPaint());
+        mPagesDialog = new PagesDialog(this);
 
         mPicturePresenter = new PicturePresenterImpl(this);
         mFilePresenter = new FilePresenterImpl(this);
@@ -159,9 +156,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @Override
     public void setListener() {
         mFileAlertDialog.setListener();
-        mPaintPopupWindow.setListener();
-        mGraphPopupWindow.setListener();
-        mPagesPopupWindow.setListener();
+        mPaintDialog.setListener();
+        mGraphDialog.setListener();
+        mPagesDialog.setListener();
     }
 
     @Override
@@ -186,7 +183,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     final String imagePath = Constants.NOTE_PATH + noteName + "/bg/1.png";
                     pageSize = mFilePresenter.getFileSize(Constants.NOTE_PATH + noteName + "/xml");
                     mAllPagesTextView.setText(String.valueOf(pageSize));
-                    mPagesPopupWindow.setSaveBitmapSize(pageSize);
+                    mPagesDialog.setSaveBitmapSize(pageSize);
                     mFilePresenter.importXML(notePath, new ImportListener() {
                         @Override
                         public void onSuccess(List<PathInfo> info) {
@@ -245,13 +242,13 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @OnClick({R.id.draw_imageView, R.id.gesture_imageView, R.id.share_imageView,
             R.id.export_imageView, R.id.pen_imageView, R.id.eraser_imageView,
             R.id.withdraw_imageView, R.id.picture_imageView, R.id.graph_imageView,
-            R.id.forward_imageView, R.id.clear_imageView, R.id.save_imageView})
+            R.id.forward_imageView, R.id.clear_imageView, R.id.save_imageView,
+            R.id.choose_imageView})
 
     public void onViewClicked(View view) {
 
         switch (view.getId()) {
             case R.id.draw_imageView:
-                setNoScale();
                 mReadingTitleLayout.setVisibility(View.GONE);
                 mDrawingTitleLayout.setVisibility(View.VISIBLE);
                 mDrawPaintView.setIfCanDraw(true);
@@ -261,12 +258,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.gesture_imageView:
-                if (scaleImageView.getVisibility() == View.VISIBLE) {
-                    setNoScale();
-
-                } else {
-                    setCanScale();
-                }
 
 
                 break;
@@ -281,11 +272,21 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.pen_imageView:
+
+                /*List<PathInfo> mRevertList = new LinkedList<>(matrixView.getMatrixList());
+
+                if (!mRevertList.isEmpty()) {
+                    mDrawPaintView.setDrawingList(mRevertList);
+                    matrixView.recycle();
+                 }
+
+                mDrawActivityLayout.removeView(matrixView);
+                morePagesLinearLayout.setEnabled(true);*/
                 view.setSelected(true);
                 mEraserImageView.setSelected(false);
                 mDrawPaintView.getPaint().setMode(Constants.Mode.DRAW);
                 mDrawPaintView.getPaint().setPenRawSize(mDrawPaintView.getPaint().getPenRawSize());
-                mPaintPopupWindow.showAsDropDown(mDrawingTitleLayout, 0, 10);
+                mPaintDialog.show();
                 break;
 
             case R.id.eraser_imageView:
@@ -306,7 +307,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
             case R.id.graph_imageView:
                 mDrawPaintView.getPaint().setMode(Constants.Mode.DRAW);
-                mGraphPopupWindow.showAsDropDown(mDrawingTitleLayout, 330, 10);
+                mGraphDialog.show();
                 break;
 
             case R.id.forward_imageView:
@@ -315,6 +316,26 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
             case R.id.clear_imageView:
                 mDrawPaintView.clear();
+                break;
+
+            case R.id.choose_imageView:
+
+                /*matrixView = new MatrixView(this);
+                matrixView.setMinimumWidth(mDrawPaintView.getWidth());
+                matrixView.setMinimumHeight(mDrawPaintView.getHeight());
+                mDrawActivityLayout.addView(matrixView);
+                RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) matrixView.getLayoutParams();
+                lp.setMargins(0, mDrawingTitleLayout.getHeight(), 0, 0);
+                matrixView.setLayoutParams(lp);
+
+
+                if (mDrawPaintView.getDrawingList() != null && !mDrawPaintView.getDrawingList().isEmpty()) {
+                    matrixView.setOnDraw(new ArrayList<>(mDrawPaintView.getDrawingList()));
+                    matrixView.bringToFront();
+                    morePagesLinearLayout.bringToFront();
+                    morePagesLinearLayout.setEnabled(false);
+                    mDrawPaintView.clear();
+                }*/
                 break;
 
             case R.id.save_imageView:
@@ -482,29 +503,17 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         return pageSize;
     }
 
-    public void setCanScale() {
-        mRevertList = new LinkedList<>(mDrawPaintView.getDrawingList());
-        scaleImageView.setImageBitmap(mFileAlertDialog.getSaveBitmap());
-        mDrawPaintView.clear();
-        scaleImageView.bringToFront();
-        scaleImageView.setVisibility(View.VISIBLE);
-        morePagesLinearLayout.bringToFront();
-    }
-
-    public void setNoScale() {
-        mDrawPaintView.setDrawingList(mRevertList);
-        scaleImageView.setVisibility(View.GONE);
-        mDrawPaintView.setVisibility(View.VISIBLE);
-        morePagesLinearLayout.setVisibility(View.VISIBLE);
-        scaleImageView.setNormalScale();
+    public PagesDialog getPagesDialog() {
+        return mPagesDialog;
     }
 
     @OnClick(R.id.more_pages_linearLayout)
     public void onPageViewClicked() {
         if (mDrawPaintView.getIfCanDraw()) {
-            mPagesPopupWindow.updateData(Integer.parseInt(mCurPagesTextView.getText().toString()));
+            mPagesDialog.updateData(Integer.parseInt(mCurPagesTextView.getText().toString()));
         }
-        mPagesPopupWindow.showAsDropDown(mCurPagesTextView, 0, 50);
+
+        mPagesDialog.show();
 
     }
 

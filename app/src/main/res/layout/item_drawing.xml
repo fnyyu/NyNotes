@@ -68,6 +68,14 @@
         android:src="@mipmap/clear" />
 
     <ImageView
+        android:id="@+id/choose_imageView"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_weight="1"
+        android:contentDescription="@string/draw_choose"
+        android:src="@mipmap/choose" />
+
+    <ImageView
         android:id="@+id/save_imageView"
         android:layout_width="0dp"
         android:layout_height="25dp"

@@ -1,9 +1,15 @@
 package com.cvter.nynote.view;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
@@ -15,10 +21,10 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/8.
- * 画笔类型PopupWindow
+ * 画笔类型Dialog
  */
 
-public class PaintPopupWindow extends BasePopupWindow implements View.OnClickListener {
+public class PaintDialog extends AlertDialog implements View.OnClickListener {
 
     private DrawActivity mContext;
     private PaintInfo mPaint;
@@ -36,16 +42,15 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
     private SeekBar mWidthSeekBar;
 
 
-    public PaintPopupWindow(DrawActivity context, Paint paint, int width, int height) {
-        super(context, width, height);
+    public PaintDialog(DrawActivity context , Paint paint) {
+        super(context);
         this.mPaint = (PaintInfo) paint;
         this.mContext = context;
         initLayout();
     }
 
     private void initLayout() {
-        View viewPaint = LayoutInflater.from(mContext).inflate(R.layout.window_pen_species, null);
-        this.setContentView(viewPaint);
+        View viewPaint = LayoutInflater.from(mContext).inflate(R.layout.dialog_pen_species, null);
 
         mPencilImageView = (ImageView) viewPaint.findViewById(R.id.pencil_imageView);
         mFountainImageView = (ImageView) viewPaint.findViewById(R.id.fountain_imageView);
@@ -60,6 +65,8 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
         mBlueImageView = (ImageView) viewPaint.findViewById(R.id.blue_imageView);
         mRedImageView = (ImageView) viewPaint.findViewById(R.id.red_imageView);
         mYellowImageView = (ImageView) viewPaint.findViewById(R.id.yellow_imageView);
+
+        setView(viewPaint);
 
     }
 
@@ -149,5 +156,6 @@ public class PaintPopupWindow extends BasePopupWindow implements View.OnClickLis
             default:
                 break;
         }
+        dismiss();
     }
 }

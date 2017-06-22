@@ -22,7 +22,7 @@ import com.cvter.nynote.utils.Constants;
 
 public class PaintInfo extends Paint {
 
-    private int mDrawSize = 20;
+    private int mDrawSize = 7;
     private int type = Constants.ORDINARY;
     private Constants.Mode mMode = Constants.Mode.DRAW;
     private Xfermode mClearMode;

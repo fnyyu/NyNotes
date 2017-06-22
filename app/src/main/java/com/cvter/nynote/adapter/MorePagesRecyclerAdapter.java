@@ -134,6 +134,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                                 if (mPathCache.get(savePosition) != null) {
                                     mContext.getDrawPaintView().setDrawingList(mPathCache.get(savePosition));
                                 }
+                                mContext.getPagesDialog().dismiss();
                             }
 
                             @Override
@@ -158,6 +159,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 mContext.getCurPagesTextView().setText(String.valueOf(position + 1));
                 final List<PathInfo> curList;
                 if (mContext.getDrawPaintView().getDrawingList() != null) {
@@ -171,6 +173,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                         Constants.TEMP_XML_PATH + "/" + mEditPosition + ".xml", new SaveListener() {
                             @Override
                             public void onSuccess() {
+                                mContext.getPagesDialog().dismiss();
                             }
 
                             @Override
@@ -223,13 +226,14 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 mContext.getCurPagesTextView().setText(String.valueOf(position + 1));
                 mPresenter.importXML(mNoteName + "xml/" + (position + 1) + ".xml", new ImportListener() {
                     @Override
                     public void onSuccess(List<PathInfo> info) {
                         mContext.getDrawPaintView().clear();
                         mContext.getDrawPaintView().setDrawingList(info);
-                        mContext.setCanScale();
+                        mContext.getPagesDialog().dismiss();
                     }
 
                     @Override

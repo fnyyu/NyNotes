@@ -18,6 +18,7 @@
     <string name="draw_picture">图片</string>
     <string name="draw_graph">图形</string>
     <string name="draw_clear">清除</string>
+    <string name="draw_choose">选择</string>
 
     <string name="fileName">文件名 : </string>
     <string name="sure">确定</string>

@@ -1,25 +1,39 @@
 package com.cvter.nynote.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.support.annotation.Nullable;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.ImageView;
+import android.view.View;
+import android.view.ViewTreeObserver;
+
+import com.cvter.nynote.model.PathInfo;
+import com.cvter.nynote.utils.Constants;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by cvter on 2017/6/20.
- * 手势ImageView类
+ * Created by cvter on 2017/6/22.\
+ * 缩放拖拽操作View
  */
 
-public class GestureImageView extends ImageView {
+public class MatrixView extends View {
 
     private Matrix mMatrix;
     private Matrix mSaveMatrix;
 
     private PointF mPoint;
     private float mDistance;
+
+    private float[] mCoefficient = {100.0f, 100.0f};
+
+    private List<PathInfo> mDrawingList;
+
+    private Canvas mCanvas;
 
     private enum Mode {
         NONE,
@@ -32,19 +46,32 @@ public class GestureImageView extends ImageView {
     private static final float MAX_SCALE = 3;
     private static final float MIN_SCALE = (float) 0.3;
 
-    public GestureImageView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+    private Bitmap mBitmap;
+
+    public MatrixView(Context context) {
+        super(context);
+        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                init();
+            }
+        });
+    }
+
+    private void init() {
         mPoint = new PointF();
         mMatrix = new Matrix();
         mSaveMatrix = new Matrix();
+        mBitmap = Bitmap.createBitmap(Constants.getScreenSize(getContext())[0],
+                Constants.getScreenSize(getContext())[1], Bitmap.Config.ARGB_4444);
+        mCanvas = new Canvas(mBitmap);
+        mCanvas.drawColor(Color.TRANSPARENT);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                setScaleType(ScaleType.MATRIX);
-                mMatrix.set(getImageMatrix());
                 mSaveMatrix.set(mMatrix);
                 mPoint.set(event.getX(), event.getY());
                 mMode = Mode.DRAG;
@@ -85,9 +112,27 @@ public class GestureImageView extends ImageView {
             default:
                 break;
         }
+        invalidate();
 
-        this.setImageMatrix(mMatrix);
         return true;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+            for (PathInfo drawPath : mDrawingList) {
+                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+            }
+            invalidate();
+        }
+
+        if (mBitmap != null) {
+            canvas.drawBitmap(mBitmap, mMatrix, null);
+        }
+    }
+
+    public void setOnDraw(List<PathInfo> newDrawPathList) {
+        this.mDrawingList = new ArrayList<>(newDrawPathList);
     }
 
     //使图像缩放不越界
@@ -111,8 +156,26 @@ public class GestureImageView extends ImageView {
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    public void setNormalScale() {
-        this.setImageMatrix(null);
+    public List<PathInfo> getMatrixList() {
+
+        mMatrix.mapPoints(mCoefficient);
+        float times = mCoefficient[0] - 100.0f;
+        List<PathInfo> newList = new ArrayList<>(mDrawingList);
+
+        for (int i = 0; i < newList.size(); i++) {
+            for (int j = 0; j < newList.get(i).getPointList().size(); j++){
+                newList.get(i).getPointList().get(j).mPointX += times;
+                newList.get(i).getPointList().get(j).mPointY += times;
+            }
+        }
+        return newList;
+    }
+
+    public void recycle(){
+        if(mBitmap != null && !mBitmap.isRecycled()){
+            mBitmap.recycle();
+            mBitmap = null;
+        }
     }
 
 }

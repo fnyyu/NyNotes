@@ -1,6 +1,7 @@
 package com.cvter.nynote.view;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,7 +10,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.cvter.nynote.R;
 import com.cvter.nynote.activity.DrawActivity;
@@ -20,30 +24,31 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/14.
- * 多页PopupWindow
+ * 多页Dialog
  */
 
-public class PagesPopupWindow extends BasePopupWindow {
+public class PagesDialog extends AlertDialog {
 
     private DrawActivity mContext;
     private ImageView mMorePageImageView;
 
     private MorePagesRecyclerAdapter mAdapter;
     private Bitmap mAddBitmap;
+    private Bitmap mCurrentBitmap;
 
-    public PagesPopupWindow(Activity context, int width, int height) {
-        super(context, width, height);
+    public PagesDialog(Activity context) {
+        super(context);
         this.mContext = (DrawActivity) context;
         initLayout();
     }
 
     private void initLayout() {
-        View pagesView = LayoutInflater.from(mContext).inflate(R.layout.window_page_list, null);
-        this.setContentView(pagesView);
+        View pagesView = LayoutInflater.from(mContext).inflate(R.layout.dialog_page_list, null);
 
         mMorePageImageView = (ImageView) pagesView.findViewById(R.id.more_pages_imageView);
         RecyclerView morePageRecyclerView = (RecyclerView) pagesView.findViewById(R.id.more_pages_recyclerView);
 
+        this.setView(pagesView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         morePageRecyclerView.setLayoutManager(linearLayoutManager);
@@ -58,6 +63,15 @@ public class PagesPopupWindow extends BasePopupWindow {
 
         mAddBitmap = Bitmap.createBitmap(69, 110, Bitmap.Config.RGB_565);
         mAddBitmap.eraseColor(Color.WHITE);
+
+        Window dialogWindow = getWindow();
+        WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+        //dialogWindow.setGravity(Gravity.BOTTOM);
+        lp.width = LinearLayout.LayoutParams.MATCH_PARENT;
+        lp.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        lp.y = 500;
+        dialogWindow.setAttributes(lp);
+        setCanceledOnTouchOutside(true);
 
     }
 
@@ -121,10 +135,17 @@ public class PagesPopupWindow extends BasePopupWindow {
     @Override
     public void dismiss() {
         if (mContext.getDrawPaintView().getIfCanDraw()) {
-            mContext.getAllPagesTextView().setText(Integer.toString(mAdapter.getPages().size()));
+            mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
+        }
+        if (mCurrentBitmap != null) {
+            mCurrentBitmap = null;
+        }
+        if (mAddBitmap != null) {
+            mAddBitmap = null;
         }
 
         super.dismiss();
+
     }
 
 }

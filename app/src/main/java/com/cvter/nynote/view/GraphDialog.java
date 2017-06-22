@@ -1,9 +1,15 @@
 package com.cvter.nynote.view;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.cvter.nynote.model.PaintInfo;
@@ -13,10 +19,10 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/8.
- * 图形PopupWindow
+ * 图形Dialog
  */
 
-public class GraphPopupWindow extends BasePopupWindow implements View.OnClickListener {
+public class GraphDialog extends AlertDialog implements View.OnClickListener {
 
     private Activity mContext;
     private PaintInfo mPaint;
@@ -33,16 +39,15 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
     private ImageView mSphereImageView;
     private ImageView mCubeImageView;
 
-    public GraphPopupWindow(Activity context, Paint paint, int width, int height) {
-        super(context, width, height);
+    public GraphDialog(Activity context, Paint paint) {
+        super(context);
         this.mContext = context;
         this.mPaint = (PaintInfo) paint;
         initLayout();
     }
 
     private void initLayout() {
-        View graphView = LayoutInflater.from(mContext).inflate(R.layout.window_graph_species, null);
-        this.setContentView(graphView);
+        View graphView = LayoutInflater.from(mContext).inflate(R.layout.dialog_graph_species, null);
 
         mCircleImageView = (ImageView) graphView.findViewById(R.id.circle_imageView);
         mLineImageView = (ImageView) graphView.findViewById(R.id.line_imageView);
@@ -53,6 +58,8 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
         mDeltaImageView = (ImageView) graphView.findViewById(R.id.delta_imageView);
         mPentagonImageView = (ImageView) graphView.findViewById(R.id.pentagon_imageView);
         mStarImageView = (ImageView) graphView.findViewById(R.id.star_imageView);
+
+        setView(graphView);
 
     }
 
@@ -72,6 +79,7 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
+
         switch (view.getId()) {
             case R.id.circle_imageView:
                 mPaint.setGraphType(Constants.CIRCLE);
@@ -112,5 +120,6 @@ public class GraphPopupWindow extends BasePopupWindow implements View.OnClickLis
             default:
                 break;
         }
+        dismiss();
     }
 }
