@@ -1,6 +1,7 @@
 package com.cvter.nynote.presenter;
 
 import android.graphics.Bitmap;
+import android.graphics.Path;
 
 import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.utils.ImportListener;
@@ -33,4 +34,6 @@ public interface IFilePresenter {
     int getFileSize(String filePath);
 
     boolean deleteFile(File file);
+
+    void handleGraphType(Path path, float startX, float startY, float x, float y, int type);
 }

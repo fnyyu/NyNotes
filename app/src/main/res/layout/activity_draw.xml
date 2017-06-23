@@ -22,6 +22,14 @@
         tools:targetApi="lollipop"
         />
 
+    <com.cvter.nynote.view.MatrixView
+        android:visibility="invisible"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="50dp"
+        android:id="@+id/draw_matrixView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <com.cvter.nynote.view.PaintView
         android:background="@android:color/transparent"
         android:layout_marginTop="50dp"

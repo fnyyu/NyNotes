@@ -533,7 +533,8 @@ public class FilePresenterImpl implements IFilePresenter {
     }
 
     // 根据Path的类型来处理Path
-    private void handleGraphType(Path path, float startX, float startY, float x, float y, int type) {
+    @Override
+    public void handleGraphType(Path path, float startX, float startY, float x, float y, int type) {
         switch (type) {
             case Constants.ORDINARY:
                 float endX = (x + startX) / 2;

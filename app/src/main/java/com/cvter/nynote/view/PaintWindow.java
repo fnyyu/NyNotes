@@ -1,15 +1,9 @@
 package com.cvter.nynote.view;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
@@ -21,10 +15,10 @@ import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/6/8.
- * 画笔类型Dialog
+ * 画笔类型PopupWindow
  */
 
-public class PaintDialog extends AlertDialog implements View.OnClickListener {
+public class PaintWindow extends BasePopupWindow implements View.OnClickListener {
 
     private DrawActivity mContext;
     private PaintInfo mPaint;
@@ -42,15 +36,17 @@ public class PaintDialog extends AlertDialog implements View.OnClickListener {
     private SeekBar mWidthSeekBar;
 
 
-    public PaintDialog(DrawActivity context , Paint paint) {
-        super(context);
+    public PaintWindow(DrawActivity context , Paint paint, int width, int height) {
+        super(context, width, height);
         this.mPaint = (PaintInfo) paint;
         this.mContext = context;
         initLayout();
     }
 
     private void initLayout() {
+
         View viewPaint = LayoutInflater.from(mContext).inflate(R.layout.dialog_pen_species, null);
+        setContentView(viewPaint);
 
         mPencilImageView = (ImageView) viewPaint.findViewById(R.id.pencil_imageView);
         mFountainImageView = (ImageView) viewPaint.findViewById(R.id.fountain_imageView);
@@ -65,8 +61,6 @@ public class PaintDialog extends AlertDialog implements View.OnClickListener {
         mBlueImageView = (ImageView) viewPaint.findViewById(R.id.blue_imageView);
         mRedImageView = (ImageView) viewPaint.findViewById(R.id.red_imageView);
         mYellowImageView = (ImageView) viewPaint.findViewById(R.id.yellow_imageView);
-
-        setView(viewPaint);
 
     }
 

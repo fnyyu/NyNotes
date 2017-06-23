@@ -1,6 +1,5 @@
 package com.cvter.nynote.view;
 
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -21,7 +20,6 @@ import android.widget.PopupWindow;
 public class BasePopupWindow extends PopupWindow {
 
     private Activity mContext;
-    private float mShowAlpha = 0.88f;
     private Drawable mOutsideBackgroundDrawable;
     private int mWidth;
     private int mHeight;
@@ -60,7 +58,13 @@ public class BasePopupWindow extends PopupWindow {
         } else {
             setHeight(mHeight);
         }
-        setWidth(mWidth);
+
+        if (mWidth == 0) {
+            setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        } else {
+            setWidth(mWidth);
+        }
+
         setOutsideTouchable(true);  //默认设置outside点击无响应
         setFocusable(true);
     }
@@ -79,35 +83,11 @@ public class BasePopupWindow extends PopupWindow {
     }
 
     @Override
-    public void showAtLocation(View parent, int gravity, int x, int y) {
-        super.showAtLocation(parent, gravity, x, y);
-        getShowAnimator().start();
-    }
-
-    @Override
-    public void showAsDropDown(View anchor) {
-        super.showAsDropDown(anchor);
-        getShowAnimator().start();
-    }
-
-    @Override
-    public void showAsDropDown(View anchor, int x, int y) {
-        super.showAsDropDown(anchor, x, y);
-        getShowAnimator().start();
-    }
-
-    @Override
-    public void showAsDropDown(View anchor, int x, int y, int gravity) {
-        super.showAsDropDown(anchor, x, y, gravity);
-        getShowAnimator().start();
-    }
-
-    @Override
     public void dismiss() {
         super.dismiss();
-        getDismissAnimator().start();
     }
 
+    /*
     //窗口显示，窗口背景透明度渐变动画
     private ValueAnimator getShowAnimator() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, mShowAlpha);
@@ -137,6 +117,7 @@ public class BasePopupWindow extends PopupWindow {
         animator.setDuration(320);
         return animator;
     }
+    */
 
     ///为窗体添加outside点击事件
     private void addKeyListener(View contentView) {

@@ -5,12 +5,17 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.RectF;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
 import com.cvter.nynote.model.PathInfo;
+import com.cvter.nynote.presenter.FilePresenterImpl;
+import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.utils.Constants;
 
 import java.util.ArrayList;
@@ -29,9 +34,9 @@ public class MatrixView extends View {
     private PointF mPoint;
     private float mDistance;
 
-    private float[] mCoefficient = {100.0f, 100.0f};
-
     private List<PathInfo> mDrawingList;
+
+    private IFilePresenter mFilePresenter;
 
     private Canvas mCanvas;
 
@@ -48,8 +53,8 @@ public class MatrixView extends View {
 
     private Bitmap mBitmap;
 
-    public MatrixView(Context context) {
-        super(context);
+    public MatrixView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -59,6 +64,7 @@ public class MatrixView extends View {
     }
 
     private void init() {
+        mFilePresenter = new FilePresenterImpl(getContext());
         mPoint = new PointF();
         mMatrix = new Matrix();
         mSaveMatrix = new Matrix();
@@ -156,23 +162,44 @@ public class MatrixView extends View {
         return (float) Math.sqrt(x * x + y * y);
     }
 
+    //计算更改后的坐标和路径
     public List<PathInfo> getMatrixList() {
 
-        mMatrix.mapPoints(mCoefficient);
-        float times = mCoefficient[0] - 100.0f;
-        List<PathInfo> newList = new ArrayList<>(mDrawingList);
+        List<PathInfo> newList = null;
+        float startX = 0;
+        float startY = 0;
+        if (mDrawingList != null) {
+             newList = new ArrayList<>(mDrawingList);
+            for (int i = 0; i < newList.size(); i++) {
 
-        for (int i = 0; i < newList.size(); i++) {
-            for (int j = 0; j < newList.get(i).getPointList().size(); j++){
-                newList.get(i).getPointList().get(j).mPointX += times;
-                newList.get(i).getPointList().get(j).mPointY += times;
+                Path path = new Path();
+                for (int j = 0; j < newList.get(i).getPointList().size(); j++) {
+
+                    float[] mCoefficient = {newList.get(i).getPointList().get(j).mPointX ,
+                    newList.get(i).getPointList().get(j).mPointY};
+                    mMatrix.mapPoints(mCoefficient);
+                    newList.get(i).getPointList().get(j).mPointX = mCoefficient[0];
+                    newList.get(i).getPointList().get(j).mPointY = mCoefficient[1];
+                    if (j == 0){
+                        startX = mCoefficient[0];
+                        startY = mCoefficient[1];
+                        path.moveTo(startX, startY);
+                    }
+
+                    mFilePresenter.handleGraphType(path, startX, startY, mCoefficient[0], mCoefficient[1], newList.get(i).getGraphType());
+                    startX = mCoefficient[0];
+                    startY = mCoefficient[1];
+                }
+                newList.get(i).setPath(path);
+
             }
         }
         return newList;
+
     }
 
-    public void recycle(){
-        if(mBitmap != null && !mBitmap.isRecycled()){
+    public void recycle() {
+        if (mBitmap != null && !mBitmap.isRecycled()) {
             mBitmap.recycle();
             mBitmap = null;
         }
