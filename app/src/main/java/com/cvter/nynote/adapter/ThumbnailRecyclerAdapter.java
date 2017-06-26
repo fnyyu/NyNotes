@@ -33,6 +33,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
 
     private boolean ifDeleteSuccess;
     private static final String TAG = "ThumbnailAdapter";
+    private StringBuilder path = new StringBuilder();
 
     public ThumbnailRecyclerAdapter(Activity mContext, List<NoteInfo> notes) {
         this.mContext = (MainActivity) mContext;
@@ -96,7 +97,9 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
         final AlertDialog isExit = new AlertDialog.Builder(mContext).create();
         isExit.setTitle(mContext.getString(R.string.tips));
         if (position < mNotes.size() && mNotes.get(position) != null && !mNotes.get(position).getNoteName().isEmpty()) {
-            isExit.setMessage(mContext.getString(R.string.delete_note) + " [ " + mNotes.get(position).getNoteName().replace(".png", " ]"));
+            path.setLength(0);
+            path.append(mContext.getString(R.string.delete_note)).append(" [ ").append(mNotes.get(position).getNoteName().replace(mContext.getString(R.string.png), " ]"));
+            isExit.setMessage(path.toString());
             isExit.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.sure), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -121,9 +124,13 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
             @Override
             public void run() {
                 try {
-                    File file1 = new File(Constants.PICTURE_PATH + mNotes.get(position).getNoteName());
+                    path.setLength(0);
+                    path.append(Constants.PICTURE_PATH).append(mNotes.get(position).getNoteName());
+                    File file1 = new File(path.toString());
                     ifDeleteSuccess = mContext.getIMainPresenter().deleteNote(file1);
-                    File file = new File(Constants.NOTE_PATH + mNotes.get(position).getNoteName().replace(".png", ""));
+                    path.setLength(0);
+                    path.append(Constants.NOTE_PATH).append(mNotes.get(position).getNoteName().replace(".png", ""));
+                    File file = new File(path.toString());
                     mContext.getIMainPresenter().deleteNote(file);
 
                 } catch (Exception e) {

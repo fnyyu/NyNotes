@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.view.ViewTreeObserver;
 import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.presenter.FilePresenterImpl;
 import com.cvter.nynote.presenter.IFilePresenter;
-import com.cvter.nynote.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +66,7 @@ public class MatrixView extends View {
         mPoint = new PointF();
         mMatrix = new Matrix();
         mSaveMatrix = new Matrix();
-        mBitmap = Bitmap.createBitmap(Constants.getScreenSize(getContext())[0],
-                Constants.getScreenSize(getContext())[1], Bitmap.Config.ARGB_4444);
+        mBitmap = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawColor(Color.TRANSPARENT);
     }

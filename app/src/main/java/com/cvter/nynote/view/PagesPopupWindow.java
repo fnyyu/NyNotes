@@ -135,4 +135,7 @@ public class PagesPopupWindow extends BasePopupWindow {
 
     }
 
+    public MorePagesRecyclerAdapter getAdapter() {
+        return mAdapter;
+    }
 }

@@ -36,7 +36,7 @@ import java.util.List;
  * 绘制SurfaceView
  */
 
-public class PaintView extends SurfaceView implements SurfaceHolder.Callback, ScaleGestureDetector.OnScaleGestureListener {
+public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     private SurfaceHolder mHolder;
     private Canvas mCanvas;
@@ -370,19 +370,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
         draw();
     }
 
-    @Override
-    public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-        return false;
-    }
-
-    @Override
-    public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
-        return false;
-    }
-
-    @Override
-    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {}
-
     //获取屏幕大小
     private int[] getScreenSize() {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
@@ -443,4 +430,5 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback, Sc
     public boolean getIfCanDraw() {
         return ifCanDraw;
     }
+
 }

@@ -47,5 +47,8 @@
     <string name="page">/</string>
     <string name="current_page">1</string>
 
+    <string name="png">.png</string>
+    <string name="xml">.xml</string>
+
 
 </resources>

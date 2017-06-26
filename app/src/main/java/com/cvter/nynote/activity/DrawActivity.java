@@ -3,6 +3,7 @@ package com.cvter.nynote.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import com.cvter.nynote.presenter.PicturePresenter;
 import com.cvter.nynote.presenter.PicturePresenterImpl;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.ImportListener;
+import com.cvter.nynote.utils.RestoreFragment;
 import com.cvter.nynote.utils.SaveListener;
 import com.cvter.nynote.view.FileAlertDialog;
 import com.cvter.nynote.view.GraphWindow;
@@ -49,7 +51,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -112,6 +113,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     private static final String TAG = "DrawActivity";
     private int pageSize = 0;
     private String noteName = "";
+    private StringBuilder path = new StringBuilder();
+
+    private RestoreFragment mRestoreFragment;
 
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -153,7 +157,23 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mForwardImageView.setEnabled(false);
 
         skipType = getIntent().getExtras().getString("skipType");
-        noteName = getIntent().getStringExtra("noteName") == null ? "" : getIntent().getStringExtra("noteName").replace(".png", "");
+        noteName = getIntent().getStringExtra("noteName") == null ? "" : getIntent().getStringExtra("noteName").replace(getString(R.string.png), "");
+
+        FragmentManager fm = getFragmentManager();
+        mRestoreFragment = (RestoreFragment) fm.findFragmentByTag("Restore");
+        if(mRestoreFragment == null){
+            mRestoreFragment = new RestoreFragment();
+            fm.beginTransaction().add(mRestoreFragment, "Restore").commit();
+        }
+        restoreData(mRestoreFragment);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mRestoreFragment.setData(mDrawPaintView.getDrawingList(), mDrawPaintView.getBackgroundBitmap(),
+                mPagesWindow.getAdapter().getPages(), mPagesWindow.getAdapter().getPages().size());
     }
 
     @Override
@@ -192,12 +212,14 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     ifCanDraw = false;
                     mAllPagesTextView.bringToFront();
                     mAllPagesTextView.setClickable(true);
-                    final String notePath = Constants.NOTE_PATH + noteName + "/xml/1.xml";
-                    final String imagePath = Constants.NOTE_PATH + noteName + "/bg/1.png";
-                    pageSize = mFilePresenter.getFileSize(Constants.NOTE_PATH + noteName + "/xml");
+                    path.setLength(0);
+                    path.append(Constants.NOTE_PATH).append(noteName).append("/xml");
+                    pageSize = mFilePresenter.getFileSize(path.toString());
                     mAllPagesTextView.setText(String.valueOf(pageSize));
                     mPagesWindow.setSaveBitmapSize(pageSize);
-                    mFilePresenter.importXML(notePath, new ImportListener() {
+                    path.setLength(0);
+                    path.append(Constants.NOTE_PATH).append(noteName).append("/xml/1.xml");
+                    mFilePresenter.importXML(path.toString(), new ImportListener() {
                         @Override
                         public void onSuccess(List<PathInfo> info) {
                             mDrawPaintView.setDrawingList(info);
@@ -209,7 +231,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                         }
 
                     });
-                    mPicturePresenter.getSmallBitmap(imagePath, 3, "");
+                    path.setLength(0);
+                    path.append(Constants.NOTE_PATH).append(noteName).append("/bg/1.png");
+                    mPicturePresenter.getSmallBitmap(path.toString(), 3, "");
                     break;
 
                 default:
@@ -317,6 +341,17 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.graph_imageView:
+                if (!ifCanScale) {
+                    List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
+
+                    if (!mRevertList.isEmpty()) {
+                        mDrawPaintView.setDrawingList(mRevertList);
+                        drawMatrixView.recycle();
+                    }
+                    drawMatrixView.setVisibility(View.INVISIBLE);
+                    ifCanScale = true;
+                }
+
                 mDrawPaintView.getPaint().setMode(Constants.Mode.DRAW);
                 mGraphWindow.showAsDropDown(mDrawingTitleLayout, 300, 5);
                 break;
@@ -399,6 +434,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @Override
     public void showProgress() {
         if (mSaveProgressBar != null) {
+            mDrawPaintView.setIfCanDraw(false);
             mSaveProgressBar.bringToFront();
             mSaveProgressBar.setVisibility(View.VISIBLE);
         }
@@ -440,9 +476,13 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     private void editFileSave() {
 
         if (mDrawPaintView.getIsHasBG() && mDrawPaintView.getBackgroundBitmap() != null) {
+
+            path.setLength(0);
+            path.append(Constants.TEMP_BG_PATHS);
+            path.append(Integer.parseInt(getCurPagesTextView().getText().toString()));
+            path.append(getString(R.string.png));
             mFilePresenter.saveAsBg(mDrawPaintView.getBackgroundBitmap(),
-                    Constants.TEMP_BG_PATH + "/" + Integer.parseInt(getCurPagesTextView().getText().toString()) + ".png",
-                    new SaveListener() {
+                    path.toString(), new SaveListener() {
                         @Override
                         public void onSuccess() {
 
@@ -455,7 +495,9 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                     });
         }
 
-        mFilePresenter.saveAsImg(mFileAlertDialog.getSaveBitmap(), Constants.PICTURE_PATH + noteName + ".png", new SaveListener() {
+        path.setLength(0);
+        path.append(Constants.PICTURE_PATH).append(noteName).append(getString(R.string.png));
+        mFilePresenter.saveAsImg(mFileAlertDialog.getSaveBitmap(), path.toString(), new SaveListener() {
             @Override
             public void onSuccess() {
             }
@@ -466,10 +508,10 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             }
         });
 
-        String filePath = Constants.TEMP_XML_PATHS + Integer.parseInt(getCurPagesTextView().getText().toString()) + ".xml";
-
+        path.setLength(0);
+        path.append(Constants.TEMP_XML_PATHS).append(Integer.parseInt(getCurPagesTextView().getText().toString())).append(getString(R.string.xml));
         mFilePresenter.deleteFile(new File(Constants.NOTE_PATH + noteName));
-        mFilePresenter.saveAsXML(mDrawPaintView.getDrawingList(), filePath, new SaveListener() {
+        mFilePresenter.saveAsXML(mDrawPaintView.getDrawingList(), path.toString(), new SaveListener() {
             @Override
             public void onSuccess() {
 
@@ -509,10 +551,30 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private void setViewEnable (boolean ifEnable){
         morePagesLinearLayout.setEnabled(ifEnable);
-        graphImageView.setEnabled(ifEnable);
         saveImageView.setEnabled(ifEnable);
         pictureImageView.setEnabled(ifEnable);
         mEraserImageView.setEnabled(ifEnable);
+    }
+
+    private void restoreData(RestoreFragment fragment){
+
+
+        if(fragment.getPath() != null){
+            mDrawPaintView.setDrawingList(fragment.getPath());
+        }
+
+
+        if(fragment.getPage() != null){
+            mPagesWindow.getAdapter().setPages(fragment.getPage());
+        }
+
+        if (fragment.getBitmap() != null){
+            mDrawPaintView.setBackgroundBitmap(fragment.getBitmap());
+        }
+
+        if(fragment.getPageNum() != 0){
+            mAllPagesTextView.setText(String.valueOf(fragment.getPageNum()));
+        }
     }
 
     public PagesPopupWindow getPagesDialog() {

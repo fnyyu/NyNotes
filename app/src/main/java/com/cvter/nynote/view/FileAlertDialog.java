@@ -44,6 +44,7 @@ public class FileAlertDialog extends AlertDialog {
     private String mFileName = "";
     private IFilePresenter mFilePresenter;
     private static final String TAG = "FileAlertDialog";
+    private StringBuilder path = new StringBuilder();
 
     public FileAlertDialog(Activity context) {
         super(context);
@@ -85,10 +86,12 @@ public class FileAlertDialog extends AlertDialog {
                     mContext.showToast(mContext.getString(R.string.choose_saveWay));
 
                 } else if (mSaveAsImgCheckBox.isChecked() && !saveAsXML.isChecked()) {
-                    saveImage(Constants.PICTURE_PATH + mFileName + ".png");
+                    path.setLength(0);
+                    saveImage(path.append(Constants.PICTURE_PATH).append(mFileName).append(mContext.getString(R.string.png)).toString());
 
                 } else {
-                    saveImage(Constants.PICTURE_PATH + mFileName + ".png");
+                    path.setLength(0);
+                    saveImage(path.append(Constants.PICTURE_PATH).append(mFileName).append(mContext.getString(R.string.png)).toString());
                     saveAsXML();
                 }
             }
@@ -96,11 +99,13 @@ public class FileAlertDialog extends AlertDialog {
 
     }
 
-    private void saveAsXML() {
+    public void saveAsXML() {
+        path.setLength(0);
+        path.append(Constants.TEMP_XML_PATHS).
+                append(Integer.parseInt(mContext.getCurPagesTextView().getText().toString())).
+                append(mContext.getString(R.string.xml));
 
-        String filePath = Constants.TEMP_XML_PATHS + Integer.parseInt(mContext.getCurPagesTextView().getText().toString()) + ".xml";
-
-        mFilePresenter.saveAsXML(getSavePath(), filePath, new SaveListener() {
+        mFilePresenter.saveAsXML(getSavePath(), path.toString(), new SaveListener() {
             @Override
             public void onSuccess() {
             }
@@ -133,7 +138,7 @@ public class FileAlertDialog extends AlertDialog {
     //保存成功
     private void saveSuccess() {
         mContext.showProgress();
-        Observable.timer(2, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Long>() {
+        Observable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Long>() {
             @Override
             public void call(Long aLong) {
                 mContext.hideProgress();

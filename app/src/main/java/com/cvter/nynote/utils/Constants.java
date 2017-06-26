@@ -26,7 +26,9 @@ public class Constants {
     public static final String TEMP_XML_PATH = TEMP_PATH + "/xml";//临时文件夹路径
     public static final String TEMP_XML_PATHS = TEMP_PATH + "/xml/";//临时文件夹路径
     public static final String TEMP_IMG_PATH = TEMP_PATH + "/pic";//临时文件夹路径
+    public static final String TEMP_IMG_PATHS = TEMP_PATH + "/pic/";//临时文件夹路径
     public static final String TEMP_BG_PATH = TEMP_PATH + "/bg";//临时文件夹路径
+    public static final String TEMP_BG_PATHS = TEMP_PATH + "/bg/";//临时文件夹路径
 
     //背景照片选择
     public static final int TAKE_PHOTO = 1;
@@ -39,12 +41,6 @@ public class Constants {
     public enum Mode {
         DRAW,
         ERASER
-    }
-
-    public enum ScaleMode {
-        NONE,
-        DRAG,
-        ZOOM
     }
 
     //绘制图形
