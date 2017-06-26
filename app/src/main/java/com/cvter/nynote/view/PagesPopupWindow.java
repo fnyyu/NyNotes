@@ -68,7 +68,7 @@ public class PagesPopupWindow extends BasePopupWindow {
         mMorePageImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mContext.getDrawPaintView().getIfCanDraw()) {
+                if (mContext.getDrawPaintView().getCanDraw()) {
                     mAdapter.getPages().add(mAdapter.getItemCount(), finalBitmap);
                     mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
                     mAdapter.notifyItemChanged(mAdapter.getItemCount());
@@ -122,7 +122,7 @@ public class PagesPopupWindow extends BasePopupWindow {
 
     @Override
     public void dismiss() {
-        if (mContext.getDrawPaintView().getIfCanDraw()) {
+        if (mContext.getDrawPaintView().getCanDraw()) {
             mContext.getAllPagesTextView().setText(String.valueOf(mAdapter.getPages().size()));
         }
         if (mCurrentBitmap != null) {

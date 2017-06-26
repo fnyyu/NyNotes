@@ -202,7 +202,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         if (!TextUtils.isEmpty(skipType)) {
             switch (skipType) {
                 case Constants.NEW_EDIT:
-                    mDrawPaintView.setIfCanDraw(true);
+                    mDrawPaintView.setCanDraw(true);
                     mReadingTitleLayout.setVisibility(View.GONE);
                     mDrawingTitleLayout.setVisibility(View.VISIBLE);
                     ifCanDraw = true;
@@ -210,7 +210,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
                 case Constants.READ_NOTE:
 
-                    mDrawPaintView.setIfCanDraw(false);
+                    mDrawPaintView.setCanDraw(false);
                     ifCanDraw = false;
                     mAllPagesTextView.bringToFront();
                     mAllPagesTextView.setClickable(true);
@@ -304,26 +304,32 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
             case R.id.pen_imageView:
                 setPenStyle(view);
+                mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.eraser_imageView:
                 setEraserStyle(view);
+                mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.withdraw_imageView:
                 mDrawPaintView.withdraw();
+                mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.picture_imageView:
                 mPictureDialog = new PictureAlertDialog(this);
+                mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.graph_imageView:
                 setGraphStyle();
+                mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.forward_imageView:
                 mDrawPaintView.forward();
+                mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.clear_imageView:
@@ -331,7 +337,10 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.choose_imageView:
+                //mDrawPaintView.setIsCrossDraw(true);
+                mDrawPaintView.setCrossList();
                 setChooseStyle();
+
                 break;
 
             case R.id.save_imageView:
@@ -391,7 +400,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     @Override
     public void showProgress() {
         if (mSaveProgressBar != null) {
-            mDrawPaintView.setIfCanDraw(false);
+            mDrawPaintView.setCanDraw(false);
             mSaveProgressBar.bringToFront();
             mSaveProgressBar.setVisibility(View.VISIBLE);
         }
@@ -538,7 +547,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     private void setDrawStyle() {
         mReadingTitleLayout.setVisibility(View.GONE);
         mDrawingTitleLayout.setVisibility(View.VISIBLE);
-        mDrawPaintView.setIfCanDraw(true);
+        mDrawPaintView.setCanDraw(true);
         ifCanDraw = true;
         mFilePresenter.createTempFile();
     }
@@ -588,8 +597,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     }
 
     private void setChooseStyle() {
-        if (ifCanScale && mDrawPaintView.getDrawingList() != null && !mDrawPaintView.getDrawingList().isEmpty()) {
-            drawMatrixView.setOnDraw(new ArrayList<>(mDrawPaintView.getDrawingList()));
+        if (ifCanScale && mDrawPaintView.getCrossList() != null && !mDrawPaintView.getDrawingList().isEmpty()) {
+            drawMatrixView.setOnDraw(new ArrayList<>(mDrawPaintView.getCrossList()));
             drawMatrixView.invalidate();
             drawMatrixView.setVisibility(View.VISIBLE);
             drawMatrixView.bringToFront();
@@ -606,7 +615,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @OnClick(R.id.more_pages_linearLayout)
     public void onPageViewClicked() {
-        if (mDrawPaintView.getIfCanDraw()) {
+        if (mDrawPaintView.getCanDraw()) {
             mPagesWindow.updateData(Integer.parseInt(mCurPagesTextView.getText().toString()));
         }
 

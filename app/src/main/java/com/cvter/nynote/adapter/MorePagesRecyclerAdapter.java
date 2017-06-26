@@ -90,11 +90,11 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
             handleNew(holder, position);
         }
 
-        if (!mContext.getDrawPaintView().getIfCanDraw() && mType.equals(Constants.READ_NOTE)) {
+        if (!mContext.getDrawPaintView().getCanDraw() && mType.equals(Constants.READ_NOTE)) {
             handleRead(holder, position);
         }
 
-        if (mType.equals(Constants.READ_NOTE) && mContext.getDrawPaintView().getIfCanDraw()) {
+        if (mType.equals(Constants.READ_NOTE) && mContext.getDrawPaintView().getCanDraw()) {
             handleEdit(holder, position);
         }
 
@@ -285,9 +285,9 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
 
     @Override
     public int getItemCount() {
-        if (mPages != null && !mPages.isEmpty() && mContext.getDrawPaintView().getIfCanDraw()) {
+        if (mPages != null && !mPages.isEmpty() && mContext.getDrawPaintView().getCanDraw()) {
             return mPages.size();
-        } else if (!mContext.getDrawPaintView().getIfCanDraw()) {
+        } else if (!mContext.getDrawPaintView().getCanDraw()) {
             return mSaveBitmapSize;
         }
         return 0;

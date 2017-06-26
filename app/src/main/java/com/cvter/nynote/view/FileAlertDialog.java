@@ -71,7 +71,7 @@ public class FileAlertDialog extends AlertDialog {
 
                 dismiss();
                 mFileName = mFileNameEditText.getText().toString();
-                if (!TextUtils.isEmpty(mFileName)) {
+                if (TextUtils.isEmpty(mFileName)) {
                     mContext.showToast(mContext.getString(R.string.enter_null));
                     return;
                 }

@@ -6,6 +6,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Region;
+import android.support.constraint.solver.widgets.Rectangle;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -43,10 +46,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private float mLastX;
     private float mLastY;
     private int mMinDistance;
-    private boolean ifCanDraw;
+    private boolean isCanDraw;
+    private boolean isCrossDraw;
 
     private List<PathInfo> mDrawingList;
     private List<PathInfo> mRemovedList;
+    private List<PathInfo> mCrossList;
     private LinkedList<PointInfo> mPointList;
     private DrawPolygon mDrawPolygon;
 
@@ -56,6 +61,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private Bitmap mBackgroundBitmap;
 
     private PathWFCallback mCallback;
+
+    private List<PointInfo> mCrossPoint;
 
     private static final String TAG = "PaintView";
 
@@ -96,7 +103,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!ifCanDraw) {
+        if (!isCanDraw) {
             return false;
         }
 
@@ -106,6 +113,19 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 actionDown(x, y);
+//                if (isCrossDraw) {
+//                    RectF bounds = new RectF();
+//                    for (int i = 0; i<mDrawingList.size(); i++){
+//                        Path pathInfo = new Path(mDrawingList.get(i).getPath());
+//                        pathInfo.computeBounds(bounds, true);
+//                        Region region = new Region();
+//                        region.setPath(pathInfo, new Region((int)bounds.left, (int)bounds.top,(int)bounds.right, (int)bounds.bottom));
+//                        if(region.contains((int)x, (int)y)){
+//                            mCrossList.add(mDrawingList.get(i));
+//                        }
+//                    }
+//
+//                }
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -137,10 +157,20 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     //手指按下
     private void actionDown(float x, float y) {
+
         mPointList = new LinkedList<>();
-        mPointList.add(new PointInfo(x, y));
         mLastX = x;
         mLastY = y;
+
+        if (isCrossDraw) {
+            mPaint.setGraphType(Constants.ORDINARY);
+            mCrossPoint = new LinkedList<>();
+            mCrossPoint.add(new PointInfo(x, y));
+        }else{
+
+            mPointList.add(new PointInfo(x, y));
+        }
+
         if (mPaint.getGraphType() == Constants.ORDINARY) {
             if (mPath == null) {
                 mPath = new Path();
@@ -157,8 +187,16 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         switch (mPaint.getGraphType()) {
             case Constants.ORDINARY:
-                mPointList.add(new PointInfo(x, y));
+
+
+                if(isCrossDraw){
+                    mCrossPoint.add(new PointInfo(x, y));
+                } else{
+                    mPointList.add(new PointInfo(x, y));
+                }
+
                 mPath.quadTo(mLastX, mLastY, (x + mLastX) / 2, (y + mLastY) / 2);
+
                 mLastX = x;
                 mLastY = y;
                 break;
@@ -207,9 +245,15 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     //手指抬起
     private void actionUp(float x, float y) {
-        mPointList.add(new PointInfo(x, y));
 
-        if (mPaint.getMode() == Constants.DRAW || mCanEraser) {
+
+        if (isCrossDraw) {
+            mCrossPoint.add(new PointInfo(x, y));
+        }else {
+            mPointList.add(new PointInfo(x, y));
+        }
+
+        if (mPaint.getMode() == Constants.DRAW || mCanEraser && !isCrossDraw) {
             saveDrawingPath();
         }
 
@@ -246,11 +290,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             canvas.drawBitmap(mBufferBitmap, 0, 0, null);
         }
 
-        if (mPath != null && mPaint != null) {
+        if (mPath != null && mPaint != null && !isCrossDraw) {
             canvas.drawPath(mPath, mPaint);
         }
 
-        if (mGraphPath != null && mPaint != null) {
+        if (mGraphPath != null && mPaint != null&& !isCrossDraw) {
             canvas.drawPath(mGraphPath, mPaint);
         }
     }
@@ -422,12 +466,38 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    public void setIfCanDraw(boolean ifCanDraw) {
-        this.ifCanDraw = ifCanDraw;
+    public void setCanDraw(boolean canDraw) {
+        this.isCanDraw = canDraw;
     }
 
-    public boolean getIfCanDraw() {
-        return ifCanDraw;
+    public boolean getCanDraw() {
+        return isCanDraw;
     }
 
+    public void setIsCrossDraw(boolean isCrossDraw) {
+        this.isCrossDraw = isCrossDraw;
+    }
+
+    public List<PathInfo> getCrossList() {
+        return mCrossList;
+    }
+
+    public void setCrossList() {
+        mCrossList = new LinkedList<>();
+        for(int i = 0; i<mDrawingList.size(); i++){
+            PathInfo pathInfo = mDrawingList.get(i);
+            for(int j = 0; j< mDrawingList.get(i).getPointList().size(); j++){
+                for (int k = 0; k<mCrossPoint.size(); k++){
+                    if (Math.abs(mCrossPoint.get(k).mPointX - mDrawingList.get(i).getPointList().get(j).mPointX) < mMinDistance
+                            && Math.abs(mCrossPoint.get(k).mPointY - mDrawingList.get(i).getPointList().get(j).mPointY ) < mMinDistance){
+                        mCrossList.add(pathInfo);
+                        break;
+                    }
+                }
+
+            }
+
+        }
+
+    }
 }

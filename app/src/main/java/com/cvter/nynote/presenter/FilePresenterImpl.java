@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Xml;
 
 import com.cvter.nynote.R;
@@ -53,18 +54,26 @@ public class FilePresenterImpl implements IFilePresenter {
     private static final String POINT = "point";
     private static final String CODE_TYPE = "UTF-8";
 
+    private static final String FILE_TYPE = "FilePresenterImpl";
+
     private HandlerThread mHandlerThread;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private Handler mHandler;
+    private Handler mFileHandler;
     private Context mContext;
 
     public FilePresenterImpl(Context context) {
         this.mContext = context;
+        mHandlerThread = new HandlerThread("FileOperation");
+        mHandlerThread.start();
+        mHandler = new Handler(Looper.getMainLooper());
+        mFileHandler = new Handler(mHandlerThread.getLooper());
+
     }
 
     @Override
     public void saveAsXML(final List<PathInfo> pathList, final String path, final SaveListener listener) {
 
-        mHandlerThread = new HandlerThread("saveASXml") {
+        mFileHandler.post(new Runnable() {
             @Override
             public void run() {
 
@@ -139,15 +148,15 @@ public class FilePresenterImpl implements IFilePresenter {
                     }
                 }
             }
-        };
-        mHandlerThread.start();
+        });
 
     }
 
     @Override
     public void saveAsImg(final Bitmap bitmap, final String path, final SaveListener listener) {
 
-        mHandlerThread = new HandlerThread("saveAsImg") {
+
+        mFileHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -174,14 +183,14 @@ public class FilePresenterImpl implements IFilePresenter {
                     saveFail(listener, "saveAsImg" + e.getMessage());
                 }
             }
-        };
-        mHandlerThread.start();
+        });
 
     }
 
     @Override
     public void saveAsBg(final Bitmap bitmap, final String fileName, final SaveListener listener) {
-        new HandlerThread("saveAsBg") {
+
+        mFileHandler.post(new Runnable() {
             @Override
             public void run() {
                 OutputStream outputStream = null;
@@ -207,19 +216,21 @@ public class FilePresenterImpl implements IFilePresenter {
                     saveFail(listener, "saveAsBg" + e.getMessage());
                 } finally {
                     try {
-                        outputStream.close();
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
                     } catch (IOException e) {
                         saveFail(listener, "saveAsBg" + e.getMessage());
                     }
                 }
             }
-        }.start();
+        });
     }
 
     @Override
     public void importXML(final String filePath, final ImportListener listener) {
 
-        mHandlerThread = new HandlerThread("importXml") {
+        mFileHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -407,121 +418,131 @@ public class FilePresenterImpl implements IFilePresenter {
                     });
                 }
             }
-        };
-        mHandlerThread.start();
+        });
 
     }
 
     @Override
     public void createTempFile() {
 
-        mHandlerThread = new HandlerThread("createTempFile") {
+        mFileHandler.post(new Runnable() {
             @Override
             public void run() {
-                File file = new File(Constants.TEMP_PATH);
-                if (!file.exists()) {
-                    file.mkdir();
-                }
-                File xmlFile = new File(Constants.TEMP_XML_PATH);
-                if (!xmlFile.exists()) {
-                    xmlFile.mkdir();
-                }
-                File imageFile = new File(Constants.TEMP_IMG_PATH);
-                if (!imageFile.exists()) {
-                    imageFile.mkdir();
-                }
-                File bgFile = new File(Constants.TEMP_BG_PATH);
-                if (!bgFile.exists()) {
-                    bgFile.mkdir();
+                try {
+                    createFile(Constants.TEMP_PATH);
+                    createFile(Constants.TEMP_XML_PATH);
+                    createFile(Constants.TEMP_IMG_PATH);
+                    createFile(Constants.TEMP_BG_PATH);
+                } catch (Exception e) {
+                    Log.e(FILE_TYPE, e.getMessage());
                 }
             }
-        };
-        mHandlerThread.start();
+        });
 
     }
 
     @Override
     public void modifyTempFile(final String fileName, final SaveListener listener) {
-        mHandlerThread = new HandlerThread("modifyTempFile") {
+
+        mFileHandler.post(new Runnable() {
             @Override
             public void run() {
-                File file = new File(Constants.TEMP_PATH);
-                if (file.renameTo(new File(Constants.NOTE_PATH + fileName))) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onSuccess();
-                        }
-                    });
-                } else {
+                try {
+                    File file = new File(Constants.TEMP_PATH);
+                    if (file.renameTo(new File(Constants.NOTE_PATH + fileName))) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onSuccess();
+                            }
+                        });
+                    }
+                } catch (Exception e) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             listener.onFail(mContext.getString(R.string.save_fail));
                         }
                     });
-
                 }
-
             }
-        };
-        mHandlerThread.start();
+        });
     }
 
     @Override
     public void deleteTempFile() {
-        mHandlerThread = new HandlerThread("deleteTempFile") {
+
+        mFileHandler.post(new Runnable() {
             @Override
             public void run() {
-                File fileXML = new File(Constants.TEMP_XML_PATH);
-                File fileImg = new File(Constants.TEMP_IMG_PATH);
-                if (!fileXML.exists() || !fileXML.isDirectory())
-                    return;
-                for (File file : fileXML.listFiles()) {
-                    if (file.isFile())
-                        file.delete(); // 删除所有文件
+                try {
+                    deleteSubFile(new File(Constants.TEMP_XML_PATH));
+                    deleteSubFile(new File(Constants.TEMP_IMG_PATH));
+                }catch (Exception e){
+                    Log.e(FILE_TYPE, e.getMessage());
                 }
-                if (!fileImg.exists() || !fileImg.isDirectory())
-                    return;
-                for (File file : fileImg.listFiles()) {
-                    if (file.isFile())
-                        file.delete(); // 删除所有文件
-                }
+
             }
-        };
-        mHandlerThread.start();
+        });
 
     }
 
     @Override
     public int getFileSize(String filePath) {
-        File file = new File(filePath);
-        if (file.exists() && file.isDirectory()) {
-            return file.listFiles().length;
+        int result = 0;
+        try{
+            File file = new File(filePath);
+            if (file.exists() && file.isDirectory()) {
+               result =  file.listFiles().length;
+            }
+        }catch (Exception e){
+            Log.e(FILE_TYPE, e.getMessage());
         }
-        return 0;
+
+        return result;
     }
 
     @Override
     public boolean deleteFile(File file) {
-        if (!file.exists()) {
-            return false;
-        } else {
-            if (file.isFile()) {
-                return file.delete();
-            }
-            if (file.isDirectory()) {
-                File[] childFile = file.listFiles();
-                if (childFile == null || childFile.length == 0) {
+        try {
+            if (null == file || !file.exists()) {
+                return false;
+            } else {
+                if (file.isFile()) {
                     return file.delete();
                 }
-                for (File f : childFile) {
-                    deleteFile(f);
+                if (file.isDirectory()) {
+                    File[] childFile = file.listFiles();
+                    if (childFile == null || childFile.length == 0) {
+                        return file.delete();
+                    }
+                    for (File f : childFile) {
+                        deleteFile(f);
+                    }
+                    return file.delete();
                 }
-                return file.delete();
             }
+        } catch (Exception e) {
+            Log.e(FILE_TYPE, e.getMessage());
         }
+
         return false;
+    }
+
+    private void deleteSubFile(File file) {
+        if (null == file || !file.exists() || !file.isDirectory())
+            return;
+        for (File subFile : file.listFiles()) {
+            if (subFile.isFile())
+                subFile.delete(); // 删除所有文件
+        }
+    }
+
+    private void createFile(String path) {
+        File imageFile = new File(path);
+        if (!imageFile.exists()) {
+            imageFile.mkdir();
+        }
     }
 
     private void saveFail(final SaveListener listener, final String message) {
