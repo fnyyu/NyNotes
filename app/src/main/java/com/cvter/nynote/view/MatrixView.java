@@ -38,13 +38,11 @@ public class MatrixView extends View {
 
     private Canvas mCanvas;
 
-    private enum Mode {
-        NONE,
-        DRAG,
-        ZOOM
-    }
+    private static final int NONE = 0;
+    private static final int DRAG = 1;
+    private static final int ZOOM = 2;
 
-    private Mode mMode = Mode.NONE;
+    private int mMode = NONE;
 
     private static final float MAX_SCALE = 3;
     private static final float MIN_SCALE = (float) 0.3;
@@ -77,24 +75,24 @@ public class MatrixView extends View {
             case MotionEvent.ACTION_DOWN:
                 mSaveMatrix.set(mMatrix);
                 mPoint.set(event.getX(), event.getY());
-                mMode = Mode.DRAG;
+                mMode = DRAG;
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
                 mDistance = distance(event);
                 if (mDistance > 10f) {
                     mSaveMatrix.set(mMatrix);
-                    mMode = Mode.ZOOM;
+                    mMode = ZOOM;
                 }
                 break;
 
             case MotionEvent.ACTION_MOVE:
 
-                if (mMode == Mode.DRAG) {
+                if (mMode ==DRAG) {
                     // 一个手指拖动
                     mMatrix.set(mSaveMatrix);
                     mMatrix.postTranslate(event.getX() - mPoint.x, event.getY() - mPoint.y);
-                } else if (mMode == Mode.ZOOM) {
+                } else if (mMode == ZOOM) {
                     // 两个手指滑动
                     float newDist = distance(event);
                     if (newDist > 10f) {
@@ -109,7 +107,7 @@ public class MatrixView extends View {
 
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
-                mMode = Mode.NONE;
+                mMode = NONE;
                 break;
 
             default:

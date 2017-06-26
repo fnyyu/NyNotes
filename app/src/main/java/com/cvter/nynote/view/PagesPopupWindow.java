@@ -15,6 +15,7 @@ import com.cvter.nynote.R;
 import com.cvter.nynote.activity.DrawActivity;
 import com.cvter.nynote.adapter.MorePagesRecyclerAdapter;
 import com.cvter.nynote.presenter.RecyclerTouchCallback;
+import com.cvter.nynote.utils.CommonMethod;
 import com.cvter.nynote.utils.Constants;
 
 
@@ -33,7 +34,7 @@ public class PagesPopupWindow extends BasePopupWindow {
     private Bitmap mCurrentBitmap;
 
     public PagesPopupWindow(Activity context, int width, int height) {
-        super(context, width, height);
+        super(width, height);
         this.mContext = (DrawActivity) context;
         initLayout();
     }
@@ -63,7 +64,7 @@ public class PagesPopupWindow extends BasePopupWindow {
     }
 
     public void setListener() {
-        final Bitmap finalBitmap = Constants.getCompressBitmap(mAddBitmap);
+        final Bitmap finalBitmap = CommonMethod.getCompressBitmap(mAddBitmap);
         mMorePageImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,7 +99,7 @@ public class PagesPopupWindow extends BasePopupWindow {
 
     //得到当前画布图片
     private Bitmap getCurrentBitmap() {
-        Bitmap mCurrentBitmap = Bitmap.createBitmap(Constants.getScreenSize(mContext)[0], Constants.getScreenSize(mContext)[1], Bitmap.Config.RGB_565);
+        mCurrentBitmap = Bitmap.createBitmap(CommonMethod.getScreenSize(mContext)[0], CommonMethod.getScreenSize(mContext)[1], Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(mCurrentBitmap);
         canvas.drawColor(Color.WHITE);
         canvas = new Canvas(mCurrentBitmap);

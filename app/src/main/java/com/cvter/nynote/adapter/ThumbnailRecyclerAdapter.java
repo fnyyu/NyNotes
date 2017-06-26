@@ -92,7 +92,7 @@ public class ThumbnailRecyclerAdapter extends RecyclerView.Adapter<ThumbnailRecy
     }
 
     //删除笔记
-    public void onItemDelete(final int position) {
+    private void onItemDelete(final int position) {
 
         final AlertDialog isExit = new AlertDialog.Builder(mContext).create();
         isExit.setTitle(mContext.getString(R.string.tips));

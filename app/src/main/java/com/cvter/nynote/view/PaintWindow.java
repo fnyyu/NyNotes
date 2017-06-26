@@ -2,6 +2,7 @@ package com.cvter.nynote.view;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -35,9 +36,10 @@ public class PaintWindow extends BasePopupWindow implements View.OnClickListener
     private ImageView mRedImageView;
     private SeekBar mWidthSeekBar;
 
+    private static final String TAG = "PaintWindow";
 
     public PaintWindow(DrawActivity context , Paint paint, int width, int height) {
-        super(context, width, height);
+        super(width, height);
         this.mPaint = (PaintInfo) paint;
         this.mContext = context;
         initLayout();
@@ -81,16 +83,18 @@ public class PaintWindow extends BasePopupWindow implements View.OnClickListener
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 mContext.getEraserImageView().setSelected(false);
-                mContext.getDrawPaintView().getPaint().setMode(Constants.Mode.DRAW);
+                mContext.getDrawPaintView().getPaint().setMode(Constants.DRAW);
                 mContext.getDrawPaintView().getPaint().setPenRawSize(i);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                Log.e(TAG, mContext.getString(R.string.no_operation));
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                Log.e(TAG, mContext.getString(R.string.no_operation));
             }
 
         });

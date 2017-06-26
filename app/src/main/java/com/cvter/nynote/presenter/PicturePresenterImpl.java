@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.cvter.nynote.utils.CommonMethod;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.view.IPictureView;
 
@@ -121,7 +122,7 @@ public class PicturePresenterImpl implements PicturePresenter {
                         file.delete();
                     }
                     if (file.createNewFile()) {
-                        Bitmap compressBitmap = Constants.getCompressBitmap(bitmap);
+                        Bitmap compressBitmap = CommonMethod.getCompressBitmap(bitmap);
                         OutputStream outputStream = new FileOutputStream(file);
                         compressBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
                         outputStream.close();

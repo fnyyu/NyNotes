@@ -6,20 +6,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
-import android.graphics.Xfermode;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 
+import com.cvter.nynote.R;
 import com.cvter.nynote.model.PaintInfo;
 import com.cvter.nynote.model.PathDrawingInfo;
 import com.cvter.nynote.model.PathInfo;
@@ -61,6 +57,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     private PathWFCallback mCallback;
 
+    private static final String TAG = "PaintView";
+
     public PaintView(Context context) {
         super(context);
         init();
@@ -84,7 +82,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private void init() {
         mHolder = getHolder();
         mHolder.addCallback(this);
-        //mHolder.setFormat(PixelFormat.OPAQUE);
 
         setFocusable(true);
         setFocusableInTouchMode(true);
@@ -118,7 +115,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 if (Math.abs(x - mLastX) < mMinDistance && Math.abs(y - mLastY) < mMinDistance) {
                     return true;
                 }
-                if (mPaint.getMode() == Constants.Mode.ERASER && !mCanEraser) {
+                if (mPaint.getMode() == Constants.ERASER && !mCanEraser) {
                     break;
                 }
                 actionMove(x, y);
@@ -212,7 +209,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private void actionUp(float x, float y) {
         mPointList.add(new PointInfo(x, y));
 
-        if (mPaint.getMode() == Constants.Mode.DRAW || mCanEraser) {
+        if (mPaint.getMode() == Constants.DRAW || mCanEraser) {
             saveDrawingPath();
         }
 
@@ -260,6 +257,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
+        Log.e(TAG, getContext().getString(R.string.no_operation));
     }
 
     @Override
@@ -269,6 +267,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder arg0) {
+        Log.e(TAG, getContext().getString(R.string.no_operation));
     }
 
     //保存路径
@@ -287,7 +286,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         PathDrawingInfo info = new PathDrawingInfo();
         info.setPath(cachePath);
         info.setPaint(cachePaint);
-        info.setPaintType(mPaint.getIntMode());
+        info.setPaintType(mPaint.getMode());
         info.setPointList(mPointList);
         info.setGraphType(mPaint.getGraphType());
         info.setPenType(mPaint.getPenType());

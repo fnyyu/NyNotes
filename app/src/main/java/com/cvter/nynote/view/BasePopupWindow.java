@@ -1,15 +1,11 @@
 package com.cvter.nynote.view;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.PopupWindow;
 
 /**
@@ -19,13 +15,11 @@ import android.widget.PopupWindow;
 
 public class BasePopupWindow extends PopupWindow {
 
-    private Activity mContext;
     private Drawable mOutsideBackgroundDrawable;
     private int mWidth;
     private int mHeight;
 
-    public BasePopupWindow(Activity context, int width, int height) {
-        this.mContext = context;
+    public BasePopupWindow(int width, int height) {
         this.mWidth = width;
         this.mHeight = height;
         initBasePopupWindow();
@@ -78,47 +72,6 @@ public class BasePopupWindow extends PopupWindow {
         }
     }
 
-    private Context getContext() {
-        return mContext;
-    }
-
-    @Override
-    public void dismiss() {
-        super.dismiss();
-    }
-
-    /*
-    //窗口显示，窗口背景透明度渐变动画
-    private ValueAnimator getShowAnimator() {
-        ValueAnimator animator = ValueAnimator.ofFloat(1.0f, mShowAlpha);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float alpha = (float) animation.getAnimatedValue();
-                setWindowBackgroundAlpha(alpha);
-            }
-        });
-        animator.setDuration(360);
-        return animator;
-    }
-
-    //窗口隐藏，窗口背景透明度渐变动画
-    private ValueAnimator getDismissAnimator() {
-        ValueAnimator animator = ValueAnimator.ofFloat(mShowAlpha, 1.0f);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float alpha = (float) animation.getAnimatedValue();
-                setWindowBackgroundAlpha(alpha);
-            }
-        });
-        animator.setDuration(320);
-        return animator;
-    }
-    */
-
     ///为窗体添加outside点击事件
     private void addKeyListener(View contentView) {
         if (contentView != null) {
@@ -136,14 +89,6 @@ public class BasePopupWindow extends PopupWindow {
                 }
             });
         }
-    }
-
-    //控制窗口背景的不透明度
-    private void setWindowBackgroundAlpha(float alpha) {
-        Window window = ((Activity) getContext()).getWindow();
-        WindowManager.LayoutParams layoutParams = window.getAttributes();
-        layoutParams.alpha = alpha;
-        window.setAttributes(layoutParams);
     }
 
 }

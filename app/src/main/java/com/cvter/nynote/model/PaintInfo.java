@@ -24,7 +24,7 @@ public class PaintInfo extends Paint {
 
     private int mDrawSize = 7;
     private int type = Constants.ORDINARY;
-    private Constants.Mode mMode = Constants.Mode.DRAW;
+    private int mMode = Constants.DRAW;
     private Xfermode mClearMode;
     private int mPenColor = Color.BLACK;
     private int mPenType = Constants.ORDINARY_PEN;
@@ -44,15 +44,14 @@ public class PaintInfo extends Paint {
     }
 
     //设置画笔模式
-    public void setMode(Constants.Mode mode) {
+    public void setMode(int mode) {
         if (mode != mMode) {
             mMode = mode;
-            if (mMode == Constants.Mode.DRAW) {
+            if (mMode == Constants.DRAW) {
                 setXfermode(null);
                 setPenColor(mPenColor);
             } else {
                 setAlpha(0);
-                //setColor(Color.WHITE);
                 setXfermode(mClearMode);
                 setStrokeWidth(40);
 
@@ -61,13 +60,8 @@ public class PaintInfo extends Paint {
     }
 
     //得到int类型的画笔模式
-    public int getIntMode() {
-        if (mMode == Constants.Mode.DRAW) {
-            return 0;
-        } else {
-            return 1;
-        }
-
+    public int getMode() {
+        return mMode;
     }
 
     //设置画笔粗细
@@ -150,9 +144,5 @@ public class PaintInfo extends Paint {
         return mPenType;
     }
 
-    //得到画笔模式
-    public Constants.Mode getMode() {
-        return mMode;
-    }
 
 }

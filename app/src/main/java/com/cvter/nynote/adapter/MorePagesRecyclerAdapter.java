@@ -125,6 +125,7 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
                         path.toString(), new SaveListener() {
                             @Override
                             public void onSuccess() {
+                                Log.e(TAG, mContext.getString(R.string.xml_success));
                             }
 
                             @Override

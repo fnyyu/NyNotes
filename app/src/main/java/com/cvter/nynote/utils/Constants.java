@@ -1,13 +1,6 @@
 package com.cvter.nynote.utils;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.os.Environment;
-import android.util.DisplayMetrics;
-import android.view.WindowManager;
-
-import java.io.ByteArrayOutputStream;
 
 /**
  * Created by cvter on 2017/6/5.
@@ -15,6 +8,8 @@ import java.io.ByteArrayOutputStream;
  */
 
 public class Constants {
+
+    Constants(){}
 
     public static final String PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote";//sd路径
     public static final String NOTE_PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote/";//sd路径
@@ -38,10 +33,8 @@ public class Constants {
     public static final String READ_NOTE = "read_note";
 
     //画笔模式
-    public enum Mode {
-        DRAW,
-        ERASER
-    }
+    public static final int DRAW = 0;
+    public static final int ERASER = 1;
 
     //绘制图形
     public static final int ORDINARY = 0;
@@ -60,34 +53,5 @@ public class Constants {
     public static final int INK_PEN = 3;
     public static final int DISCRETE_PEN = 4;
     public static final int DASH_PEN = 5;
-
-
-    //图片压缩
-    public static Bitmap getCompressBitmap(Bitmap bitmap) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-
-        Matrix matrix = new Matrix();
-        matrix.setScale(0.9f, 0.9f);
-
-        Bitmap resultBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-        byteArrayOutputStream.reset();
-        resultBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-        while (byteArrayOutputStream.toByteArray().length > 5 * 1024) {
-            matrix.setScale(0.9f, 0.9f);
-            resultBitmap = Bitmap.createBitmap(resultBitmap, 0, 0, resultBitmap.getWidth(), resultBitmap.getHeight(), matrix, true);
-            byteArrayOutputStream.reset();
-            resultBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
-        }
-        return resultBitmap;
-    }
-
-    //获取屏幕大小
-    public static int[] getScreenSize(Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(outMetrics);
-        return new int[]{outMetrics.widthPixels, outMetrics.heightPixels};
-    }
 
 }

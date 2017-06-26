@@ -17,6 +17,7 @@ import com.cvter.nynote.model.PaintInfo;
 import com.cvter.nynote.model.PathDrawingInfo;
 import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.model.PointInfo;
+import com.cvter.nynote.utils.CommonMethod;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.ImportListener;
 import com.cvter.nynote.utils.SaveListener;
@@ -108,7 +109,7 @@ public class FilePresenterImpl implements IFilePresenter {
                             serializer.endTag(null, PAINT);
 
                             serializer.startTag(null, PATH);
-                            LinkedList<PointInfo> mPoints = pathInfo.getPointList();
+                            List<PointInfo> mPoints = pathInfo.getPointList();
                             for (PointInfo points : mPoints) {
                                 serializer.startTag(null, POINT);
                                 serializer.text(points.mPointX + "," + points.mPointY);
@@ -156,7 +157,7 @@ public class FilePresenterImpl implements IFilePresenter {
                     }
                     if (file.createNewFile()) {
 
-                        Bitmap compressBitmap = Constants.getCompressBitmap(bitmap);
+                        Bitmap compressBitmap = CommonMethod.getCompressBitmap(bitmap);
                         OutputStream outputStream = new FileOutputStream(file);
                         compressBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
                         outputStream.close();

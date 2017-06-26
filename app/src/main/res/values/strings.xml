@@ -50,5 +50,11 @@
     <string name="png">.png</string>
     <string name="xml">.xml</string>
 
+    <string name="bg_success">saveAsBgOnSuccess</string>
+    <string name="pic_success">saveAsPicOnSuccess</string>
+    <string name="xml_success">saveAsXmlOnSuccess</string>
+
+    <string name="no_operation">no-operation</string>
+
 
 </resources>

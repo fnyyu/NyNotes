@@ -34,7 +34,7 @@ public class GraphWindow extends BasePopupWindow implements View.OnClickListener
     private ImageView mCubeImageView;
 
     public GraphWindow(Activity context, Paint paint, int width, int height) {
-        super(context, width, height);
+        super(width, height);
         this.mContext = context;
         this.mPaint = (PaintInfo) paint;
         initLayout();

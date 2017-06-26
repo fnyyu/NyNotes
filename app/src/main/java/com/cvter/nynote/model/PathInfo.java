@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 
-import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -16,7 +16,7 @@ public abstract class PathInfo {
 
     private Path mPath;
     private Paint mPaint;
-    private LinkedList<PointInfo> mPointList;
+    private List<PointInfo> mPointList;
     private int mPaintType;
     private int mGraphType;
     private int mPenType;
@@ -38,7 +38,7 @@ public abstract class PathInfo {
         this.mPaintType = mPaintType;
     }
 
-    public void setPointList(LinkedList<PointInfo> mPointList) {
+    public void setPointList(List<PointInfo> mPointList) {
         this.mPointList = mPointList;
     }
 
@@ -58,7 +58,7 @@ public abstract class PathInfo {
         return mGraphType;
     }
 
-    public LinkedList<PointInfo> getPointList() {
+    public List<PointInfo> getPointList() {
         return mPointList;
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.cvter.nynote.adapter.ThumbnailRecyclerAdapter;
 import com.cvter.nynote.model.NoteInfo;
@@ -42,6 +43,8 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     private ThumbnailRecyclerAdapter mThumbnailRecyclerAdapter;
 
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void initWidget(Bundle bundle) {
         mIMainPresenter = new MainPresenterImpl(this);
@@ -50,7 +53,7 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void initParams(Bundle params) {
-
+        Log.e(TAG, getString(R.string.no_operation));
     }
 
     @Override
