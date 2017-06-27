@@ -333,14 +333,12 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.clear_imageView:
+                mDrawPaintView.setIsCrossDraw(false);
                 mDrawPaintView.clear();
                 break;
 
             case R.id.choose_imageView:
-                //mDrawPaintView.setIsCrossDraw(true);
-                mDrawPaintView.setCrossList();
-                setChooseStyle();
-
+                mDrawPaintView.setIsCrossDraw(true);
                 break;
 
             case R.id.save_imageView:
@@ -596,15 +594,15 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mGraphWindow.showAsDropDown(mDrawingTitleLayout, 300, 5);
     }
 
-    private void setChooseStyle() {
+    public void setChooseStyle() {
         if (ifCanScale && mDrawPaintView.getCrossList() != null && !mDrawPaintView.getDrawingList().isEmpty()) {
             drawMatrixView.setOnDraw(new ArrayList<>(mDrawPaintView.getCrossList()));
+            mDrawPaintView.clearCross();
             drawMatrixView.invalidate();
             drawMatrixView.setVisibility(View.VISIBLE);
             drawMatrixView.bringToFront();
             morePagesLinearLayout.bringToFront();
             setViewEnable(false);
-            mDrawPaintView.clear();
             ifCanScale = false;
         }
     }

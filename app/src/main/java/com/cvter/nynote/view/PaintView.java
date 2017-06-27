@@ -19,6 +19,7 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 
 import com.cvter.nynote.R;
+import com.cvter.nynote.activity.DrawActivity;
 import com.cvter.nynote.model.PaintInfo;
 import com.cvter.nynote.model.PathDrawingInfo;
 import com.cvter.nynote.model.PathInfo;
@@ -38,6 +39,7 @@ import java.util.List;
 public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     private SurfaceHolder mHolder;
+    private DrawActivity mContext;
     private Canvas mCanvas;
     private Path mPath;
     private Path mGraphPath;
@@ -47,7 +49,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private float mLastY;
     private int mMinDistance;
     private boolean isCanDraw;
-    private boolean isCrossDraw;
+    private static boolean isCrossDraw;
 
     private List<PathInfo> mDrawingList;
     private List<PathInfo> mRemovedList;
@@ -64,20 +66,25 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     private List<PointInfo> mCrossPoint;
 
+    private int mBeforeColor = Color.BLACK;
+
     private static final String TAG = "PaintView";
 
     public PaintView(Context context) {
         super(context);
+        mContext = (DrawActivity) context;
         init();
     }
 
     public PaintView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = (DrawActivity) context;
         init();
     }
 
     public PaintView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mContext = (DrawActivity) context;
         init();
     }
 
@@ -113,19 +120,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 actionDown(x, y);
-//                if (isCrossDraw) {
-//                    RectF bounds = new RectF();
-//                    for (int i = 0; i<mDrawingList.size(); i++){
-//                        Path pathInfo = new Path(mDrawingList.get(i).getPath());
-//                        pathInfo.computeBounds(bounds, true);
-//                        Region region = new Region();
-//                        region.setPath(pathInfo, new Region((int)bounds.left, (int)bounds.top,(int)bounds.right, (int)bounds.bottom));
-//                        if(region.contains((int)x, (int)y)){
-//                            mCrossList.add(mDrawingList.get(i));
-//                        }
-//                    }
-//
-//                }
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -164,6 +158,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (isCrossDraw) {
             mPaint.setGraphType(Constants.ORDINARY);
+            mBeforeColor = mPaint.getColor();
+            mPaint.setColor(Color.TRANSPARENT);
             mCrossPoint = new LinkedList<>();
             mCrossPoint.add(new PointInfo(x, y));
         }else{
@@ -249,11 +245,16 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (isCrossDraw) {
             mCrossPoint.add(new PointInfo(x, y));
+            setCrossList();
+            mContext.setChooseStyle();
+            mPaint.setColor(mBeforeColor);
+            mPath.reset();
+            return;
         }else {
             mPointList.add(new PointInfo(x, y));
         }
 
-        if (mPaint.getMode() == Constants.DRAW || mCanEraser && !isCrossDraw) {
+        if (mPaint.getMode() == Constants.DRAW || mCanEraser) {
             saveDrawingPath();
         }
 
@@ -483,21 +484,40 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void setCrossList() {
+        int pos = -1;
         mCrossList = new LinkedList<>();
         for(int i = 0; i<mDrawingList.size(); i++){
             PathInfo pathInfo = mDrawingList.get(i);
+            boolean flag = false;
             for(int j = 0; j< mDrawingList.get(i).getPointList().size(); j++){
                 for (int k = 0; k<mCrossPoint.size(); k++){
                     if (Math.abs(mCrossPoint.get(k).mPointX - mDrawingList.get(i).getPointList().get(j).mPointX) < mMinDistance
                             && Math.abs(mCrossPoint.get(k).mPointY - mDrawingList.get(i).getPointList().get(j).mPointY ) < mMinDistance){
                         mCrossList.add(pathInfo);
+                        flag = true;
                         break;
                     }
                 }
 
             }
+            if(flag){
+                pos = i;
+            }
 
         }
+        if(pos != -1){
+            mDrawingList.remove(pos);
+        }
 
+    }
+
+    public void clearCross(){
+        mBufferBitmap.eraseColor(Color.TRANSPARENT);
+        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+            for (PathInfo drawPath : mDrawingList) {
+                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+            }
+            draw();
+        }
     }
 }
