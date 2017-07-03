@@ -2,6 +2,7 @@ package com.cvter.nynote.utils;
 
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.os.Build;
 
 /**
  * Created by cvter on 2017/6/12.
@@ -101,8 +102,15 @@ public class DrawPolygon {
     }
 
     //画球体
-    public void drawSphere(Path path) {
+    public void drawSphere(Path path, float radius, float x, float y) {
         path.rewind();
+        if (radius < 0) {
+            radius = -radius;
+        }
+        path.addCircle(x, y, radius, Path.Direction.CW);
+        RectF rectF = new RectF(x - radius, y - radius / 2.7f, x + radius, y + radius / 2.7f);
+        path.addArc(rectF, 0, 180);
+
     }
 
     //画棱锥
@@ -115,21 +123,17 @@ public class DrawPolygon {
         float spaceX2 = radius * 3 / 2;
         float spaceY2 = radius * 3 / 2;
 
-        if (radiusY * radius > 0) {
-            path.lineTo(x - spaceX, y + spaceY);
-            path.lineTo(x + radius, y + spaceY);
-            path.lineTo(x + radius / 6, y);
-            path.lineTo(x + spaceX2, y + spaceY2);
-            path.lineTo(x + radius, y + spaceY);
-
-        } else {
-            path.lineTo(x - spaceX, y - spaceY);
-            path.lineTo(x + radius, y - spaceY);
-            path.lineTo(x + radius / 6, y);
-            path.lineTo(x + spaceX2, y - spaceY2);
-            path.lineTo(x + radius, y - spaceY);
-
+        if(radiusY * radius < 0){
+            spaceY = -spaceY;
+            spaceY2 = -spaceY2;
         }
+
+        path.lineTo(x - spaceX, y + spaceY);
+        path.lineTo(x + radius, y + spaceY);
+        path.lineTo(x + radius / 6, y);
+        path.lineTo(x + spaceX2, y + spaceY2);
+        path.lineTo(x + radius, y + spaceY);
+
     }
 
     //画正方体
@@ -186,20 +190,16 @@ public class DrawPolygon {
         float spaceX2 = dashRadiusX * 3 / 2;
         float spaceY2 = dashRadiusX * 3 / 2;
 
-        if (dashRadiusX * dashRadiusY > 0) {
-            path.moveTo(dashX + spaceX2, dashY + spaceY2);
-            path.lineTo(dashX, dashY + spaceY2);
-            path.lineTo(dashX - spaceX, dashY + spaceY);
-            path.moveTo(dashX + dashRadiusX / 6, dashY);
-            path.lineTo(dashX, dashY + spaceY2);
-        } else {
-            path.moveTo(dashX + spaceX2, dashY - spaceY2);
-            path.lineTo(dashX, dashY - spaceY2);
-            path.lineTo(dashX - spaceX, dashY - spaceY);
-            path.moveTo(dashX + dashRadiusX / 6, dashY);
-            path.lineTo(dashX, dashY - spaceY2);
+        if (dashRadiusX * dashRadiusY < 0) {
+            spaceY = -spaceY;
+            spaceY2 = -spaceY2;
         }
 
+        path.moveTo(dashX + spaceX2, dashY + spaceY2);
+        path.lineTo(dashX, dashY + spaceY2);
+        path.lineTo(dashX - spaceX, dashY + spaceY);
+        path.moveTo(dashX + dashRadiusX / 6, dashY);
+        path.lineTo(dashX, dashY + spaceY2);
     }
 
     //绘制正方体虚线
@@ -225,7 +225,14 @@ public class DrawPolygon {
 
     }
 
+    //绘制球体虚线
     public void drawSphereDash(Path path) {
+        if (dashRadiusY < 0) {
+            dashRadiusY = -dashRadiusY;
+        }
+        RectF rectF = new RectF(dashX - dashRadiusY, dashY - dashRadiusY / 2.7f, dashX + dashRadiusY, dashY + dashRadiusY / 2.7f);
+        path.addArc(rectF, 0, -180);
+
 
     }
 

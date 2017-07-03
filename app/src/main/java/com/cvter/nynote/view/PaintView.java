@@ -219,7 +219,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 break;
 
             case Constants.SPHERE:
-                mDrawPolygon.drawSphere(mGraphPath);
+                mDrawPolygon.drawSphere(mGraphPath, y - mLastY, mLastX, mLastY);
                 mDrawPolygon.setDash(x - mLastX, y - mLastY, mLastX, mLastY);
                 break;
 
