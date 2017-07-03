@@ -24,7 +24,7 @@ public abstract class PathInfo {
     public PathInfo() {
     }
 
-    public abstract void draw(Canvas canvas, int type);
+    public abstract void draw(Canvas canvas, int type, List<PointInfo> points);
 
     public void setPaint(Paint mPaint) {
         this.mPaint = mPaint;

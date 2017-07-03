@@ -10,6 +10,11 @@ import android.graphics.RectF;
 
 public class DrawPolygon {
 
+    private float dashRadiusX;
+    private float dashRadiusY;
+    private float dashX;
+    private float dashY;
+
     //画圆
     public void drawCircle(Path path, float startX, float startY, float endX, float endY) {
         path.rewind();
@@ -100,7 +105,7 @@ public class DrawPolygon {
         path.rewind();
     }
 
-    //画圆锥
+    //画棱锥
     public void drawCone(Path path, float radius, float radiusY, float x, float y) {
         path.rewind();
         path.moveTo(x + radius / 6, y);
@@ -117,11 +122,6 @@ public class DrawPolygon {
             path.lineTo(x + spaceX2, y + spaceY2);
             path.lineTo(x + radius, y + spaceY);
 
-            path.moveTo(x + spaceX2, y + spaceY2);
-            path.lineTo(x, y + spaceY2);
-            path.lineTo(x - spaceX, y + spaceY);
-            path.moveTo(x + radius / 6, y);
-            path.lineTo(x, y + spaceY2);
         } else {
             path.lineTo(x - spaceX, y - spaceY);
             path.lineTo(x + radius, y - spaceY);
@@ -129,14 +129,7 @@ public class DrawPolygon {
             path.lineTo(x + spaceX2, y - spaceY2);
             path.lineTo(x + radius, y - spaceY);
 
-            path.moveTo(x + spaceX2, y - spaceY2);
-            path.lineTo(x, y - spaceY2);
-            path.lineTo(x - spaceX, y - spaceY);
-            path.moveTo(x + radius / 6, y);
-            path.lineTo(x, y - spaceY2);
         }
-
-
     }
 
     //画正方体
@@ -152,13 +145,13 @@ public class DrawPolygon {
         if (radius > 0) {
             path.lineTo(x + radius, y);
             path.lineTo(x + radius, y + radius);
-            path.lineTo(x, y + radius);
+            path.lineTo(x, y + radius);//
             path.lineTo(x, y);
             path.lineTo(x + spaceX, y - spaceY);
-            path.lineTo(x + spaceX2, y - spaceY);
+            path.lineTo(x + spaceX2, y - spaceY);//
             path.lineTo(x + spaceX2, y + spaceY2);
             path.moveTo(x + radius, y + radius);
-            path.lineTo(x + spaceX2, y + spaceY2);
+            path.lineTo(x + spaceX2, y + spaceY2);//
             path.moveTo(x + radius, y);
             path.lineTo(x + spaceX2, y - spaceY);
         } else {
@@ -175,6 +168,64 @@ public class DrawPolygon {
             path.lineTo(x + spaceX2, y + spaceY);
         }
 
+
+    }
+
+    //设置虚线相关属性
+    public void setDash(float dashRadiusX, float dashRadiusY, float dashX, float dashY) {
+        this.dashRadiusX = dashRadiusX;
+        this.dashRadiusY = dashRadiusY;
+        this.dashX = dashX;
+        this.dashY = dashY;
+    }
+
+    //绘制棱锥虚线
+    public void drawConeDash(Path path) {
+        float spaceX = dashRadiusX / 2;
+        float spaceY = dashRadiusX * 2;
+        float spaceX2 = dashRadiusX * 3 / 2;
+        float spaceY2 = dashRadiusX * 3 / 2;
+
+        if (dashRadiusX * dashRadiusY > 0) {
+            path.moveTo(dashX + spaceX2, dashY + spaceY2);
+            path.lineTo(dashX, dashY + spaceY2);
+            path.lineTo(dashX - spaceX, dashY + spaceY);
+            path.moveTo(dashX + dashRadiusX / 6, dashY);
+            path.lineTo(dashX, dashY + spaceY2);
+        } else {
+            path.moveTo(dashX + spaceX2, dashY - spaceY2);
+            path.lineTo(dashX, dashY - spaceY2);
+            path.lineTo(dashX - spaceX, dashY - spaceY);
+            path.moveTo(dashX + dashRadiusX / 6, dashY);
+            path.lineTo(dashX, dashY - spaceY2);
+        }
+
+    }
+
+    //绘制正方体虚线
+    public void drawCubeDash(Path path) {
+        float spaceX = (dashRadiusX * 1) / 3;
+        float spaceY = (dashRadiusX * 1) / 3;
+        float spaceX2 = (dashRadiusX * 4) / 3;
+        float spaceY2 = (dashRadiusX * 2) / 3;
+
+        if (dashRadiusX > 0) {
+            path.moveTo(dashX, dashY + dashRadiusX);
+            path.lineTo(dashX + spaceX, dashY + spaceY2);
+            path.lineTo(dashX + spaceX, dashY - spaceY);
+            path.moveTo(dashX + spaceX, dashY + spaceY2);
+            path.lineTo(dashX + spaceX2, dashY + spaceY2);
+        } else {
+            path.moveTo(dashX, dashY - dashRadiusX);
+            path.lineTo(dashX + spaceX, dashY - spaceY2);
+            path.lineTo(dashX + spaceX, dashY + spaceY);
+            path.moveTo(dashX + spaceX, dashY - spaceY2);
+            path.lineTo(dashX + spaceX2, dashY - spaceY2);
+        }
+
+    }
+
+    public void drawSphereDash(Path path) {
 
     }
 

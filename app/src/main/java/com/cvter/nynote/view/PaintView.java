@@ -6,9 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
-import android.graphics.Region;
-import android.support.constraint.solver.widgets.Rectangle;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -49,7 +46,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private float mLastY;
     private int mMinDistance;
     private boolean isCanDraw;
-    private static boolean isCrossDraw;
+    private boolean isCrossDraw;
 
     private List<PathInfo> mDrawingList;
     private List<PathInfo> mRemovedList;
@@ -223,14 +220,17 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
             case Constants.SPHERE:
                 mDrawPolygon.drawSphere(mGraphPath);
+                mDrawPolygon.setDash(x - mLastX, y - mLastY, mLastX, mLastY);
                 break;
 
             case Constants.CONE:
                 mDrawPolygon.drawCone(mGraphPath, x - mLastX, y - mLastY, mLastX, mLastY);
+                mDrawPolygon.setDash(x - mLastX, y - mLastY, mLastX, mLastY);
                 break;
 
             case Constants.CUBE:
                 mDrawPolygon.drawCube(mGraphPath, x - mLastX, mLastX, mLastY);
+                mDrawPolygon.setDash(x - mLastX, y - mLastY, mLastX, mLastY);
                 break;
 
             default:
@@ -265,8 +265,32 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (mPaint.getGraphType() != Constants.ORDINARY && mGraphPath != null) {
             mCanvas.drawPath(mGraphPath, mPaint);
+            mPaint.setIfDottedPen(true);
+
+            switch (mPaint.getGraphType()){
+                case Constants.CONE:
+                    mDrawPolygon.drawConeDash(mGraphPath);
+                    mCanvas.drawPath(mGraphPath, mPaint);
+                    break;
+
+                case Constants.CUBE:
+                    mDrawPolygon.drawCubeDash(mGraphPath);
+                    mCanvas.drawPath(mGraphPath, mPaint);
+                    break;
+
+                case Constants.SPHERE:
+                    mDrawPolygon.drawSphereDash(mGraphPath);
+                    mCanvas.drawPath(mGraphPath, mPaint);
+                    break;
+
+                default:
+                    break;
+            }
+
+            mPaint.setIfDottedPen(false);
             mGraphPath.reset();
         }
+
 
         mPointList = null;
     }
@@ -361,7 +385,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mCanEraser = true;
             mBufferBitmap.eraseColor(Color.TRANSPARENT);
             for (PathInfo pathInfo : mDrawingList) {
-                pathInfo.draw(mCanvas, mPaint.getGraphType());
+                pathInfo.draw(mCanvas, mPaint.getGraphType(), pathInfo.getPointList());
             }
             if (mCallback != null) {
                 mCallback.pathWFState();
@@ -385,7 +409,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mRemovedList.add(info);
             mBufferBitmap.eraseColor(Color.TRANSPARENT);
             for (PathInfo pathInfo : mDrawingList) {
-                pathInfo.draw(mCanvas, mPaint.getGraphType());
+                pathInfo.draw(mCanvas, mPaint.getGraphType(), pathInfo.getPointList());
             }
             if (mCallback != null) {
                 mCallback.pathWFState();

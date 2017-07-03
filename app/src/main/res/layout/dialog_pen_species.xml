@@ -50,7 +50,7 @@
 
         <SeekBar
             android:layout_marginTop="10dp"
-            android:progress="20"
+            android:progress="7"
             android:id="@+id/paint_width_seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

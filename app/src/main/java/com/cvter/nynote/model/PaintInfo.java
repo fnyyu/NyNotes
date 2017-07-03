@@ -125,8 +125,13 @@ public class PaintInfo extends Paint {
     }
 
     //设置立体图形虚线
-    public void setIfDottedPen() {
-        setPathEffect(new DashPathEffect(new float[]{5, 20}, 1));
+    public void setIfDottedPen(boolean ifDottedPen) {
+        if(ifDottedPen){
+            setPathEffect(new DashPathEffect(new float[]{5, 20}, 1));
+        }else {
+            setPathEffect(null);
+        }
+
     }
 
     //设置画笔图形类别
