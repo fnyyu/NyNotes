@@ -4,8 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -16,6 +19,8 @@ import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.presenter.FilePresenterImpl;
 import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.utils.CommonMethod;
+import com.cvter.nynote.utils.Constants;
+import com.cvter.nynote.utils.DrawPolygon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +130,9 @@ public class MatrixView extends View {
 
         if (null != mDrawingList && !mDrawingList.isEmpty()) {
             for (PathInfo drawPath : mDrawingList) {
-                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+                Paint paint = drawPath.getPaint();
+                Path path = drawPath.getPath();
+                mCanvas.drawPath(path, paint);
             }
             invalidate();
         }

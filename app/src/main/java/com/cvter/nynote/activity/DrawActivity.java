@@ -555,7 +555,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
 
             if (!mRevertList.isEmpty()) {
-                mDrawPaintView.setDrawingList(mRevertList);
+                mDrawPaintView.setCrossDrawingList(mRevertList);
                 drawMatrixView.recycle();
             }
             drawMatrixView.setVisibility(View.INVISIBLE);
@@ -583,7 +583,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
 
             if (!mRevertList.isEmpty()) {
-                mDrawPaintView.setDrawingList(mRevertList);
+                mDrawPaintView.setCrossDrawingList(mRevertList);
                 drawMatrixView.recycle();
             }
             drawMatrixView.setVisibility(View.INVISIBLE);

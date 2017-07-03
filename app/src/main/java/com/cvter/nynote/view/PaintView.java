@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -23,6 +24,7 @@ import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.model.PointInfo;
 import com.cvter.nynote.presenter.PathWFCallback;
 import com.cvter.nynote.utils.Constants;
+import com.cvter.nynote.utils.CrossHandle;
 import com.cvter.nynote.utils.DrawPolygon;
 
 import java.util.LinkedList;
@@ -53,6 +55,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private List<PathInfo> mCrossList;
     private LinkedList<PointInfo> mPointList;
     private DrawPolygon mDrawPolygon;
+    private CrossHandle mCrossHandle;
 
     private boolean mCanEraser;
     private boolean mIsHasBG;
@@ -101,8 +104,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         mPaint.setStrokeWidth(7);
         mBufferBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBufferBitmap);
-        mDrawPolygon = new DrawPolygon();
         mMinDistance = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+        mDrawPolygon = new DrawPolygon();
+        mCrossHandle = new CrossHandle(mMinDistance);
     }
 
     @Override
@@ -491,6 +495,20 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    public void setCrossDrawingList(List<PathInfo> newDrawPathList) {
+        for(PathInfo info : newDrawPathList){
+            mDrawingList.add(info);
+        }
+        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+            for (PathInfo drawPath : mDrawingList) {
+                Paint paint = drawPath.getPaint();
+                Path path = drawPath.getPath();
+                mCanvas.drawPath(path, paint);
+            }
+            draw();
+        }
+    }
+
     public void setCanDraw(boolean canDraw) {
         this.isCanDraw = canDraw;
     }
@@ -508,30 +526,22 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void setCrossList() {
-        int pos = -1;
         mCrossList = new LinkedList<>();
+        List<Integer> pos = new LinkedList<>();
         for(int i = 0; i<mDrawingList.size(); i++){
             PathInfo pathInfo = mDrawingList.get(i);
-            boolean flag = false;
-            for(int j = 0; j< mDrawingList.get(i).getPointList().size(); j++){
-                for (int k = 0; k<mCrossPoint.size(); k++){
-                    if (Math.abs(mCrossPoint.get(k).mPointX - mDrawingList.get(i).getPointList().get(j).mPointX) < mMinDistance
-                            && Math.abs(mCrossPoint.get(k).mPointY - mDrawingList.get(i).getPointList().get(j).mPointY ) < mMinDistance){
-                        mCrossList.add(pathInfo);
-                        flag = true;
-                        break;
-                    }
-                }
-
-            }
-            if(flag){
-                pos = i;
+            if(mCrossHandle.isCross(mDrawingList.get(i).getPointList(), mCrossPoint, pathInfo.getGraphType(), mDrawingList.get(i).getPath())){
+                mCrossList.add(pathInfo);
+                pos.add(i - pos.size());
             }
 
         }
-        if(pos != -1){
-            mDrawingList.remove(pos);
+        if(!pos.isEmpty()){
+            for(int index : pos)
+                mDrawingList.remove(index);
+
         }
+        pos.clear();
 
     }
 

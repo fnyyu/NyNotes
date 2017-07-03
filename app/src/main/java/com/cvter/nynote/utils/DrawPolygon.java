@@ -2,7 +2,6 @@ package com.cvter.nynote.utils;
 
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.os.Build;
 
 /**
  * Created by cvter on 2017/6/12.
@@ -104,11 +103,12 @@ public class DrawPolygon {
     //画球体
     public void drawSphere(Path path, float radius, float x, float y) {
         path.rewind();
+        float newRadius = radius;
         if (radius < 0) {
-            radius = -radius;
+            newRadius = -radius;
         }
-        path.addCircle(x, y, radius, Path.Direction.CW);
-        RectF rectF = new RectF(x - radius, y - radius / 2.7f, x + radius, y + radius / 2.7f);
+        path.addCircle(x, y, newRadius, Path.Direction.CW);
+        RectF rectF = new RectF(x - newRadius, y - newRadius / 2.7f, x + newRadius, y + newRadius / 2.7f);
         path.addArc(rectF, 0, 180);
 
     }
