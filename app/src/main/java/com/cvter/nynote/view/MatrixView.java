@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import com.cvter.nynote.model.PathInfo;
+import com.cvter.nynote.model.PointInfo;
 import com.cvter.nynote.presenter.FilePresenterImpl;
 import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.utils.CommonMethod;
@@ -55,6 +56,9 @@ public class MatrixView extends View {
 
     private Bitmap mBitmap;
 
+    private DrawPolygon mDrawPolygon;
+    private PathEffect mEffect;
+
     public MatrixView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -73,6 +77,8 @@ public class MatrixView extends View {
         mBitmap = Bitmap.createBitmap(CommonMethod.getScreenSize(getContext())[0], CommonMethod.getScreenSize(getContext())[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawColor(Color.TRANSPARENT);
+        mDrawPolygon = new DrawPolygon();
+        mEffect = new DashPathEffect(new float[]{5, 20}, 1);
     }
 
     @Override
@@ -130,12 +136,42 @@ public class MatrixView extends View {
 
         if (null != mDrawingList && !mDrawingList.isEmpty()) {
             for (PathInfo drawPath : mDrawingList) {
-                Paint paint = drawPath.getPaint();
-                Path path = drawPath.getPath();
-                mCanvas.drawPath(path, paint);
+                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+//                List<PointInfo> info = drawPath.getPointList();
+//                if (info.size() > 1) {
+//                    float endX = info.get(1).mPointX;
+//                    float endY = info.get(1).mPointY;
+//                    float startX = info.get(0).mPointX;
+//                    float startY = info.get(0).mPointY;
+//
+//                    drawPath.getPaint().setPathEffect(mEffect);
+//                    mDrawPolygon.setDash(endX - startX,
+//                            endY - startY, startX, startY);
+//
+//                    switch (drawPath.getGraphType()){
+//                        case Constants.CONE:
+//                            mDrawPolygon.drawConeDash(drawPath.getPath());
+//                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+//                            break;
+//
+//                        case Constants.CUBE:
+//                            mDrawPolygon.drawCubeDash(drawPath.getPath());
+//                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+//                            break;
+//
+//                        case Constants.SPHERE:
+//                            mDrawPolygon.drawSphereDash(drawPath.getPath());
+//                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+//                            break;
+//
+//                        default:
+//                            break;
+//                    }
+//
+//                    drawPath.getPaint().setPathEffect(null);
             }
             invalidate();
-        }
+        }//}
 
         if (mBitmap != null) {
             canvas.drawBitmap(mBitmap, mMatrix, null);
