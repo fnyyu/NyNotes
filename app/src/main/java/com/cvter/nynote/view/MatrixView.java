@@ -4,11 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PathEffect;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -16,12 +13,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import com.cvter.nynote.model.PathInfo;
-import com.cvter.nynote.model.PointInfo;
-import com.cvter.nynote.presenter.FilePresenterImpl;
-import com.cvter.nynote.presenter.IFilePresenter;
 import com.cvter.nynote.utils.CommonMethod;
-import com.cvter.nynote.utils.Constants;
-import com.cvter.nynote.utils.DrawPolygon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +33,6 @@ public class MatrixView extends View {
 
     private List<PathInfo> mDrawingList;
 
-    private IFilePresenter mFilePresenter;
 
     private Canvas mCanvas;
 
@@ -51,13 +42,10 @@ public class MatrixView extends View {
 
     private int mMode = NONE;
 
-    private static final float MAX_SCALE = 3;
-    private static final float MIN_SCALE = (float) 0.3;
+//    private static final float MAX_SCALE = 3;
+//    private static final float MIN_SCALE = (float) 0.3;
 
     private Bitmap mBitmap;
-
-    private DrawPolygon mDrawPolygon;
-    private PathEffect mEffect;
 
     public MatrixView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -70,15 +58,12 @@ public class MatrixView extends View {
     }
 
     private void init() {
-        mFilePresenter = new FilePresenterImpl(getContext());
         mPoint = new PointF();
         mMatrix = new Matrix();
         mSaveMatrix = new Matrix();
         mBitmap = Bitmap.createBitmap(CommonMethod.getScreenSize(getContext())[0], CommonMethod.getScreenSize(getContext())[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawColor(Color.TRANSPARENT);
-        mDrawPolygon = new DrawPolygon();
-        mEffect = new DashPathEffect(new float[]{5, 20}, 1);
     }
 
     @Override
@@ -112,7 +97,7 @@ public class MatrixView extends View {
                         float scale = newDist / mDistance;
                         float[] values = new float[9];
                         mMatrix.getValues(values);
-                        checkMaxScale(scale, values);
+                        mMatrix.postScale(scale, scale, getWidth() / 2, getHeight() / 2);
                     }
                 }
                 break;
@@ -132,46 +117,11 @@ public class MatrixView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+        if (!mDrawingList.isEmpty()) {
             for (PathInfo drawPath : mDrawingList) {
-                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-//                List<PointInfo> info = drawPath.getPointList();
-//                if (info.size() > 1) {
-//                    float endX = info.get(1).mPointX;
-//                    float endY = info.get(1).mPointY;
-//                    float startX = info.get(0).mPointX;
-//                    float startY = info.get(0).mPointY;
-//
-//                    drawPath.getPaint().setPathEffect(mEffect);
-//                    mDrawPolygon.setDash(endX - startX,
-//                            endY - startY, startX, startY);
-//
-//                    switch (drawPath.getGraphType()){
-//                        case Constants.CONE:
-//                            mDrawPolygon.drawConeDash(drawPath.getPath());
-//                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-//                            break;
-//
-//                        case Constants.CUBE:
-//                            mDrawPolygon.drawCubeDash(drawPath.getPath());
-//                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-//                            break;
-//
-//                        case Constants.SPHERE:
-//                            mDrawPolygon.drawSphereDash(drawPath.getPath());
-//                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-//                            break;
-//
-//                        default:
-//                            break;
-//                    }
-//
-//                    drawPath.getPaint().setPathEffect(null);
+                drawPath.draw(mCanvas, drawPath.getGraphType(), drawPath.getPointList());
             }
-            invalidate();
-        }//}
+        }
 
         if (mBitmap != null) {
             canvas.drawBitmap(mBitmap, mMatrix, null);
@@ -180,9 +130,10 @@ public class MatrixView extends View {
 
     public void setOnDraw(List<PathInfo> newDrawPathList) {
         this.mDrawingList = new ArrayList<>(newDrawPathList);
+
     }
 
-    //使图像缩放不越界
+    /*//使图像缩放不越界
     private void checkMaxScale(float scale, float[] values) {
         float newScale = scale;
         if (scale * values[Matrix.MSCALE_X] > MAX_SCALE) {
@@ -193,8 +144,8 @@ public class MatrixView extends View {
             newScale = MIN_SCALE / values[Matrix.MSCALE_X];
         }
 
-        mMatrix.postScale(newScale, newScale, getWidth() / 2, getHeight() / 2);
-    }
+        mMatrix.postScale(scale, scale, getWidth() / 2, getHeight() / 2);
+    }*/
 
     // 计算两个触摸点之间的距离
     private float distance(MotionEvent event) {
@@ -227,7 +178,7 @@ public class MatrixView extends View {
                         path.moveTo(startX, startY);
                     }
 
-                    mFilePresenter.handleGraphType(path, startX, startY, mCoefficient[0], mCoefficient[1], newList.get(i).getGraphType());
+                    CommonMethod.handleGraphType(path, startX, startY, mCoefficient[0], mCoefficient[1], newList.get(i).getGraphType());
                     startX = mCoefficient[0];
                     startY = mCoefficient[1];
                 }

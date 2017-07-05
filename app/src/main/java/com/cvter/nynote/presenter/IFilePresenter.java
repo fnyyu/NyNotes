@@ -35,5 +35,4 @@ public interface IFilePresenter {
 
     boolean deleteFile(File file);
 
-    void handleGraphType(Path path, float startX, float startY, float x, float y, int type);
 }

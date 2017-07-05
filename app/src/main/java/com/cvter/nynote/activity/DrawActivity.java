@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -308,7 +309,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.eraser_imageView:
-                setEraserStyle(view);
+                //setEraserStyle(view);
+                mDrawPaintView.getPaint().setMode(Constants.CUT);
                 mDrawPaintView.setIsCrossDraw(false);
                 break;
 
@@ -583,7 +585,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
             List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
 
             if (!mRevertList.isEmpty()) {
-                mDrawPaintView.setCrossDrawingList(mRevertList);
+                mDrawPaintView.setDrawingList(mRevertList);
                 drawMatrixView.recycle();
             }
             drawMatrixView.setVisibility(View.INVISIBLE);

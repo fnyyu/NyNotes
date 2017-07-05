@@ -20,7 +20,7 @@ public class PathDrawingInfo extends PathInfo {
     @Override
     public void draw(Canvas canvas, int type, List<PointInfo> info) {
         canvas.drawPath(getPath(), getPaint());
-        if (info.size() > 1) {
+        if (!info.isEmpty() && info.size()>1) {
             float endX = info.get(1).mPointX;
             float endY = info.get(1).mPointY;
             float startX = info.get(0).mPointX;

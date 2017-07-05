@@ -91,6 +91,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         mCallback = callback;
     }
 
+    private int eraserX = 0 ;
+    private int eraserY = 0;
+    private int screenW;
+    private int screenH;
+    private int eraserRadius = 20;
+
     //画板初始化
     private void init() {
         mHolder = getHolder();
@@ -119,6 +125,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+                if (mPaint.getMode() == Constants.CUT){
+                    eraserX = (int) event.getX();
+                    eraserY = (int) event.getY();
+                    eraserRadius = 20;
+                    break;
+                }
                 actionDown(x, y);
                 break;
 
@@ -126,6 +138,20 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 break;
 
             case MotionEvent.ACTION_MOVE:
+                if (mPaint.getMode() == Constants.CUT){
+                    eraserX = (int) event.getX();
+                    eraserY = (int) event.getY();
+                    mBufferBitmap.eraseColor(Color.TRANSPARENT);
+
+                    mDrawingList = mCrossHandle.getEraserList(mDrawingList, new PointInfo(eraserX, eraserY));
+
+                    if (null != mDrawingList && !mDrawingList.isEmpty()) {
+                        for (PathInfo drawPath : mDrawingList) {
+                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+                        }
+                    }
+                    break;
+                }
                 if (Math.abs(x - mLastX) < mMinDistance && Math.abs(y - mLastY) < mMinDistance) {
                     return true;
                 }
@@ -139,6 +165,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 break;
 
             case MotionEvent.ACTION_UP:
+                if (mPaint.getMode() == Constants.CUT){
+                    eraserX = (int) event.getX();
+                    eraserY = (int) event.getY();
+                    eraserRadius = 0;
+                    break;
+                }
                 actionUp(x, y);
                 break;
 
@@ -312,10 +344,28 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    private void revise(){
+        if(eraserX <= eraserRadius){
+            eraserX = eraserRadius;
+        }else if(eraserX >= (screenW- eraserRadius)){
+            eraserX = screenW- eraserRadius;
+        }
+        if(eraserY <= eraserRadius){
+            eraserY = eraserRadius;
+        }else if(eraserY >= (screenH- eraserRadius)){
+            eraserY = screenH- eraserRadius;
+        }
+    }
+
     //绘制于bitmap上
     public void drawBitmap(Canvas canvas) {
         if (mBufferBitmap != null && mPaint != null) {
             canvas.drawBitmap(mBufferBitmap, 0, 0, null);
+        }
+
+        if (mPaint != null && mPaint.getMode() == Constants.CUT){
+            revise();
+            canvas.drawCircle(eraserX, eraserY, eraserRadius, mPaint);
         }
 
         if (mPath != null && mPaint != null && !isCrossDraw) {
@@ -334,6 +384,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder arg0) {
+        screenW = getWidth();
+        screenH = getHeight();
         draw();
     }
 
@@ -388,7 +440,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mCanEraser = true;
             mBufferBitmap.eraseColor(Color.TRANSPARENT);
             for (PathInfo pathInfo : mDrawingList) {
-                pathInfo.draw(mCanvas, mPaint.getGraphType(), pathInfo.getPointList());
+                pathInfo.draw(mCanvas, pathInfo.getGraphType(), pathInfo.getPointList());
             }
             if (mCallback != null) {
                 mCallback.pathWFState();
@@ -412,7 +464,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mRemovedList.add(info);
             mBufferBitmap.eraseColor(Color.TRANSPARENT);
             for (PathInfo pathInfo : mDrawingList) {
-                pathInfo.draw(mCanvas, mPaint.getGraphType(), pathInfo.getPointList());
+                pathInfo.draw(mCanvas, pathInfo.getGraphType(), pathInfo.getPointList());
             }
             if (mCallback != null) {
                 mCallback.pathWFState();
@@ -498,11 +550,10 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         for(PathInfo info : newDrawPathList){
             mDrawingList.add(info);
         }
+        mBufferBitmap.eraseColor(Color.TRANSPARENT);
         if (null != mDrawingList && !mDrawingList.isEmpty()) {
             for (PathInfo drawPath : mDrawingList) {
-                Paint paint = drawPath.getPaint();
-                Path path = drawPath.getPath();
-                mCanvas.drawPath(path, paint);
+                drawPath.draw(mCanvas, mPaint.getGraphType(), drawPath.getPointList());
             }
             draw();
         }

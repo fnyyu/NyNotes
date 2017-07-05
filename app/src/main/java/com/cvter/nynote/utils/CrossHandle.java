@@ -4,8 +4,13 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
 
+import com.cvter.nynote.model.PathDrawingInfo;
+import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.model.PointInfo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,10 +22,12 @@ public class CrossHandle {
 
     private int mMinDistance;
     private Region mRegion;
+    private HashMap<Integer, List<Integer>> mPointPosition;
 
     public CrossHandle(int minDistance) {
         this.mMinDistance = minDistance;
         mRegion = new Region();
+        mPointPosition = new LinkedHashMap<>();
     }
 
     private boolean isCrossOrdinary(float p1x, float p1y, float p2x, float p2y) {
@@ -37,7 +44,7 @@ public class CrossHandle {
 
     public boolean isCross(List<PointInfo> drawList, List<PointInfo> pointList, int type, Path path) {
 
-        if (null == drawList || null == pointList) {
+        if (drawList == null || drawList.isEmpty() || null == pointList || pointList.isEmpty()) {
             return false;
         }
 
@@ -49,7 +56,7 @@ public class CrossHandle {
 
         List<PointInfo> list = new LinkedList<>();
 
-        if(type == Constants.DELTA){
+        if (type == Constants.DELTA) {
             list.clear();
             list.add(new PointInfo(drawX, drawY));
             float radius = (drawList.get(1).mPointY - drawY) * 2 / 3;
@@ -59,7 +66,7 @@ public class CrossHandle {
             list.add(new PointInfo((drawX - spaceX), (drawY + spaceY)));
         }
 
-        if(type == Constants.PENTAGON || type == Constants.STAR){
+        if (type == Constants.PENTAGON || type == Constants.STAR) {
             list.clear();
             float radius = drawList.get(1).mPointY - drawY;
             list.add(new PointInfo(drawX, drawY - radius));
@@ -85,13 +92,9 @@ public class CrossHandle {
                     return true;
                 }
 
-                if (type == Constants.CIRCLE || type == Constants.SQUARE || type == Constants.CONE || type == Constants.CUBE) {
-                    RectF r = new RectF();
-                    path.computeBounds(r, true);
-                    mRegion.setPath(path, new Region((int) r.left, (int) r.top, (int) r.right, (int) r.bottom));
-                    if (mRegion.contains((int) pointX, (int) pointY)) {
-                        return true;
-                    }
+                if ((type == Constants.CIRCLE || type == Constants.SQUARE || type == Constants.CONE
+                        || type == Constants.CUBE) && isCrossPolygon(path, pointX, pointY)) {
+                    return true;
 
                 }
 
@@ -107,8 +110,8 @@ public class CrossHandle {
                     return true;
                 }
 
-                if ((type == Constants.DELTA || type == Constants.PENTAGON || type == Constants.STAR )
-                        && ptInPolygon(new PointInfo(pointX, pointY), list)) {
+                if ((type == Constants.DELTA || type == Constants.PENTAGON || type == Constants.STAR)
+                        && isCrossPolygon(new PointInfo(pointX, pointY), list)) {
                     return true;
                 }
             }
@@ -117,14 +120,21 @@ public class CrossHandle {
     }
 
     private static boolean isCrossLine(float p1x, float p1y, float p2x, float p2y, float p3x, float p3y, float p4x, float p4y) {
-        return (ifCrossProduct(p1x, p1y, p2x, p2y, p3x, p3y) * ifCrossProduct(p1x, p1y, p2x, p2y, p4x, p4y) < 0); // 查看直线（p1, p2）与线段（p3， p4）是否相交
+        return (isCrossProduct(p1x, p1y, p2x, p2y, p3x, p3y) * isCrossProduct(p1x, p1y, p2x, p2y, p4x, p4y) < 0); // 查看直线（p1, p2）与线段（p3， p4）是否相交
     }
 
-    private static float ifCrossProduct(float p1x, float p1y, float p2x, float p2y, float p3x, float p3y) {
+    private boolean isCrossPolygon(Path path, float pointX, float pointY) {
+        RectF r = new RectF();
+        path.computeBounds(r, true);
+        mRegion.setPath(path, new Region((int) r.left, (int) r.top, (int) r.right, (int) r.bottom));
+        return mRegion.contains((int) pointX, (int) pointY);
+    }
+
+    private static float isCrossProduct(float p1x, float p1y, float p2x, float p2y, float p3x, float p3y) {
         return (p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x);
     }
 
-    private boolean ptInPolygon(PointInfo point, List<PointInfo> aPoints) {
+    private boolean isCrossPolygon(PointInfo point, List<PointInfo> aPoints) {
 
         if (aPoints == null || aPoints.isEmpty()) {
             return false;
@@ -149,6 +159,104 @@ public class CrossHandle {
         }
         // 单边交点为偶数，点在多边形之外 ---
         return (nCross % 2 == 1);
+    }
+
+    private boolean eraserCross(int listIndex, List<PointInfo> drawList, PointInfo info) {
+
+        List<Integer> pointList = new ArrayList<>();
+
+        if (null == drawList) {
+            return false;
+        }
+        boolean isCross = false;
+
+        int drawListSize = drawList.size();
+        List<Integer> flag = new LinkedList<>();
+        for (int i = 0; i < drawListSize; i++) {
+            if (isCrossCircle(drawList.get(i).mPointX, drawList.get(i).mPointY, info.mPointX, info.mPointY, 30f)) {
+                flag.add(i - flag.size());
+            }
+        }
+
+        if (!flag.isEmpty()) {
+            for (int index : flag) {
+                drawList.remove(index);
+                pointList.add(index - pointList.size());
+            }
+            isCross = true;
+            pointList.add(drawList.size() - pointList.size());
+        }
+
+        mPointPosition.put(listIndex, pointList);
+        return isCross;
+
+    }
+
+    public List<PathInfo> getEraserList(List<PathInfo> infoList, PointInfo pointInfo) {
+
+        List<Integer> index = new LinkedList<>();
+
+        if(infoList == null){
+            return new LinkedList<>();
+        }
+
+        for (int j = 0; j < infoList.size(); j++) {
+            if (eraserCross(j, infoList.get(j).getPointList(), pointInfo)) {
+                index.add(j);
+            }
+        }
+
+        for (int i : index) {
+            List<Integer> pointIndex = mPointPosition.get(i);
+
+            if (!pointIndex.isEmpty()) {
+
+                for (int j = 0; j<pointIndex.size(); j++){
+                    PathDrawingInfo info = new PathDrawingInfo();
+                    List<PointInfo> pointList = new LinkedList<>();
+                    float startX = 0f;
+                    float startY = 0f;
+                    Path path = new Path();
+                    int k;
+                    if(j == 0){
+                        k = 0;
+                    }else {
+                        k = pointIndex.get(j-1) + 1;
+                    }
+                    boolean isFirst = true;
+                    for (; k < pointIndex.get(j); k++) {
+                        PointInfo point = new PointInfo();
+                        point.mPointX = infoList.get(i).getPointList().get(k).mPointX;
+                        point.mPointY = infoList.get(i).getPointList().get(k).mPointY;
+                        if (isFirst) {
+                            startX = point.mPointX;
+                            startY = point.mPointY;
+                            path.moveTo(startX, startY);
+                            isFirst = false;
+                        }
+                        pointList.add(point);
+                        CommonMethod.handleGraphType(path, startX, startY, point.mPointX, point.mPointY, Constants.ORDINARY);
+                        startX = point.mPointX;
+                        startY = point.mPointY;
+                    }
+                    info.setPaint(infoList.get(i).getPaint());
+                    info.setGraphType(Constants.ORDINARY);
+                    info.setPenType(infoList.get(i).getPenType());
+                    info.setPath(path);
+                    info.setPaintType(Constants.DRAW);
+                    info.setPointList(pointList);
+                    infoList.add(info);
+                }
+
+                for (int in : index){
+                    infoList.remove(in - index.indexOf(in));
+                }
+            }
+
+        }
+
+
+        return infoList;
     }
 
 }

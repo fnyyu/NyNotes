@@ -35,6 +35,7 @@ public class Constants {
     //画笔模式
     public static final int DRAW = 0;
     public static final int ERASER = 1;
+    public static final int CUT = 2;
 
     //绘制图形
     public static final int ORDINARY = 0;
