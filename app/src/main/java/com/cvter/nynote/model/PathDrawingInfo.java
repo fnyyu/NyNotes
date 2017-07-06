@@ -26,6 +26,7 @@ public class PathDrawingInfo extends PathInfo {
             float startX = info.get(0).mPointX;
             float startY = info.get(0).mPointY;
 
+            getPaint().setXfermode(null);
             getPaint().setPathEffect(new DashPathEffect(new float[]{5, 20}, 1));
             mDrawPolygon.setDash(endX - startX,
                     endY - startY, startX, startY);

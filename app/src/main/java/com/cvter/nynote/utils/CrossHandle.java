@@ -161,7 +161,7 @@ public class CrossHandle {
         return (nCross % 2 == 1);
     }
 
-    private boolean eraserCross(int listIndex, List<PointInfo> drawList, PointInfo info) {
+    private boolean eraserCross(int listIndex, List<PointInfo> drawList, PointInfo info, float radius) {
 
         List<Integer> pointList = new ArrayList<>();
 
@@ -173,7 +173,7 @@ public class CrossHandle {
         int drawListSize = drawList.size();
         List<Integer> flag = new LinkedList<>();
         for (int i = 0; i < drawListSize; i++) {
-            if (isCrossCircle(drawList.get(i).mPointX, drawList.get(i).mPointY, info.mPointX, info.mPointY, 30f)) {
+            if (isCrossCircle(drawList.get(i).mPointX, drawList.get(i).mPointY, info.mPointX, info.mPointY, radius)) {
                 flag.add(i - flag.size());
             }
         }
@@ -192,7 +192,7 @@ public class CrossHandle {
 
     }
 
-    public List<PathInfo> getEraserList(List<PathInfo> infoList, PointInfo pointInfo) {
+    public List<PathInfo> getEraserList(List<PathInfo> infoList, PointInfo pointInfo, float radius) {
 
         List<Integer> index = new LinkedList<>();
 
@@ -201,7 +201,7 @@ public class CrossHandle {
         }
 
         for (int j = 0; j < infoList.size(); j++) {
-            if (eraserCross(j, infoList.get(j).getPointList(), pointInfo)) {
+            if (eraserCross(j, infoList.get(j).getPointList(), pointInfo, radius)) {
                 index.add(j);
             }
         }
@@ -209,7 +209,7 @@ public class CrossHandle {
         for (int i : index) {
             List<Integer> pointIndex = mPointPosition.get(i);
 
-            if (!pointIndex.isEmpty()) {
+            if (!pointIndex.isEmpty() && infoList.size() > i) {
 
                 for (int j = 0; j<pointIndex.size(); j++){
                     PathDrawingInfo info = new PathDrawingInfo();
@@ -226,6 +226,9 @@ public class CrossHandle {
                     boolean isFirst = true;
                     for (; k < pointIndex.get(j); k++) {
                         PointInfo point = new PointInfo();
+                        if(infoList.get(i).getPointList().size() <=  k){
+                            break;
+                        }
                         point.mPointX = infoList.get(i).getPointList().get(k).mPointX;
                         point.mPointY = infoList.get(i).getPointList().get(k).mPointY;
                         if (isFirst) {

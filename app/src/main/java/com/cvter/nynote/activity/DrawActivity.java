@@ -11,6 +11,7 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -120,6 +121,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private RestoreFragment mRestoreFragment;
 
+    private Matrix mMatrix;
+
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
@@ -144,6 +147,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     protected void initWidget(Bundle bundle) {
+
+        mMatrix = new Matrix();
 
         mDrawActivityLayout.setClickable(true);
 
@@ -554,6 +559,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private void setPenStyle(View view) {
         if (!ifCanScale) {
+            mMatrix = drawMatrixView.getMyMatrix();
             List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
 
             if (!mRevertList.isEmpty()) {
@@ -582,10 +588,11 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private void setGraphStyle() {
         if (!ifCanScale) {
+            mMatrix = drawMatrixView.getMyMatrix();
             List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
 
             if (!mRevertList.isEmpty()) {
-                mDrawPaintView.setDrawingList(mRevertList);
+                mDrawPaintView.setCrossDrawingList(mRevertList);
                 drawMatrixView.recycle();
             }
             drawMatrixView.setVisibility(View.INVISIBLE);
@@ -600,7 +607,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         if (ifCanScale && mDrawPaintView.getCrossList() != null && !mDrawPaintView.getDrawingList().isEmpty()) {
             drawMatrixView.setOnDraw(new ArrayList<>(mDrawPaintView.getCrossList()));
             mDrawPaintView.clearCross();
-            drawMatrixView.invalidate();
+            drawMatrixView.setMyMatrix(mMatrix);
             drawMatrixView.setVisibility(View.VISIBLE);
             drawMatrixView.bringToFront();
             morePagesLinearLayout.bringToFront();

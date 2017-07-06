@@ -47,9 +47,17 @@ public class PaintInfo extends Paint {
     public void setMode(int mode) {
         if (mode != mMode) {
             mMode = mode;
-            if (mMode == Constants.DRAW) {
+            if (mMode == Constants.DRAW ) {
                 setXfermode(null);
-                setPenColor(mPenColor);
+                if(mPenColor == Color.WHITE){
+                    setPenColor(Color.BLACK);
+                } else {
+                    setPenColor(mPenColor);
+                }
+
+            } else if(mMode == Constants.CUT){
+                setXfermode(null);
+                setPenColor(Color.WHITE);
             } else {
                 setAlpha(0);
                 setXfermode(mClearMode);

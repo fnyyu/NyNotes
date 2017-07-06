@@ -128,7 +128,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 if (mPaint.getMode() == Constants.CUT){
                     eraserX = (int) event.getX();
                     eraserY = (int) event.getY();
-                    eraserRadius = 20;
+                    mPaint.setStyle(Paint.Style.FILL);
+                    eraserRadius =  mMinDistance;
                     break;
                 }
                 actionDown(x, y);
@@ -143,7 +144,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                     eraserY = (int) event.getY();
                     mBufferBitmap.eraseColor(Color.TRANSPARENT);
 
-                    mDrawingList = mCrossHandle.getEraserList(mDrawingList, new PointInfo(eraserX, eraserY));
+                    mDrawingList = mCrossHandle.getEraserList(mDrawingList, new PointInfo(eraserX, eraserY), eraserRadius);
 
                     if (null != mDrawingList && !mDrawingList.isEmpty()) {
                         for (PathInfo drawPath : mDrawingList) {
@@ -152,7 +153,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                     }
                     break;
                 }
-                if (Math.abs(x - mLastX) < mMinDistance && Math.abs(y - mLastY) < mMinDistance) {
+                if (Math.abs(x - mLastX) < mMinDistance/2.0f && Math.abs(y - mLastY) < mMinDistance/2.0f) {
                     return true;
                 }
                 if (mPaint.getMode() == Constants.ERASER && !mCanEraser) {
@@ -169,6 +170,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                     eraserX = (int) event.getX();
                     eraserY = (int) event.getY();
                     eraserRadius = 0;
+                    mPaint.setStyle(Paint.Style.STROKE);
                     break;
                 }
                 actionUp(x, y);

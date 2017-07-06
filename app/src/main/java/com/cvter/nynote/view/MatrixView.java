@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -27,25 +28,20 @@ public class MatrixView extends View {
 
     private Matrix mMatrix;
     private Matrix mSaveMatrix;
+    private Matrix mBeforeMatrix;
 
     private PointF mPoint;
     private float mDistance;
 
     private List<PathInfo> mDrawingList;
-
-
     private Canvas mCanvas;
+    private Bitmap mBitmap;
 
     private static final int NONE = 0;
     private static final int DRAG = 1;
     private static final int ZOOM = 2;
 
     private int mMode = NONE;
-
-//    private static final float MAX_SCALE = 3;
-//    private static final float MIN_SCALE = (float) 0.3;
-
-    private Bitmap mBitmap;
 
     public MatrixView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -59,7 +55,8 @@ public class MatrixView extends View {
 
     private void init() {
         mPoint = new PointF();
-        mMatrix = new Matrix();
+        //mMatrix = new Matrix();
+        mBeforeMatrix = new Matrix();
         mSaveMatrix = new Matrix();
         mBitmap = Bitmap.createBitmap(CommonMethod.getScreenSize(getContext())[0], CommonMethod.getScreenSize(getContext())[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBitmap);
@@ -129,23 +126,55 @@ public class MatrixView extends View {
     }
 
     public void setOnDraw(List<PathInfo> newDrawPathList) {
-        this.mDrawingList = new ArrayList<>(newDrawPathList);
+//        float startX = 0;
+//        float startY = 0;
+        if (newDrawPathList != null) {
+            mDrawingList = new ArrayList<>(newDrawPathList);
+//            for (int i = 0; i < mDrawingList.size(); i++) {
+//
+//                Path path = new Path();
+//                for (int j = 0; j < mDrawingList.get(i).getPointList().size(); j++) {
+//
+//                    float[] mCoefficient = {mDrawingList.get(i).getPointList().get(j).mPointX ,
+//                            mDrawingList.get(i).getPointList().get(j).mPointY};
+//                    mBeforeMatrix.mapPoints(mCoefficient);
+//                    mDrawingList.get(i).getPointList().get(j).mPointX = mCoefficient[0];
+//                    mDrawingList.get(i).getPointList().get(j).mPointY = mCoefficient[1];
+//                    if (j == 0){
+//                        startX = mCoefficient[0];
+//                        startY = mCoefficient[1];
+//                        path.moveTo(startX, startY);
+//                    }
+//
+//                    CommonMethod.handleGraphType(path, startX, startY, mCoefficient[0], mCoefficient[1], mDrawingList.get(i).getGraphType());
+//                    startX = mCoefficient[0];
+//                    startY = mCoefficient[1];
+//                }
+//                mDrawingList.get(i).setPath(path);
+//
+//            }
+        }
+        invalidate();
 
     }
 
-    /*//使图像缩放不越界
-    private void checkMaxScale(float scale, float[] values) {
-        float newScale = scale;
-        if (scale * values[Matrix.MSCALE_X] > MAX_SCALE) {
-            newScale = MAX_SCALE / values[Matrix.MSCALE_X];
+    public void setMyMatrix(Matrix matrix) {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        for(int i = 0; i < 9; i++){
+            if(values[i] < 1.0f && values[i] > 0.0f){
+                this.mMatrix = new Matrix();
+                return;
+            }
         }
+        this.mMatrix = new Matrix(matrix);
+        invalidate();
+        mBeforeMatrix.invert(mMatrix);
+    }
 
-        if (scale * values[Matrix.MSCALE_X] < MIN_SCALE) {
-            newScale = MIN_SCALE / values[Matrix.MSCALE_X];
-        }
-
-        mMatrix.postScale(scale, scale, getWidth() / 2, getHeight() / 2);
-    }*/
+    public Matrix getMyMatrix() {
+        return mMatrix;
+    }
 
     // 计算两个触摸点之间的距离
     private float distance(MotionEvent event) {
