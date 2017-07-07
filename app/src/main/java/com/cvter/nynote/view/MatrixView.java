@@ -7,8 +7,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -28,7 +28,9 @@ public class MatrixView extends View {
 
     private Matrix mMatrix;
     private Matrix mSaveMatrix;
-    private Matrix mBeforeMatrix;
+    private Matrix mNowMatrix;
+    private Matrix mTempMatrix;
+    private RectF mRectF;
 
     private PointF mPoint;
     private float mDistance;
@@ -40,8 +42,13 @@ public class MatrixView extends View {
     private static final int NONE = 0;
     private static final int DRAG = 1;
     private static final int ZOOM = 2;
-
     private int mMode = NONE;
+
+    private float mWidth;
+    private float mHeight;
+    private float mDeltaX;
+    private float mDeltaY;
+    private boolean isFirst;
 
     public MatrixView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -55,12 +62,27 @@ public class MatrixView extends View {
 
     private void init() {
         mPoint = new PointF();
-        //mMatrix = new Matrix();
-        mBeforeMatrix = new Matrix();
+        mMatrix = new Matrix();
         mSaveMatrix = new Matrix();
+        mTempMatrix = new Matrix();
+        mNowMatrix = new Matrix();
+        mRectF = new RectF();
         mBitmap = Bitmap.createBitmap(CommonMethod.getScreenSize(getContext())[0], CommonMethod.getScreenSize(getContext())[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBitmap);
         mCanvas.drawColor(Color.TRANSPARENT);
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mWidth = getMeasuredWidth();
+                mHeight = getMeasuredHeight();
+            }
+        });
     }
 
     @Override
@@ -68,6 +90,7 @@ public class MatrixView extends View {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 mSaveMatrix.set(mMatrix);
+                mTempMatrix.set(mNowMatrix);
                 mPoint.set(event.getX(), event.getY());
                 mMode = DRAG;
                 break;
@@ -76,25 +99,31 @@ public class MatrixView extends View {
                 mDistance = distance(event);
                 if (mDistance > 10f) {
                     mSaveMatrix.set(mMatrix);
+                    mTempMatrix.set(mNowMatrix);
                     mMode = ZOOM;
                 }
                 break;
 
             case MotionEvent.ACTION_MOVE:
 
-                if (mMode ==DRAG) {
+                if (mMode == DRAG) {
                     // 一个手指拖动
                     mMatrix.set(mSaveMatrix);
+                    mNowMatrix.set(mTempMatrix);
+                    mNowMatrix.postTranslate(event.getX() - mPoint.x, event.getY() - mPoint.y);
                     mMatrix.postTranslate(event.getX() - mPoint.x, event.getY() - mPoint.y);
                 } else if (mMode == ZOOM) {
                     // 两个手指滑动
                     float newDist = distance(event);
                     if (newDist > 10f) {
                         mMatrix.set(mSaveMatrix);
+                        mNowMatrix.set(mTempMatrix);
                         float scale = newDist / mDistance;
                         float[] values = new float[9];
                         mMatrix.getValues(values);
                         mMatrix.postScale(scale, scale, getWidth() / 2, getHeight() / 2);
+                        mNowMatrix.getValues(values);
+                        mNowMatrix.postScale(scale, scale, getWidth() / 2, getHeight() / 2);
                     }
                 }
                 break;
@@ -121,59 +150,42 @@ public class MatrixView extends View {
         }
 
         if (mBitmap != null) {
+            if (isFirst) {
+                mMatrix.postTranslate(-mDeltaX, -mDeltaY);
+                isFirst = false;
+            }
             canvas.drawBitmap(mBitmap, mMatrix, null);
         }
     }
 
     public void setOnDraw(List<PathInfo> newDrawPathList) {
-//        float startX = 0;
-//        float startY = 0;
+
         if (newDrawPathList != null) {
             mDrawingList = new ArrayList<>(newDrawPathList);
-//            for (int i = 0; i < mDrawingList.size(); i++) {
-//
-//                Path path = new Path();
-//                for (int j = 0; j < mDrawingList.get(i).getPointList().size(); j++) {
-//
-//                    float[] mCoefficient = {mDrawingList.get(i).getPointList().get(j).mPointX ,
-//                            mDrawingList.get(i).getPointList().get(j).mPointY};
-//                    mBeforeMatrix.mapPoints(mCoefficient);
-//                    mDrawingList.get(i).getPointList().get(j).mPointX = mCoefficient[0];
-//                    mDrawingList.get(i).getPointList().get(j).mPointY = mCoefficient[1];
-//                    if (j == 0){
-//                        startX = mCoefficient[0];
-//                        startY = mCoefficient[1];
-//                        path.moveTo(startX, startY);
-//                    }
-//
-//                    CommonMethod.handleGraphType(path, startX, startY, mCoefficient[0], mCoefficient[1], mDrawingList.get(i).getGraphType());
-//                    startX = mCoefficient[0];
-//                    startY = mCoefficient[1];
-//                }
-//                mDrawingList.get(i).setPath(path);
-//
-//            }
-        }
-        invalidate();
+            for (int i = 0; i < mDrawingList.size(); i++) {
+                RectF rectF = new RectF();
+                mDrawingList.get(i).getPath().computeBounds(rectF, true);
+                mRectF.union(rectF);
+            }
+            if (mRectF.height() <= mHeight && mRectF.width() <= mWidth &&
+                    (mRectF.left < 0 || mRectF.right > mWidth ||mRectF.top < 0 ||mRectF.bottom >mHeight )) {
+                translate();
 
-    }
-
-    public void setMyMatrix(Matrix matrix) {
-        float[] values = new float[9];
-        matrix.getValues(values);
-        for(int i = 0; i < 9; i++){
-            if(values[i] < 1.0f && values[i] > 0.0f){
-                this.mMatrix = new Matrix();
-                return;
             }
         }
-        this.mMatrix = new Matrix(matrix);
         invalidate();
-        mBeforeMatrix.invert(mMatrix);
+
     }
 
-    public Matrix getMyMatrix() {
-        return mMatrix;
+    private void translate() {
+
+        mDeltaX = mWidth * 0.5f - mRectF.right + mRectF.width() * 0.5f;
+        mDeltaY = mHeight * 0.5f - mRectF.bottom + mRectF.height() * 0.5f;
+        for (int i = 0; i < mDrawingList.size(); i++) {
+            mDrawingList.get(i).getPath().offset(mDeltaX, mDeltaY);
+        }
+        isFirst = true;
+
     }
 
     // 计算两个触摸点之间的距离
@@ -190,18 +202,18 @@ public class MatrixView extends View {
         float startX = 0;
         float startY = 0;
         if (mDrawingList != null) {
-             newList = new ArrayList<>(mDrawingList);
+            newList = new ArrayList<>(mDrawingList);
             for (int i = 0; i < newList.size(); i++) {
 
                 Path path = new Path();
                 for (int j = 0; j < newList.get(i).getPointList().size(); j++) {
 
-                    float[] mCoefficient = {newList.get(i).getPointList().get(j).mPointX ,
-                    newList.get(i).getPointList().get(j).mPointY};
-                    mMatrix.mapPoints(mCoefficient);
+                    float[] mCoefficient = {newList.get(i).getPointList().get(j).mPointX,
+                            newList.get(i).getPointList().get(j).mPointY};
+                    mNowMatrix.mapPoints(mCoefficient);
                     newList.get(i).getPointList().get(j).mPointX = mCoefficient[0];
                     newList.get(i).getPointList().get(j).mPointY = mCoefficient[1];
-                    if (j == 0){
+                    if (j == 0) {
                         startX = mCoefficient[0];
                         startY = mCoefficient[1];
                         path.moveTo(startX, startY);

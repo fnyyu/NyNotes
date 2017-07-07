@@ -145,7 +145,8 @@ public class CrossHandle {
             PointInfo p1 = aPoints.get(i);
             PointInfo p2 = aPoints.get((i + 1) % aPoints.size());
             // 求解 y=p.y 与 p1p2 的交点
-            if (p1.mPointY == p2.mPointY)
+            double exp = 10E-10;
+            if (Math.abs(p1.mPointY - p2.mPointY) > -1 * exp && Math.abs(p1.mPointY - p2.mPointY) < exp)
                 continue;
             if (point.mPointY < Math.min(p1.mPointY, p2.mPointY))
                 continue;
@@ -155,9 +156,9 @@ public class CrossHandle {
                     * (double) (p2.mPointX - p1.mPointX)
                     / (double) (p2.mPointY - p1.mPointY) + p1.mPointX;
             if (x > point.mPointX)
-                nCross++; // 只统计单边交点
+                nCross++;
         }
-        // 单边交点为偶数，点在多边形之外 ---
+        // 单边交点为偶数，点在多边形之外
         return (nCross % 2 == 1);
     }
 
@@ -196,7 +197,7 @@ public class CrossHandle {
 
         List<Integer> index = new LinkedList<>();
 
-        if(infoList == null){
+        if (infoList == null) {
             return new LinkedList<>();
         }
 
@@ -211,22 +212,22 @@ public class CrossHandle {
 
             if (!pointIndex.isEmpty() && infoList.size() > i) {
 
-                for (int j = 0; j<pointIndex.size(); j++){
+                for (int j = 0; j < pointIndex.size(); j++) {
                     PathDrawingInfo info = new PathDrawingInfo();
                     List<PointInfo> pointList = new LinkedList<>();
                     float startX = 0f;
                     float startY = 0f;
                     Path path = new Path();
                     int k;
-                    if(j == 0){
+                    if (j == 0) {
                         k = 0;
-                    }else {
-                        k = pointIndex.get(j-1) + 1;
+                    } else {
+                        k = pointIndex.get(j - 1) + 1;
                     }
                     boolean isFirst = true;
                     for (; k < pointIndex.get(j); k++) {
                         PointInfo point = new PointInfo();
-                        if(infoList.get(i).getPointList().size() <=  k){
+                        if (infoList.get(i).getPointList().size() <= k) {
                             break;
                         }
                         point.mPointX = infoList.get(i).getPointList().get(k).mPointX;
@@ -251,7 +252,7 @@ public class CrossHandle {
                     infoList.add(info);
                 }
 
-                for (int in : index){
+                for (int in : index) {
                     infoList.remove(in - index.indexOf(in));
                 }
             }

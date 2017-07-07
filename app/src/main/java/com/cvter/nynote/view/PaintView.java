@@ -41,6 +41,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private Canvas mCanvas;
     private Path mPath;
     private Path mGraphPath;
+    private Path mDotPath;
     private PaintInfo mPaint;
 
     private float mLastX;
@@ -91,7 +92,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         mCallback = callback;
     }
 
-    private int eraserX = 0 ;
+    private int eraserX = 0;
     private int eraserY = 0;
     private int screenW;
     private int screenH;
@@ -125,11 +126,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                if (mPaint.getMode() == Constants.CUT){
+                if (mPaint.getMode() == Constants.CUT) {
                     eraserX = (int) event.getX();
                     eraserY = (int) event.getY();
                     mPaint.setStyle(Paint.Style.FILL);
-                    eraserRadius =  mMinDistance;
+                    eraserRadius = mMinDistance;
                     break;
                 }
                 actionDown(x, y);
@@ -139,11 +140,11 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (mPaint.getMode() == Constants.CUT){
+                if (mPaint.getMode() == Constants.CUT) {
                     eraserX = (int) event.getX();
                     eraserY = (int) event.getY();
-                    mBufferBitmap.eraseColor(Color.TRANSPARENT);
 
+                    mBufferBitmap.eraseColor(Color.TRANSPARENT);
                     mDrawingList = mCrossHandle.getEraserList(mDrawingList, new PointInfo(eraserX, eraserY), eraserRadius);
 
                     if (null != mDrawingList && !mDrawingList.isEmpty()) {
@@ -151,9 +152,10 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                             mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
                         }
                     }
+
                     break;
                 }
-                if (Math.abs(x - mLastX) < mMinDistance/2.0f && Math.abs(y - mLastY) < mMinDistance/2.0f) {
+                if (Math.abs(x - mLastX) < mMinDistance / 2.0f && Math.abs(y - mLastY) < mMinDistance / 2.0f) {
                     return true;
                 }
                 if (mPaint.getMode() == Constants.ERASER && !mCanEraser) {
@@ -166,7 +168,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (mPaint.getMode() == Constants.CUT){
+                if (mPaint.getMode() == Constants.CUT) {
                     eraserX = (int) event.getX();
                     eraserY = (int) event.getY();
                     eraserRadius = 0;
@@ -179,7 +181,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             default:
                 break;
         }
-        draw();
+        draw(Constants.TOUCH);
         return true;
     }
 
@@ -196,7 +198,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mPaint.setColor(Color.TRANSPARENT);
             mCrossPoint = new LinkedList<>();
             mCrossPoint.add(new PointInfo(x, y));
-        }else{
+        } else {
 
             mPointList.add(new PointInfo(x, y));
         }
@@ -208,6 +210,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mPath.moveTo(x, y);
         } else {
             mGraphPath = new Path();
+            mDotPath = new Path();
             mGraphPath.moveTo(x, y);
         }
     }
@@ -219,9 +222,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             case Constants.ORDINARY:
 
 
-                if(isCrossDraw){
+                if (isCrossDraw) {
                     mCrossPoint.add(new PointInfo(x, y));
-                } else{
+                } else {
                     mPointList.add(new PointInfo(x, y));
                 }
 
@@ -287,7 +290,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mPaint.setColor(mBeforeColor);
             mPath.reset();
             return;
-        }else {
+        } else {
             mPointList.add(new PointInfo(x, y));
         }
 
@@ -304,20 +307,20 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mCanvas.drawPath(mGraphPath, mPaint);
             mPaint.setIfDottedPen(true);
 
-            switch (mPaint.getGraphType()){
+            switch (mPaint.getGraphType()) {
                 case Constants.CONE:
-                    mDrawPolygon.drawConeDash(mGraphPath);
-                    mCanvas.drawPath(mGraphPath, mPaint);
+                    mDrawPolygon.drawConeDash(mDotPath);
+                    mCanvas.drawPath(mDotPath, mPaint);
                     break;
 
                 case Constants.CUBE:
-                    mDrawPolygon.drawCubeDash(mGraphPath);
-                    mCanvas.drawPath(mGraphPath, mPaint);
+                    mDrawPolygon.drawCubeDash(mDotPath);
+                    mCanvas.drawPath(mDotPath, mPaint);
                     break;
 
                 case Constants.SPHERE:
-                    mDrawPolygon.drawSphereDash(mGraphPath);
-                    mCanvas.drawPath(mGraphPath, mPaint);
+                    mDrawPolygon.drawSphereDash(mDotPath);
+                    mCanvas.drawPath(mDotPath, mPaint);
                     break;
 
                 default:
@@ -325,6 +328,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             }
 
             mPaint.setIfDottedPen(false);
+            mDotPath.reset();
             mGraphPath.reset();
         }
 
@@ -333,7 +337,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     //获取画布进行绘制
-    private void draw() {
+    private void draw(int type) {
         Canvas canvas = mHolder.lockCanvas();
         if (canvas != null) {
             // 绘制背景色
@@ -341,31 +345,31 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             if (mIsHasBG && mBackgroundBitmap != null) {
                 canvas.drawBitmap(mBackgroundBitmap, 0, 0, null);
             }
-            drawBitmap(canvas);
+            drawBitmap(canvas, type);
             mHolder.unlockCanvasAndPost(canvas);
         }
     }
 
-    private void revise(){
-        if(eraserX <= eraserRadius){
+    private void revise() {
+        if (eraserX <= eraserRadius) {
             eraserX = eraserRadius;
-        }else if(eraserX >= (screenW- eraserRadius)){
-            eraserX = screenW- eraserRadius;
+        } else if (eraserX >= (screenW - eraserRadius)) {
+            eraserX = screenW - eraserRadius;
         }
-        if(eraserY <= eraserRadius){
+        if (eraserY <= eraserRadius) {
             eraserY = eraserRadius;
-        }else if(eraserY >= (screenH- eraserRadius)){
-            eraserY = screenH- eraserRadius;
+        } else if (eraserY >= (screenH - eraserRadius)) {
+            eraserY = screenH - eraserRadius;
         }
     }
 
     //绘制于bitmap上
-    public void drawBitmap(Canvas canvas) {
+    public void drawBitmap(Canvas canvas, int type) {
         if (mBufferBitmap != null && mPaint != null) {
             canvas.drawBitmap(mBufferBitmap, 0, 0, null);
         }
 
-        if (mPaint != null && mPaint.getMode() == Constants.CUT){
+        if (mPaint != null && mPaint.getMode() == Constants.CUT) {
             revise();
             canvas.drawCircle(eraserX, eraserY, eraserRadius, mPaint);
         }
@@ -374,8 +378,33 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             canvas.drawPath(mPath, mPaint);
         }
 
-        if (mGraphPath != null && mPaint != null&& !isCrossDraw) {
+        if (mGraphPath != null && mPaint != null && !isCrossDraw) {
             canvas.drawPath(mGraphPath, mPaint);
+            if (type == Constants.TOUCH) {
+                mPaint.setIfDottedPen(true);
+                Path path = new Path();
+                switch (mPaint.getGraphType()) {
+                    case Constants.CONE:
+                        mDrawPolygon.drawConeDash(path);
+                        canvas.drawPath(path, mPaint);
+                        break;
+
+                    case Constants.CUBE:
+                        mDrawPolygon.drawCubeDash(path);
+                        canvas.drawPath(path, mPaint);
+                        break;
+
+                    case Constants.SPHERE:
+                        mDrawPolygon.drawSphereDash(path);
+                        canvas.drawPath(path, mPaint);
+                        break;
+
+                    default:
+                        break;
+                }
+                path.reset();
+                mPaint.setIfDottedPen(false);
+            }
         }
     }
 
@@ -388,7 +417,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder arg0) {
         screenW = getWidth();
         screenH = getHeight();
-        draw();
+        draw(Constants.TOUCH);
     }
 
     @Override
@@ -449,7 +478,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        draw();
+        draw(Constants.WFC);
     }
 
     //撤销
@@ -473,7 +502,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        draw();
+        draw(Constants.WFC);
     }
 
     //清除
@@ -492,7 +521,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        draw();
+        draw(Constants.WFC);
     }
 
     //获取屏幕大小
@@ -525,7 +554,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     //设置背景图片
     public void setBackgroundBitmap(Bitmap backgroundBitmap) {
         this.mBackgroundBitmap = Bitmap.createScaledBitmap(backgroundBitmap, getScreenSize()[0], getScreenSize()[1], true);
-        draw();
+        draw(Constants.TOUCH);
     }
 
     public Bitmap getBackgroundBitmap() {
@@ -544,21 +573,22 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             for (PathInfo drawPath : mDrawingList) {
                 mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
             }
-            draw();
         }
+        draw(Constants.WFC);
     }
 
     public void setCrossDrawingList(List<PathInfo> newDrawPathList) {
-        for(PathInfo info : newDrawPathList){
+        for (PathInfo info : newDrawPathList) {
             mDrawingList.add(info);
         }
         mBufferBitmap.eraseColor(Color.TRANSPARENT);
         if (null != mDrawingList && !mDrawingList.isEmpty()) {
             for (PathInfo drawPath : mDrawingList) {
+                //mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
                 drawPath.draw(mCanvas, mPaint.getGraphType(), drawPath.getPointList());
             }
-            draw();
         }
+        draw(Constants.WFC);
     }
 
     public void setCanDraw(boolean canDraw) {
@@ -580,16 +610,16 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     public void setCrossList() {
         mCrossList = new LinkedList<>();
         List<Integer> pos = new LinkedList<>();
-        for(int i = 0; i<mDrawingList.size(); i++){
+        for (int i = 0; i < mDrawingList.size(); i++) {
             PathInfo pathInfo = mDrawingList.get(i);
-            if(mCrossHandle.isCross(mDrawingList.get(i).getPointList(), mCrossPoint, pathInfo.getGraphType(), mDrawingList.get(i).getPath())){
+            if (mCrossHandle.isCross(mDrawingList.get(i).getPointList(), mCrossPoint, pathInfo.getGraphType(), mDrawingList.get(i).getPath())) {
                 mCrossList.add(pathInfo);
                 pos.add(i - pos.size());
             }
 
         }
-        if(!pos.isEmpty()){
-            for(int index : pos)
+        if (!pos.isEmpty()) {
+            for (int index : pos)
                 mDrawingList.remove(index);
 
         }
@@ -597,13 +627,13 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
-    public void clearCross(){
+    public void clearCross() {
         mBufferBitmap.eraseColor(Color.TRANSPARENT);
         if (null != mDrawingList && !mDrawingList.isEmpty()) {
             for (PathInfo drawPath : mDrawingList) {
                 mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
             }
-            draw();
+            draw(Constants.TOUCH);
         }
     }
 }

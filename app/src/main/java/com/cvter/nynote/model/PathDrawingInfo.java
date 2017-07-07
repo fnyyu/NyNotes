@@ -2,6 +2,7 @@ package com.cvter.nynote.model;
 
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
+import android.graphics.Path;
 
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.DrawPolygon;
@@ -30,27 +31,26 @@ public class PathDrawingInfo extends PathInfo {
             getPaint().setPathEffect(new DashPathEffect(new float[]{5, 20}, 1));
             mDrawPolygon.setDash(endX - startX,
                     endY - startY, startX, startY);
-
+            Path path = new Path();
             switch (type){
                 case Constants.CONE:
-                    mDrawPolygon.drawConeDash(getPath());
-                    canvas.drawPath(getPath(), getPaint());
+                    mDrawPolygon.drawConeDash(path);
+                    canvas.drawPath(path, getPaint());
                     break;
 
                 case Constants.CUBE:
-                    mDrawPolygon.drawCubeDash(getPath());
-                    canvas.drawPath(getPath(), getPaint());
+                    mDrawPolygon.drawCubeDash(path);
+                    canvas.drawPath(path, getPaint());
                     break;
 
                 case Constants.SPHERE:
-                    mDrawPolygon.drawSphereDash(getPath());
-                    canvas.drawPath(getPath(), getPaint());
+                    mDrawPolygon.drawSphereDash(path);
+                    canvas.drawPath(path, getPaint());
                     break;
 
                 default:
                     break;
             }
-
             getPaint().setPathEffect(null);
 
         }

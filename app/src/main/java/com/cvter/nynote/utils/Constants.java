@@ -11,7 +11,7 @@ public class Constants {
 
     Constants(){}
 
-    public static final String PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote";//sd路径
+    private static final String PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote";//sd路径
     public static final String NOTE_PATH = Environment.getExternalStorageDirectory().toString() + "/NyNote/";//sd路径
 
     public static final String PICTURE_FILE_PATH = PATH + "/pic";//note图片文件夹路径
@@ -54,5 +54,8 @@ public class Constants {
     public static final int INK_PEN = 3;
     public static final int DISCRETE_PEN = 4;
     public static final int DASH_PEN = 5;
+
+    public static final int TOUCH = 0;
+    public static final int WFC = 1;
 
 }

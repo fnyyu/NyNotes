@@ -20,8 +20,23 @@ public abstract class PathInfo {
     private int mPaintType;
     private int mGraphType;
     private int mPenType;
+    private float mOffsetX;
+    private float mOffsetY;
 
     public PathInfo() {
+    }
+
+    public void setWH(float offsetX, float offsetY){
+        this.mOffsetX = offsetX;
+        this.mOffsetY = offsetY;
+    }
+
+    public float getOffsetX() {
+        return mOffsetX;
+    }
+
+    public float getOffsetY() {
+        return mOffsetY;
     }
 
     public abstract void draw(Canvas canvas, int type, List<PointInfo> points);

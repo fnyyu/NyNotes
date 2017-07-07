@@ -121,8 +121,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private RestoreFragment mRestoreFragment;
 
-    private Matrix mMatrix;
-
     DialogInterface.OnClickListener keyBackListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
@@ -147,8 +145,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @Override
     protected void initWidget(Bundle bundle) {
-
-        mMatrix = new Matrix();
 
         mDrawActivityLayout.setClickable(true);
 
@@ -530,7 +526,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private void restoreData(RestoreFragment fragment) {
 
-
         if (fragment.getPath() != null) {
             mDrawPaintView.setDrawingList(fragment.getPath());
         }
@@ -559,7 +554,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private void setPenStyle(View view) {
         if (!ifCanScale) {
-            mMatrix = drawMatrixView.getMyMatrix();
             List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
 
             if (!mRevertList.isEmpty()) {
@@ -588,7 +582,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     private void setGraphStyle() {
         if (!ifCanScale) {
-            mMatrix = drawMatrixView.getMyMatrix();
             List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
 
             if (!mRevertList.isEmpty()) {
@@ -607,7 +600,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         if (ifCanScale && mDrawPaintView.getCrossList() != null && !mDrawPaintView.getDrawingList().isEmpty()) {
             drawMatrixView.setOnDraw(new ArrayList<>(mDrawPaintView.getCrossList()));
             mDrawPaintView.clearCross();
-            drawMatrixView.setMyMatrix(mMatrix);
             drawMatrixView.setVisibility(View.VISIBLE);
             drawMatrixView.bringToFront();
             morePagesLinearLayout.bringToFront();
