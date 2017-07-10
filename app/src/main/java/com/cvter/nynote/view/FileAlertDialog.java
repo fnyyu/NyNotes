@@ -2,9 +2,11 @@ package com.cvter.nynote.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -195,6 +197,10 @@ public class FileAlertDialog extends AlertDialog {
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(str);
         return m.replaceAll("").trim();
+    }
+
+    public void quit(){
+        mFilePresenter.quitThread();
     }
 
 }

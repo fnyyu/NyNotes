@@ -22,9 +22,9 @@ import com.cvter.nynote.model.PathDrawingInfo;
 import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.model.PointInfo;
 import com.cvter.nynote.presenter.PathWFCallback;
+import com.cvter.nynote.utils.CommonMethod;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.CrossHandle;
-import com.cvter.nynote.utils.DrawPolygon;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -46,6 +46,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     private float mLastX;
     private float mLastY;
+    private float mEndX;
+    private float mEndY;
     private int mMinDistance;
     private boolean isCanDraw;
     private boolean isCrossDraw;
@@ -54,7 +56,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private List<PathInfo> mRemovedList;
     private List<PathInfo> mCrossList;
     private LinkedList<PointInfo> mPointList;
-    private DrawPolygon mDrawPolygon;
     private CrossHandle mCrossHandle;
 
     private boolean mCanEraser;
@@ -111,7 +112,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         mBufferBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
         mCanvas = new Canvas(mBufferBitmap);
         mMinDistance = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-        mDrawPolygon = new DrawPolygon();
         mCrossHandle = new CrossHandle(mMinDistance);
     }
 
@@ -121,19 +121,16 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             return false;
         }
 
-        final float x = event.getX();
-        final float y = event.getY();
+        mEndX = event.getX();
+        mEndY = event.getY();
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 if (mPaint.getMode() == Constants.CUT) {
-                    eraserX = (int) event.getX();
-                    eraserY = (int) event.getY();
-                    mPaint.setStyle(Paint.Style.FILL);
-                    eraserRadius = mMinDistance;
+                    eraserActionDown();
                     break;
                 }
-                actionDown(x, y);
+                actionDown();
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -141,27 +138,16 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
             case MotionEvent.ACTION_MOVE:
                 if (mPaint.getMode() == Constants.CUT) {
-                    eraserX = (int) event.getX();
-                    eraserY = (int) event.getY();
-
-                    mBufferBitmap.eraseColor(Color.TRANSPARENT);
-                    mDrawingList = mCrossHandle.getEraserList(mDrawingList, new PointInfo(eraserX, eraserY), eraserRadius);
-
-                    if (null != mDrawingList && !mDrawingList.isEmpty()) {
-                        for (PathInfo drawPath : mDrawingList) {
-                            mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-                        }
-                    }
-
+                    eraserActionMove();
                     break;
                 }
-                if (Math.abs(x - mLastX) < mMinDistance / 2.0f && Math.abs(y - mLastY) < mMinDistance / 2.0f) {
+                if (Math.abs(mEndX - mLastX) < mMinDistance / 2.0f && Math.abs(mEndY - mLastY) < mMinDistance / 2.0f) {
                     return true;
                 }
                 if (mPaint.getMode() == Constants.ERASER && !mCanEraser) {
                     break;
                 }
-                actionMove(x, y);
+                actionMove();
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
@@ -169,13 +155,10 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
             case MotionEvent.ACTION_UP:
                 if (mPaint.getMode() == Constants.CUT) {
-                    eraserX = (int) event.getX();
-                    eraserY = (int) event.getY();
-                    eraserRadius = 0;
-                    mPaint.setStyle(Paint.Style.STROKE);
+                    eraserActionUp();
                     break;
                 }
-                actionUp(x, y);
+                actionUp();
                 break;
 
             default:
@@ -185,113 +168,90 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         return true;
     }
 
-    //手指按下
-    private void actionDown(float x, float y) {
+    private void eraserActionDown(){
+        eraserX = (int) mEndX;
+        eraserY = (int) mEndY;
+        mPaint.setStyle(Paint.Style.FILL);
+        eraserRadius = mMinDistance;
+    }
+
+    private void eraserActionMove(){
+        eraserX = (int) mEndX;
+        eraserY = (int) mEndY;
+    }
+
+    private void eraserActionUp(){
+        eraserX = (int) mEndX;
+        eraserY = (int) mEndY;
+        eraserRadius = 0;
+        mPaint.setStyle(Paint.Style.STROKE);
+        mBufferBitmap.eraseColor(Color.TRANSPARENT);
+        mDrawingList = mCrossHandle.getEraserList(mDrawingList, new PointInfo(eraserX, eraserY), eraserRadius);
+
+        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+            for (PathInfo drawPath : mDrawingList) {
+                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+            }
+        }
+    }
+
+    private void actionDown() {
 
         mPointList = new LinkedList<>();
-        mLastX = x;
-        mLastY = y;
+        mLastX = mEndX;
+        mLastY = mEndY;
 
         if (isCrossDraw) {
             mPaint.setGraphType(Constants.ORDINARY);
             mBeforeColor = mPaint.getColor();
             mPaint.setColor(Color.TRANSPARENT);
             mCrossPoint = new LinkedList<>();
-            mCrossPoint.add(new PointInfo(x, y));
+            mCrossPoint.add(new PointInfo(mEndX, mEndY));
         } else {
 
-            mPointList.add(new PointInfo(x, y));
+            mPointList.add(new PointInfo(mEndX, mEndY));
         }
 
         if (mPaint.getGraphType() == Constants.ORDINARY) {
             if (mPath == null) {
                 mPath = new Path();
             }
-            mPath.moveTo(x, y);
+            mPath.moveTo(mEndX, mEndY);
         } else {
             mGraphPath = new Path();
             mDotPath = new Path();
-            mGraphPath.moveTo(x, y);
+            mGraphPath.moveTo(mEndX, mEndY);
         }
     }
 
-    //手指滑动
-    private void actionMove(float x, float y) {
+    private void actionMove() {
 
-        switch (mPaint.getGraphType()) {
-            case Constants.ORDINARY:
-
-
-                if (isCrossDraw) {
-                    mCrossPoint.add(new PointInfo(x, y));
-                } else {
-                    mPointList.add(new PointInfo(x, y));
-                }
-
-                mPath.quadTo(mLastX, mLastY, (x + mLastX) / 2, (y + mLastY) / 2);
-
-                mLastX = x;
-                mLastY = y;
-                break;
-
-            case Constants.CIRCLE:
-                mDrawPolygon.drawCircle(mGraphPath, mLastX, mLastY, x, y);
-                break;
-
-            case Constants.LINE:
-                mDrawPolygon.drawLine(mGraphPath, mLastX, mLastY, x, y);
-                break;
-
-            case Constants.SQUARE:
-                mDrawPolygon.drawSquare(mGraphPath, mLastX, mLastY, x, y);
-                break;
-
-            case Constants.DELTA:
-                mDrawPolygon.drawDelta(mGraphPath, ((y - mLastY) * 2 / 3), mLastX, mLastY);
-                break;
-
-            case Constants.PENTAGON:
-                mDrawPolygon.drawPentagon(mGraphPath, y - mLastY, mLastX, mLastY);
-                break;
-
-            case Constants.STAR:
-                mDrawPolygon.drawStar(mGraphPath, y - mLastY, mLastX, mLastY);
-                break;
-
-            case Constants.SPHERE:
-                mDrawPolygon.drawSphere(mGraphPath, y - mLastY, mLastX, mLastY);
-                mDrawPolygon.setDash(x - mLastX, y - mLastY, mLastX, mLastY);
-                break;
-
-            case Constants.CONE:
-                mDrawPolygon.drawCone(mGraphPath, x - mLastX, y - mLastY, mLastX, mLastY);
-                mDrawPolygon.setDash(x - mLastX, y - mLastY, mLastX, mLastY);
-                break;
-
-            case Constants.CUBE:
-                mDrawPolygon.drawCube(mGraphPath, x - mLastX, mLastX, mLastY);
-                mDrawPolygon.setDash(x - mLastX, y - mLastY, mLastX, mLastY);
-                break;
-
-            default:
-                break;
-
+        if (mPaint.getGraphType() == Constants.ORDINARY){
+            if (isCrossDraw) {
+                mCrossPoint.add(new PointInfo(mEndX, mEndY));
+            } else {
+                mPointList.add(new PointInfo(mEndX, mEndY));
+            }
+            CommonMethod.handleGraphType(mPath, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.DRAW);
+            mLastX = mEndX;
+            mLastY = mEndY;
+        } else {
+            CommonMethod.handleGraphType(mGraphPath, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.DRAW);
         }
+
     }
 
-    //手指抬起
-    private void actionUp(float x, float y) {
-
+    private void actionUp() {
 
         if (isCrossDraw) {
-            mCrossPoint.add(new PointInfo(x, y));
+            mCrossPoint.add(new PointInfo(mEndX, mEndY));
             setCrossList();
             mContext.setChooseStyle();
             mPaint.setColor(mBeforeColor);
             mPath.reset();
             return;
         } else {
-            mPointList.add(new PointInfo(x, y));
+            mPointList.add(new PointInfo(mEndX, mEndY));
         }
 
         if (mPaint.getMode() == Constants.DRAW || mCanEraser) {
@@ -306,27 +266,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         if (mPaint.getGraphType() != Constants.ORDINARY && mGraphPath != null) {
             mCanvas.drawPath(mGraphPath, mPaint);
             mPaint.setIfDottedPen(true);
-
-            switch (mPaint.getGraphType()) {
-                case Constants.CONE:
-                    mDrawPolygon.drawConeDash(mDotPath);
-                    mCanvas.drawPath(mDotPath, mPaint);
-                    break;
-
-                case Constants.CUBE:
-                    mDrawPolygon.drawCubeDash(mDotPath);
-                    mCanvas.drawPath(mDotPath, mPaint);
-                    break;
-
-                case Constants.SPHERE:
-                    mDrawPolygon.drawSphereDash(mDotPath);
-                    mCanvas.drawPath(mDotPath, mPaint);
-                    break;
-
-                default:
-                    break;
-            }
-
+            CommonMethod.handleGraphType(mDotPath, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.POLYGON);
+            mCanvas.drawPath(mDotPath, mPaint);
             mPaint.setIfDottedPen(false);
             mDotPath.reset();
             mGraphPath.reset();
@@ -383,25 +324,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             if (type == Constants.TOUCH) {
                 mPaint.setIfDottedPen(true);
                 Path path = new Path();
-                switch (mPaint.getGraphType()) {
-                    case Constants.CONE:
-                        mDrawPolygon.drawConeDash(path);
-                        canvas.drawPath(path, mPaint);
-                        break;
-
-                    case Constants.CUBE:
-                        mDrawPolygon.drawCubeDash(path);
-                        canvas.drawPath(path, mPaint);
-                        break;
-
-                    case Constants.SPHERE:
-                        mDrawPolygon.drawSphereDash(path);
-                        canvas.drawPath(path, mPaint);
-                        break;
-
-                    default:
-                        break;
-                }
+                CommonMethod.handleGraphType(path, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.POLYGON);
+                canvas.drawPath(path, mPaint);
                 path.reset();
                 mPaint.setIfDottedPen(false);
             }
@@ -568,26 +492,28 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     // 设置要显示的路径
     public void setDrawingList(List<PathInfo> newDrawPathList) {
-        this.mDrawingList = newDrawPathList;
-        if (null != mDrawingList && !mDrawingList.isEmpty()) {
-            for (PathInfo drawPath : mDrawingList) {
-                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+        if (newDrawPathList != null) {
+            this.mDrawingList = newDrawPathList;
+            mBufferBitmap.eraseColor(Color.TRANSPARENT);
+            for (PathInfo pathInfo : mDrawingList) {
+                pathInfo.draw(mCanvas, pathInfo.getGraphType(), pathInfo.getPointList());
             }
         }
         draw(Constants.WFC);
     }
 
+    // 设置缩放后显示的路径
     public void setCrossDrawingList(List<PathInfo> newDrawPathList) {
-        for (PathInfo info : newDrawPathList) {
-            mDrawingList.add(info);
-        }
-        mBufferBitmap.eraseColor(Color.TRANSPARENT);
-        if (null != mDrawingList && !mDrawingList.isEmpty()) {
-            for (PathInfo drawPath : mDrawingList) {
-                //mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-                drawPath.draw(mCanvas, mPaint.getGraphType(), drawPath.getPointList());
+        if (newDrawPathList != null && mDrawingList != null){
+            for (PathInfo info : newDrawPathList) {
+                mDrawingList.add(info);
+            }
+            mBufferBitmap.eraseColor(Color.TRANSPARENT);
+            for (PathInfo pathInfo : mDrawingList) {
+                pathInfo.draw(mCanvas, pathInfo.getGraphType(), pathInfo.getPointList());
             }
         }
+
         draw(Constants.WFC);
     }
 
@@ -607,6 +533,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         return mCrossList;
     }
 
+    //获取选中进行缩放的路径
     public void setCrossList() {
         mCrossList = new LinkedList<>();
         List<Integer> pos = new LinkedList<>();
@@ -627,6 +554,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
+    //将被选中进行缩放的路径进行删除
     public void clearCross() {
         mBufferBitmap.eraseColor(Color.TRANSPARENT);
         if (null != mDrawingList && !mDrawingList.isEmpty()) {

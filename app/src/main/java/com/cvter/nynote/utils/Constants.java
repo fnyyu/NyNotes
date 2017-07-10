@@ -36,6 +36,7 @@ public class Constants {
     public static final int DRAW = 0;
     public static final int ERASER = 1;
     public static final int CUT = 2;
+    public static final int POLYGON = 3;
 
     //绘制图形
     public static final int ORDINARY = 0;
@@ -57,5 +58,7 @@ public class Constants {
 
     public static final int TOUCH = 0;
     public static final int WFC = 1;
+
+    public static final String NO_OPERATION = "NO-Operation";
 
 }

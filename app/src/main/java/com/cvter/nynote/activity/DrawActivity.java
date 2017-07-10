@@ -10,8 +10,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -178,6 +176,8 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         super.onPause();
         mRestoreFragment.setData(mDrawPaintView.getDrawingList(), mDrawPaintView.getBackgroundBitmap(),
                 mPagesWindow.getAdapter().getPages(), mPagesWindow.getAdapter().getPages().size());
+        mFilePresenter.quitThread();
+        mFileAlertDialog.quit();
     }
 
     @Override
@@ -310,7 +310,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.eraser_imageView:
-                //setEraserStyle(view);
                 mDrawPaintView.getPaint().setMode(Constants.CUT);
                 mDrawPaintView.setIsCrossDraw(false);
                 break;
@@ -570,14 +569,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mDrawPaintView.getPaint().setMode(Constants.DRAW);
         mDrawPaintView.getPaint().setPenRawSize(mDrawPaintView.getPaint().getPenRawSize());
         mPaintWindow.showAsDropDown(mDrawingTitleLayout, 10, 5);
-    }
-
-    private void setEraserStyle(View view) {
-        view.setSelected(true);
-        mPenImageView.setSelected(false);
-        mDrawPaintView.getPaint().setMode(Constants.ERASER);
-        mDrawPaintView.getPaint().setGraphType(Constants.ORDINARY);
-        mDrawPaintView.getPaint().setOrdinaryPen();
     }
 
     private void setGraphStyle() {

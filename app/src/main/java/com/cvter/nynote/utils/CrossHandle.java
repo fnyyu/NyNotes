@@ -35,11 +35,10 @@ public class CrossHandle {
         return (p1x - p2x) < mMinDistance && (p1y - p2y) < mMinDistance;
     }
 
-    private boolean isCrossCircle(float p1x, float p1y, float p2x, float p2y, float r) {
+    private boolean isCrossCircle(float p1x, float p1y, float p2x, float p2y, float radius) {
         float distanceX = Math.abs(p1x - p2x);
         float distanceY = Math.abs(p1y - p2y);
-        float distanceZ = (float) Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
-        return distanceZ <= r;
+        return (float) Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2)) <= radius;
     }
 
     public boolean isCross(List<PointInfo> drawList, List<PointInfo> pointList, int type, Path path) {
@@ -127,11 +126,15 @@ public class CrossHandle {
         RectF r = new RectF();
         path.computeBounds(r, true);
         mRegion.setPath(path, new Region((int) r.left, (int) r.top, (int) r.right, (int) r.bottom));
+
         return mRegion.contains((int) pointX, (int) pointY);
+
     }
 
     private static float isCrossProduct(float p1x, float p1y, float p2x, float p2y, float p3x, float p3y) {
+
         return (p2x - p1x) * (p3y - p1y) - (p2y - p1y) * (p3x - p1x);
+
     }
 
     private boolean isCrossPolygon(PointInfo point, List<PointInfo> aPoints) {
@@ -159,7 +162,9 @@ public class CrossHandle {
                 nCross++;
         }
         // 单边交点为偶数，点在多边形之外
+
         return (nCross % 2 == 1);
+
     }
 
     private boolean eraserCross(int listIndex, List<PointInfo> drawList, PointInfo info, float radius) {
@@ -193,16 +198,16 @@ public class CrossHandle {
 
     }
 
-    public List<PathInfo> getEraserList(List<PathInfo> infoList, PointInfo pointInfo, float radius) {
+    public List<PathInfo> getEraserList(List<PathInfo> pathList, PointInfo pointInfo, float radius) {
 
         List<Integer> index = new LinkedList<>();
 
-        if (infoList == null) {
+        if (pathList == null) {
             return new LinkedList<>();
         }
 
-        for (int j = 0; j < infoList.size(); j++) {
-            if (eraserCross(j, infoList.get(j).getPointList(), pointInfo, radius)) {
+        for (int j = 0; j < pathList.size(); j++) {
+            if (eraserCross(j, pathList.get(j).getPointList(), pointInfo, radius)) {
                 index.add(j);
             }
         }
@@ -210,10 +215,10 @@ public class CrossHandle {
         for (int i : index) {
             List<Integer> pointIndex = mPointPosition.get(i);
 
-            if (!pointIndex.isEmpty() && infoList.size() > i) {
+            if (pathList.size() > i) {
 
                 for (int j = 0; j < pointIndex.size(); j++) {
-                    PathDrawingInfo info = new PathDrawingInfo();
+                    PathDrawingInfo pathDrawingInfo = new PathDrawingInfo();
                     List<PointInfo> pointList = new LinkedList<>();
                     float startX = 0f;
                     float startY = 0f;
@@ -227,11 +232,11 @@ public class CrossHandle {
                     boolean isFirst = true;
                     for (; k < pointIndex.get(j); k++) {
                         PointInfo point = new PointInfo();
-                        if (infoList.get(i).getPointList().size() <= k) {
+                        if (pathList.get(i).getPointList().size() <= k) {
                             break;
                         }
-                        point.mPointX = infoList.get(i).getPointList().get(k).mPointX;
-                        point.mPointY = infoList.get(i).getPointList().get(k).mPointY;
+                        point.mPointX = pathList.get(i).getPointList().get(k).mPointX;
+                        point.mPointY = pathList.get(i).getPointList().get(k).mPointY;
                         if (isFirst) {
                             startX = point.mPointX;
                             startY = point.mPointY;
@@ -239,28 +244,28 @@ public class CrossHandle {
                             isFirst = false;
                         }
                         pointList.add(point);
-                        CommonMethod.handleGraphType(path, startX, startY, point.mPointX, point.mPointY, Constants.ORDINARY);
+                        CommonMethod.handleGraphType(path, startX, startY, point.mPointX, point.mPointY, Constants.ORDINARY, Constants.DRAW);
                         startX = point.mPointX;
                         startY = point.mPointY;
                     }
-                    info.setPaint(infoList.get(i).getPaint());
-                    info.setGraphType(Constants.ORDINARY);
-                    info.setPenType(infoList.get(i).getPenType());
-                    info.setPath(path);
-                    info.setPaintType(Constants.DRAW);
-                    info.setPointList(pointList);
-                    infoList.add(info);
+                    pathDrawingInfo.setPaint(pathList.get(i).getPaint());
+                    pathDrawingInfo.setGraphType(Constants.ORDINARY);
+                    pathDrawingInfo.setPenType(pathList.get(i).getPenType());
+                    pathDrawingInfo.setPath(path);
+                    pathDrawingInfo.setPaintType(Constants.DRAW);
+                    pathDrawingInfo.setPointList(pointList);
+                    pathList.add(pathDrawingInfo);
                 }
 
                 for (int in : index) {
-                    infoList.remove(in - index.indexOf(in));
+                    pathList.remove(in - index.indexOf(in));
                 }
             }
 
         }
 
 
-        return infoList;
+        return pathList;
     }
 
 }

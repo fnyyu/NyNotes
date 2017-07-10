@@ -35,4 +35,6 @@ public interface IFilePresenter {
 
     boolean deleteFile(File file);
 
+    void quitThread();
+
 }

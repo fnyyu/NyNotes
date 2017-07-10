@@ -15,6 +15,7 @@ import android.view.ViewTreeObserver;
 
 import com.cvter.nynote.model.PathInfo;
 import com.cvter.nynote.utils.CommonMethod;
+import com.cvter.nynote.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -158,6 +159,7 @@ public class MatrixView extends View {
         }
     }
 
+    //获取绘制路径
     public void setOnDraw(List<PathInfo> newDrawPathList) {
 
         if (newDrawPathList != null) {
@@ -177,6 +179,7 @@ public class MatrixView extends View {
 
     }
 
+    //路径平移
     private void translate() {
 
         mDeltaX = mWidth * 0.5f - mRectF.right + mRectF.width() * 0.5f;
@@ -219,7 +222,7 @@ public class MatrixView extends View {
                         path.moveTo(startX, startY);
                     }
 
-                    CommonMethod.handleGraphType(path, startX, startY, mCoefficient[0], mCoefficient[1], newList.get(i).getGraphType());
+                    CommonMethod.handleGraphType(path, startX, startY, mCoefficient[0], mCoefficient[1], newList.get(i).getGraphType(), Constants.DRAW);
                     startX = mCoefficient[0];
                     startY = mCoefficient[1];
                 }
@@ -231,6 +234,7 @@ public class MatrixView extends View {
 
     }
 
+    //Bitmap回收
     public void recycle() {
         if (mBitmap != null && !mBitmap.isRecycled()) {
             mBitmap.recycle();

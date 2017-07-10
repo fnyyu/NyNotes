@@ -132,6 +132,10 @@ public class PagesPopupWindow extends BasePopupWindow {
             mAddBitmap = null;
         }
 
+        if(mAdapter != null){
+            mAdapter.quit();
+        }
+
         super.dismiss();
 
     }

@@ -355,7 +355,7 @@ public class FilePresenterImpl implements IFilePresenter {
                                         }
 
                                         if (drawPath != null) {
-                                            CommonMethod.handleGraphType(path, startX, startY, point.mPointX, point.mPointY, drawPath.getGraphType());
+                                            CommonMethod.handleGraphType(path, startX, startY, point.mPointX, point.mPointY, drawPath.getGraphType(), Constants.DRAW);
                                         }
                                         startX = point.mPointX;
                                         startY = point.mPointY;
@@ -551,6 +551,11 @@ public class FilePresenterImpl implements IFilePresenter {
                 listener.onFail(message);
             }
         });
+    }
+
+    @Override
+    public void quitThread(){
+        mHandlerThread.quitSafely();
     }
 
 }

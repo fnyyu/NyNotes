@@ -123,4 +123,9 @@ public class MainActivity extends BaseActivity implements IMainView {
         return mIMainPresenter;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mIFilePresenter.quitThread();
+    }
 }
