@@ -146,7 +146,9 @@ public class MatrixView extends View {
     protected void onDraw(Canvas canvas) {
         if (!mDrawingList.isEmpty()) {
             for (PathInfo drawPath : mDrawingList) {
+                drawPath.setDelta(mDeltaX, mDeltaY);
                 drawPath.draw(mCanvas, drawPath.getGraphType(), drawPath.getPointList());
+                drawPath.setDelta(0f, 0f);
             }
         }
 

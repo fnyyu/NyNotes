@@ -1,8 +1,10 @@
 package com.cvter.nynote.model;
 
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathEffect;
 
 import java.util.List;
 
@@ -20,8 +22,15 @@ public abstract class PathInfo {
     private int mPaintType;
     private int mGraphType;
     private int mPenType;
+    PathEffect mPathEffect;
+    Path mDashPath;
+    float mDeltaX = 0f;
+    float mDeltaY = 0f;
 
     public PathInfo() {
+        mPathEffect = new DashPathEffect(new float[]{5, 20}, 1);
+        mDashPath = new Path();
+
     }
 
     public abstract void draw(Canvas canvas, int type, List<PointInfo> points);
@@ -74,5 +83,9 @@ public abstract class PathInfo {
         return mPath;
     }
 
+    public void setDelta(float mDeltaX, float mDeltaY) {
+        this.mDeltaX = mDeltaX;
+        this.mDeltaY = mDeltaY;
+    }
 
 }

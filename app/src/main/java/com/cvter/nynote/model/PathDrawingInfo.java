@@ -1,8 +1,6 @@
 package com.cvter.nynote.model;
 
 import android.graphics.Canvas;
-import android.graphics.DashPathEffect;
-import android.graphics.Path;
 
 import com.cvter.nynote.utils.CommonMethod;
 import com.cvter.nynote.utils.Constants;
@@ -26,10 +24,13 @@ public class PathDrawingInfo extends PathInfo {
             float startX = info.get(0).mPointX;
             float startY = info.get(0).mPointY;
 
-            getPaint().setPathEffect(new DashPathEffect(new float[]{5, 20}, 1));
-            Path path = new Path();
-            CommonMethod.handleGraphType(path, startX, startY, endX, endY, type, Constants.POLYGON);
-            canvas.drawPath(path, getPaint());
+            getPaint().setPathEffect(mPathEffect);
+            CommonMethod.handleGraphType(mDashPath, startX, startY, endX, endY, type, Constants.POLYGON);
+            if (mDeltaX > 0f || mDeltaY > 0 || mDeltaX < 0f || mDeltaY < 0f){
+                mDashPath.offset(mDeltaX, mDeltaY);
+            }
+            canvas.drawPath(mDashPath, getPaint());
+            mDashPath.reset();
             getPaint().setPathEffect(null);
 
         }
