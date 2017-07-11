@@ -3,6 +3,7 @@ package com.cvter.nynote.utils;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.util.Log;
 
 import com.cvter.nynote.model.PathDrawingInfo;
 import com.cvter.nynote.model.PathInfo;
@@ -23,11 +24,13 @@ public class CrossHandle {
     private int mMinDistance;
     private Region mRegion;
     private HashMap<Integer, List<Integer>> mPointPosition;
+    private HashMap<Integer, List<Integer>> mEraserPosition;
 
     public CrossHandle(int minDistance) {
         this.mMinDistance = minDistance;
         mRegion = new Region();
         mPointPosition = new LinkedHashMap<>();
+        mEraserPosition = new LinkedHashMap<>();
     }
 
     private boolean isCrossOrdinary(float p1x, float p1y, float p2x, float p2y) {
@@ -190,7 +193,7 @@ public class CrossHandle {
                 pointList.add(index - pointList.size());
             }
             isCross = true;
-            pointList.add(drawList.size() - pointList.size());
+            pointList.add(drawList.size() - pointList.size() + 2);
         }
 
         mPointPosition.put(listIndex, pointList);
@@ -266,6 +269,99 @@ public class CrossHandle {
 
 
         return pathList;
+    }
+
+    public List<PathInfo> isEraserCross(List<RectF> eraserList, List<PathInfo> pathInfoList) {
+        boolean isContains = false;
+        int pathIndex = 0;
+        for (PathInfo pathInfo : pathInfoList) {
+            List<Integer> pointPosition = new LinkedList<>();
+            int pointIndex = 0;
+
+            for (int index = 0; index < pathInfo.getPointList().size(); index++) {
+                PointInfo pointInfo = pathInfo.getPointList().get(index);
+                int pointSize = pointPosition.size();
+                if (!pointPosition.isEmpty()){
+                    int temp = pointPosition.get(pointSize - 1);
+                    pathInfo.getPointList().remove(temp);
+                }
+
+                if (isContainsPoint(eraserList, pointInfo)) {
+                    isContains = true;
+                    pointPosition.add(pointIndex - pointSize);
+                }
+                pointIndex++;
+            }
+
+            int pointListSize = pathInfo.getPointList().size();
+            if (!pointPosition.contains(pointListSize + 1)) {
+                pointPosition.add(pointListSize + 1);
+            }
+
+            if (isContains) {
+                mEraserPosition.put(pathIndex, pointPosition);
+                isContains = false;
+            }
+            pathIndex++;
+        }
+
+        //createNewPath(pathInfoList);
+
+        return pathInfoList;
+
+    }
+
+    private boolean isContainsPoint(List<RectF> eraserList, PointInfo point) {
+        for (RectF rectF : eraserList) {
+            if (rectF.contains(point.mPointX, point.mPointY)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void createNewPath(List<PathInfo> pathInfoList) {
+
+        if (mEraserPosition.isEmpty()){
+            return;
+        }
+
+        int deleteIndex = 0;
+
+        for (int pathIndex : mEraserPosition.keySet()){
+            int orderIndex = 0;
+            List<PointInfo> beforePointList = pathInfoList.get(pathIndex).getPointList();
+            for (int pointIndex : mEraserPosition.get(pathIndex)) {
+                PathDrawingInfo pathDrawingInfo = new PathDrawingInfo();
+                List<PointInfo> pointList = new LinkedList<>();
+                float startX = 0f;
+                float startY = 0f;
+                Path path = new Path();
+
+                while (orderIndex < pointIndex && orderIndex < beforePointList.size()){
+                    PointInfo point = new PointInfo(beforePointList.get(orderIndex).mPointX, beforePointList.get(orderIndex).mPointY);
+                    if (orderIndex == 0) {
+                        startX = point.mPointX;
+                        startY = point.mPointY;
+                        path.moveTo(startX, startY);
+                    }
+                    pointList.add(point);
+                    CommonMethod.handleGraphType(path, startX, startY, point.mPointX, point.mPointY, Constants.ORDINARY, Constants.DRAW);
+                    startX = point.mPointX;
+                    startY = point.mPointY;
+                    orderIndex++;
+                }
+                pathDrawingInfo.setPaint(pathInfoList.get(pathIndex).getPaint());
+                pathDrawingInfo.setGraphType(Constants.ORDINARY);
+                pathDrawingInfo.setPenType(pathInfoList.get(pathIndex).getPenType());
+                pathDrawingInfo.setPath(path);
+                pathDrawingInfo.setPaintType(Constants.DRAW);
+                pathDrawingInfo.setPointList(pointList);
+                pathInfoList.add(pathDrawingInfo);
+            }
+            pathInfoList.remove(pathIndex - deleteIndex);
+            deleteIndex ++;
+        }
     }
 
 }

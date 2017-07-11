@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by cvter on 2017/6/22.\
+ * Created by cvter on 2017/6/22.
  * 缩放拖拽操作View
  */
 
@@ -161,7 +161,6 @@ public class MatrixView extends View {
         }
     }
 
-    //获取绘制路径
     public void setOnDraw(List<PathInfo> newDrawPathList) {
 
         if (newDrawPathList != null) {
@@ -181,7 +180,6 @@ public class MatrixView extends View {
 
     }
 
-    //路径平移
     private void translate() {
 
         mDeltaX = mWidth * 0.5f - mRectF.right + mRectF.width() * 0.5f;
@@ -236,7 +234,6 @@ public class MatrixView extends View {
 
     }
 
-    //Bitmap回收
     public void recycle() {
         if (mBitmap != null && !mBitmap.isRecycled()) {
             mBitmap.recycle();

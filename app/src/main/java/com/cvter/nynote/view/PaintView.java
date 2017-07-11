@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,6 +28,7 @@ import com.cvter.nynote.utils.CommonMethod;
 import com.cvter.nynote.utils.Constants;
 import com.cvter.nynote.utils.CrossHandle;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,6 +59,8 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private List<PathInfo> mRemovedList;
     private List<PathInfo> mCrossList;
     private LinkedList<PointInfo> mPointList;
+    private List<PointInfo> mCrossPoint;
+    private List<RectF> mEraserRectFList;
     private CrossHandle mCrossHandle;
 
     private boolean mCanEraser;
@@ -63,9 +68,10 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private Bitmap mBufferBitmap;
     private Bitmap mBackgroundBitmap;
 
-    private PathWFCallback mCallback;
+    private Rect mFromRect;
+    private RectF mToRectF;
 
-    private List<PointInfo> mCrossPoint;
+    private PathWFCallback mCallback;
 
     private int mBeforeColor = Color.BLACK;
 
@@ -95,24 +101,24 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     private int eraserX = 0;
     private int eraserY = 0;
-    private int screenW;
-    private int screenH;
-    private int eraserRadius = 20;
+    private int eraserRadius;
 
     //画板初始化
     private void init() {
         mHolder = getHolder();
         mHolder.addCallback(this);
-
         setFocusable(true);
         setFocusableInTouchMode(true);
         this.setKeepScreenOn(true);
         mPaint = new PaintInfo();
         mPaint.setStrokeWidth(7);
         mBufferBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
+        mBackgroundBitmap = Bitmap.createBitmap(getScreenSize()[0], getScreenSize()[1], Bitmap.Config.ARGB_4444);
+        mBackgroundBitmap.eraseColor(Color.WHITE);
         mCanvas = new Canvas(mBufferBitmap);
         mMinDistance = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         mCrossHandle = new CrossHandle(mMinDistance);
+        eraserRadius = mMinDistance * 2;
     }
 
     @Override
@@ -169,30 +175,31 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void eraserActionDown(){
-        eraserX = (int) mEndX;
-        eraserY = (int) mEndY;
-        mPaint.setStyle(Paint.Style.FILL);
-        eraserRadius = mMinDistance;
+        mEraserRectFList = new ArrayList<>();
+        mFromRect = new Rect();
+        mToRectF = new RectF();
     }
 
     private void eraserActionMove(){
         eraserX = (int) mEndX;
         eraserY = (int) mEndY;
+        mFromRect.set(eraserX - eraserRadius, eraserY- eraserRadius, eraserX + eraserRadius, eraserY + eraserRadius);
+        mToRectF.set(eraserX - eraserRadius, eraserY- eraserRadius, eraserX + eraserRadius, eraserY + eraserRadius);
+        mCanvas.drawBitmap(mBackgroundBitmap, mFromRect, mToRectF, null);
+        if (mEraserRectFList != null){
+            mEraserRectFList.add(new RectF(mToRectF));
+        }
     }
 
     private void eraserActionUp(){
-        eraserX = (int) mEndX;
-        eraserY = (int) mEndY;
-        eraserRadius = 0;
-        mPaint.setStyle(Paint.Style.STROKE);
-        mBufferBitmap.eraseColor(Color.TRANSPARENT);
-        mDrawingList = mCrossHandle.getEraserList(mDrawingList, new PointInfo(eraserX, eraserY), eraserRadius);
-
-        if (null != mDrawingList && !mDrawingList.isEmpty()) {
-            for (PathInfo drawPath : mDrawingList) {
-                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-            }
-        }
+//        mBufferBitmap.eraseColor(Color.TRANSPARENT);
+//        mCrossHandle.isEraserCross(mEraserRectFList, mDrawingList);
+//
+//        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+//            for (PathInfo drawPath : mDrawingList) {
+//                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+//            }
+//        }
     }
 
     private void actionDown() {
@@ -265,10 +272,10 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (mPaint.getGraphType() != Constants.ORDINARY && mGraphPath != null) {
             mCanvas.drawPath(mGraphPath, mPaint);
-            mPaint.setIfDottedPen(true);
+            mPaint.setIsDottedPen();
             CommonMethod.handleGraphType(mDotPath, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.POLYGON);
             mCanvas.drawPath(mDotPath, mPaint);
-            mPaint.setIfDottedPen(false);
+            mPaint.setNoDottedPen();
             mDotPath.reset();
             mGraphPath.reset();
         }
@@ -291,19 +298,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    private void revise() {
-        if (eraserX <= eraserRadius) {
-            eraserX = eraserRadius;
-        } else if (eraserX >= (screenW - eraserRadius)) {
-            eraserX = screenW - eraserRadius;
-        }
-        if (eraserY <= eraserRadius) {
-            eraserY = eraserRadius;
-        } else if (eraserY >= (screenH - eraserRadius)) {
-            eraserY = screenH - eraserRadius;
-        }
-    }
-
     //绘制于bitmap上
     public void drawBitmap(Canvas canvas, int type) {
         if (mBufferBitmap != null && mPaint != null) {
@@ -311,8 +305,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         if (mPaint != null && mPaint.getMode() == Constants.CUT) {
-            revise();
-            canvas.drawCircle(eraserX, eraserY, eraserRadius, mPaint);
+            mFromRect.set(eraserX - eraserRadius, eraserY- eraserRadius, eraserX + eraserRadius, eraserY + eraserRadius);
+            mToRectF.set(eraserX - eraserRadius, eraserY- eraserRadius, eraserX + eraserRadius, eraserY + eraserRadius);
+            canvas.drawBitmap(mBackgroundBitmap, mFromRect, mToRectF, null);
         }
 
         if (mPath != null && mPaint != null && !isCrossDraw) {
@@ -322,12 +317,12 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         if (mGraphPath != null && mPaint != null && !isCrossDraw) {
             canvas.drawPath(mGraphPath, mPaint);
             if (type == Constants.TOUCH) {
-                mPaint.setIfDottedPen(true);
+                mPaint.setIsDottedPen();
                 Path path = new Path();
                 CommonMethod.handleGraphType(path, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.POLYGON);
                 canvas.drawPath(path, mPaint);
                 path.reset();
-                mPaint.setIfDottedPen(false);
+                mPaint.setNoDottedPen();
             }
         }
     }
@@ -339,8 +334,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder arg0) {
-        screenW = getWidth();
-        screenH = getHeight();
         draw(Constants.TOUCH);
     }
 
@@ -563,5 +556,9 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             }
             draw(Constants.TOUCH);
         }
+    }
+
+    public List<RectF> getEraserRectFList() {
+        return mEraserRectFList;
     }
 }

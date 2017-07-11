@@ -26,6 +26,8 @@ public class PicturePresenterImpl implements PicturePresenter {
     private IPictureView mIPictureView;
 
     private static final String TAG = "PicturePresenterImpl";
+    private static final float WIDTH = 480f;
+    private static final float HEIGHT = 800f;
 
     public PicturePresenterImpl(IPictureView iPictureView) {
         this.mIPictureView = iPictureView;
@@ -69,10 +71,10 @@ public class PicturePresenterImpl implements PicturePresenter {
             int width = newOpts.outWidth;
             int height = newOpts.outHeight;
             int be = 1;
-            if (width > height && width > 480f) {
-                be = (int) (newOpts.outWidth / 480f);
-            } else if (width < height && height > 800f) {
-                be = (int) (newOpts.outHeight / 800f);
+            if (width > height && width > WIDTH) {
+                be = (int) (newOpts.outWidth / WIDTH);
+            } else if (width < height && height > HEIGHT) {
+                be = (int) (newOpts.outHeight / HEIGHT);
             }
             if (be <= 0)
                 be = 1;
