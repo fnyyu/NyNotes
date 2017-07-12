@@ -74,8 +74,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private PathWFCallback mCallback;
 
     private int mBeforeColor = Color.BLACK;
-
-    private static final String TAG = "PaintView";
+    private int mBeforeType = Constants.ORDINARY;
 
     public PaintView(Context context) {
         super(context);
@@ -192,14 +191,18 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void eraserActionUp(){
-//        mBufferBitmap.eraseColor(Color.TRANSPARENT);
-//        mCrossHandle.isEraserCross(mEraserRectFList, mDrawingList);
-//
-//        if (null != mDrawingList && !mDrawingList.isEmpty()) {
-//            for (PathInfo drawPath : mDrawingList) {
-//                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
-//            }
-//        }
+        if (mBeforeType != Constants.ORDINARY){
+            return;
+        }
+        mBufferBitmap.eraseColor(Color.TRANSPARENT);
+        mDrawingList = mCrossHandle.isEraserCross(mEraserRectFList, mDrawingList);
+
+        if (null != mDrawingList && !mDrawingList.isEmpty()) {
+            for (PathInfo drawPath : mDrawingList) {
+                mCanvas.drawPath(drawPath.getPath(), drawPath.getPaint());
+            }
+        }
+        mEraserRectFList.clear();
     }
 
     private void actionDown() {
@@ -243,6 +246,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mLastX = mEndX;
             mLastY = mEndY;
         } else {
+            mBeforeType = mPaint.getGraphType();
             CommonMethod.handleGraphType(mGraphPath, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.DRAW);
         }
 
@@ -316,7 +320,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (mGraphPath != null && mPaint != null && !isCrossDraw) {
             canvas.drawPath(mGraphPath, mPaint);
-            if (type == Constants.TOUCH) {
+            if (type == Constants.TOUCH && mPaint.getMode() != Constants.CUT) {
                 mPaint.setIsDottedPen();
                 Path path = new Path();
                 CommonMethod.handleGraphType(path, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.POLYGON);
@@ -329,7 +333,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
-        Log.e(TAG, getContext().getString(R.string.no_operation));
+        //do nothing
     }
 
     @Override
@@ -339,7 +343,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder arg0) {
-        Log.e(TAG, getContext().getString(R.string.no_operation));
+        //do nothing
     }
 
     //保存路径
@@ -437,6 +441,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 mCallback.pathWFState();
             }
         }
+        mBeforeType = Constants.ORDINARY;
 
         draw(Constants.WFC);
     }

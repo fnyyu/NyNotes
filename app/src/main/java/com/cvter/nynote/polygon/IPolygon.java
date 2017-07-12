@@ -4,6 +4,7 @@ import android.graphics.Path;
 
 /**
  * Created by cvter on 2017/7/8.
+ * 图形绘制封装类
  */
 
 public interface IPolygon {

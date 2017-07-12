@@ -2,10 +2,11 @@ package com.cvter.nynote.polygon;
 
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.util.Log;
 
-import com.cvter.nynote.polygon.IPolygon;
-import com.cvter.nynote.utils.Constants;
+/**
+ * Created by cvter on 2017/7/8.
+ * 圆形绘制类
+ */
 
 public class Circle implements IPolygon{
 
@@ -18,6 +19,6 @@ public class Circle implements IPolygon{
 
     @Override
     public void drawDash(Path path, float dashRadiusX, float dashRadiusY, float dashX, float dashY) {
-        Log.e(getClass().getName(), Constants.NO_OPERATION);
+        //do nothing
     }
 }

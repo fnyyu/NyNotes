@@ -4,6 +4,7 @@ import android.graphics.Path;
 
 /**
  * Created by cvter on 2017/7/8.
+ * 椎体绘制类
  */
 
 public class Cone implements IPolygon {

@@ -4,6 +4,7 @@ import android.graphics.Path;
 
 /**
  * Created by cvter on 2017/7/8.
+ * 正方体绘制类
  */
 
 public class Cube implements IPolygon {

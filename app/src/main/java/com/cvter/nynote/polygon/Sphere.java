@@ -5,6 +5,7 @@ import android.graphics.RectF;
 
 /**
  * Created by cvter on 2017/7/8.
+ * 球体绘制类
  */
 
 public class Sphere implements IPolygon {

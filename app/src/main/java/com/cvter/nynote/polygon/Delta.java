@@ -1,12 +1,10 @@
 package com.cvter.nynote.polygon;
 
 import android.graphics.Path;
-import android.util.Log;
-
-import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/7/8.
+ * 三角形绘制类
  */
 
 public class Delta implements IPolygon {
@@ -27,6 +25,6 @@ public class Delta implements IPolygon {
 
     @Override
     public void drawDash(Path path, float dashRadiusX, float dashRadiusY, float dashX, float dashY) {
-        Log.e(getClass().getName(), Constants.NO_OPERATION);
+        //do nothing
     }
 }

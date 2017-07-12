@@ -1,12 +1,10 @@
 package com.cvter.nynote.polygon;
 
 import android.graphics.Path;
-import android.util.Log;
-
-import com.cvter.nynote.utils.Constants;
 
 /**
  * Created by cvter on 2017/7/10.
+ * 普通画笔绘制类
  */
 
 public class Odinary implements IPolygon {
@@ -19,6 +17,6 @@ public class Odinary implements IPolygon {
 
     @Override
     public void drawDash(Path path, float dashRadiusX, float dashRadiusY, float dashX, float dashY) {
-        Log.e(getClass().getName(), Constants.NO_OPERATION);
+        //do nothing
     }
 }
