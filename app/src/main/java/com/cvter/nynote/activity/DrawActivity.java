@@ -176,7 +176,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         super.onPause();
         mRestoreFragment.setData(mDrawPaintView.getDrawingList(), mDrawPaintView.getBackgroundBitmap(),
                 mPagesWindow.getAdapter().getPages(), mPagesWindow.getAdapter().getPages().size());
-        mFilePresenter.quitThread();
         mFileAlertDialog.quit();
     }
 
@@ -310,16 +309,18 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.eraser_imageView:
-                mDrawPaintView.getPaint().setMode(Constants.CUT);
+                setEraserStyle();
                 mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.withdraw_imageView:
+                drawScalePath();
                 mDrawPaintView.withdraw();
                 mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.picture_imageView:
+                drawScalePath();
                 mPictureDialog = new PictureAlertDialog(this);
                 mDrawPaintView.setIsCrossDraw(false);
                 break;
@@ -330,21 +331,26 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
                 break;
 
             case R.id.forward_imageView:
+                drawScalePath();
                 mDrawPaintView.forward();
                 mDrawPaintView.setIsCrossDraw(false);
                 break;
 
             case R.id.clear_imageView:
+                drawScalePath();
+                mDrawPaintView.getPaint().setMode(Constants.DRAW);
                 mDrawPaintView.setIsCrossDraw(false);
                 mDrawPaintView.clear();
                 break;
 
             case R.id.choose_imageView:
+                mDrawPaintView.getPaint().setMode(Constants.DRAW);
                 mDrawPaintView.setIsCrossDraw(true);
                 break;
 
             case R.id.save_imageView:
                 if (getIntent().getExtras().getString("skipType").equals("new_edit")) {
+                    drawScalePath();
                     mFileAlertDialog.show();
                 } else {
                     editFileSave();
@@ -516,13 +522,6 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         return pageSize;
     }
 
-    private void setViewEnable(boolean ifEnable) {
-        morePagesLinearLayout.setEnabled(ifEnable);
-        saveImageView.setEnabled(ifEnable);
-        pictureImageView.setEnabled(ifEnable);
-        mEraserImageView.setEnabled(ifEnable);
-    }
-
     private void restoreData(RestoreFragment fragment) {
 
         if (fragment.getPath() != null) {
@@ -552,18 +551,7 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
     }
 
     private void setPenStyle(View view) {
-        if (!ifCanScale) {
-            List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
-
-            if (!mRevertList.isEmpty()) {
-                mDrawPaintView.setCrossDrawingList(mRevertList);
-                drawMatrixView.recycle();
-            }
-            drawMatrixView.setVisibility(View.INVISIBLE);
-            ifCanScale = true;
-        }
-
-        setViewEnable(true);
+        drawScalePath();
         view.setSelected(true);
         mEraserImageView.setSelected(false);
         mDrawPaintView.getPaint().setMode(Constants.DRAW);
@@ -571,30 +559,25 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
         mPaintWindow.showAsDropDown(mDrawingTitleLayout, 10, 5);
     }
 
+    private void setEraserStyle() {
+        drawScalePath();
+        mDrawPaintView.getPaint().setMode(Constants.CUT);
+    }
+
     private void setGraphStyle() {
-        if (!ifCanScale) {
-            List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
-
-            if (!mRevertList.isEmpty()) {
-                mDrawPaintView.setCrossDrawingList(mRevertList);
-                drawMatrixView.recycle();
-            }
-            drawMatrixView.setVisibility(View.INVISIBLE);
-            ifCanScale = true;
-        }
-
+        drawScalePath();
         mDrawPaintView.getPaint().setMode(Constants.DRAW);
         mGraphWindow.showAsDropDown(mDrawingTitleLayout, 300, 5);
     }
 
     public void setChooseStyle() {
+
         if (ifCanScale && mDrawPaintView.getCrossList() != null && !mDrawPaintView.getDrawingList().isEmpty()) {
             drawMatrixView.setOnDraw(new ArrayList<>(mDrawPaintView.getCrossList()));
             mDrawPaintView.clearCross();
             drawMatrixView.setVisibility(View.VISIBLE);
             drawMatrixView.bringToFront();
             morePagesLinearLayout.bringToFront();
-            setViewEnable(false);
             ifCanScale = false;
         }
     }
@@ -605,12 +588,27 @@ public class DrawActivity extends BaseActivity implements IPictureView, PathWFCa
 
     @OnClick(R.id.more_pages_linearLayout)
     public void onPageViewClicked() {
+        drawScalePath();
+        mDrawPaintView.getPaint().setMode(Constants.DRAW);
         if (mDrawPaintView.getCanDraw()) {
             mPagesWindow.updateData(Integer.parseInt(mCurPagesTextView.getText().toString()));
         }
 
         mPagesWindow.showAtLocation(mDrawActivityLayout, Gravity.BOTTOM, 0, 150);
 
+    }
+
+    private void drawScalePath(){
+        if (!ifCanScale) {
+            List<PathInfo> mRevertList = new LinkedList<>(drawMatrixView.getMatrixList());
+
+            if (!mRevertList.isEmpty()) {
+                mDrawPaintView.setCrossDrawingList(mRevertList);
+                drawMatrixView.recycle();
+            }
+            drawMatrixView.setVisibility(View.INVISIBLE);
+            ifCanScale = true;
+        }
     }
 
 }

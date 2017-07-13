@@ -334,9 +334,10 @@ public class CrossHandle {
 
             List<Integer> pointIndex = mEraserPosition.get(i);
 
-            if (pathList.size() >= i) {
+            if (pathList.size() > i && pathList.get(i).getGraphType() == Constants.ORDINARY) {
 
                 for (int j = 0; j < pointIndex.size(); j++) {
+
                     PathDrawingInfo pathDrawingInfo = new PathDrawingInfo();
                     List<PointInfo> pointList = new LinkedList<>();
                     float startX = 0f;
@@ -349,6 +350,7 @@ public class CrossHandle {
                         k = pointIndex.get(j - 1) ;
                     }
                     boolean isFirst = true;
+
                     for (; k < pointIndex.get(j); k++) {
                         PointInfo point = new PointInfo();
                         if (pathList.get(i).getPointList().size() <= k) {
@@ -375,14 +377,14 @@ public class CrossHandle {
                     pathDrawingInfo.setPointList(pointList);
                     pathList.add(pathDrawingInfo);
                 }
-
-                for (int in: eraserIndex){
-                    if (pathList.size() > in - eraserIndex.indexOf(in)){
-                        pathList.remove(in - eraserIndex.indexOf(in));
-                    }
-                }
             }
 
+        }
+
+        for (int in: eraserIndex){
+            if (pathList.size() > in - eraserIndex.indexOf(in)){
+                pathList.remove(in - eraserIndex.indexOf(in));
+            }
         }
         return pathList;
     }

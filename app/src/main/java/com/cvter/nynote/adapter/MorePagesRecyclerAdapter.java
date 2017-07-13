@@ -324,6 +324,6 @@ public class MorePagesRecyclerAdapter extends RecyclerView.Adapter<MorePagesRecy
     }
 
     public void quit(){
-        mPresenter.quitThread();
+        //mPresenter.quitThread();
     }
 }

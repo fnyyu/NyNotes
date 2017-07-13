@@ -28,6 +28,7 @@ public class PaintInfo extends Paint {
     private Xfermode mClearMode;
     private int mPenColor = Color.BLACK;
     private int mPenType = Constants.ORDINARY_PEN;
+    private int mBeforeColor;
 
     public PaintInfo() {
         super(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
@@ -40,6 +41,7 @@ public class PaintInfo extends Paint {
         setStrokeCap(Paint.Cap.ROUND);
         setStrokeJoin(Join.ROUND);
         setColor(mPenColor);
+        mBeforeColor = mPenColor;
         mClearMode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
     }
 
@@ -48,14 +50,15 @@ public class PaintInfo extends Paint {
             mMode = mode;
             if (mMode == Constants.DRAW ) {
                 setXfermode(null);
-                if(mPenColor == Color.WHITE){
-                    setPenColor(Color.BLACK);
+                if(getColor() == Color.WHITE){
+                    setPenColor(mBeforeColor);
                 } else {
                     setPenColor(mPenColor);
                 }
 
             } else if(mMode == Constants.CUT){
                 setXfermode(null);
+                mBeforeColor = getColor();
                 setPenColor(Color.WHITE);
             } else {
                 setAlpha(0);

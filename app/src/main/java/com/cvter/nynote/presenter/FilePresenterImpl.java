@@ -477,6 +477,7 @@ public class FilePresenterImpl implements IFilePresenter {
                 try {
                     deleteSubFile(new File(Constants.TEMP_XML_PATH));
                     deleteSubFile(new File(Constants.TEMP_IMG_PATH));
+                    deleteSubFile(new File(Constants.TEMP_BG_PATH));
                 }catch (Exception e){
                     Log.e(FILE_TYPE, e.getMessage());
                 }

@@ -17,7 +17,6 @@ import android.view.SurfaceView;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 
-import com.cvter.nynote.R;
 import com.cvter.nynote.activity.DrawActivity;
 import com.cvter.nynote.model.PaintInfo;
 import com.cvter.nynote.model.PathDrawingInfo;
@@ -74,7 +73,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     private PathWFCallback mCallback;
 
     private int mBeforeColor = Color.BLACK;
-    private int mBeforeType = Constants.ORDINARY;
 
     public PaintView(Context context) {
         super(context);
@@ -191,9 +189,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void eraserActionUp(){
-        if (mBeforeType != Constants.ORDINARY){
-            return;
-        }
         mBufferBitmap.eraseColor(Color.TRANSPARENT);
         mDrawingList = mCrossHandle.isEraserCross(mEraserRectFList, mDrawingList);
 
@@ -246,7 +241,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
             mLastX = mEndX;
             mLastY = mEndY;
         } else {
-            mBeforeType = mPaint.getGraphType();
             CommonMethod.handleGraphType(mGraphPath, mLastX, mLastY, mEndX, mEndY, mPaint.getGraphType(), Constants.DRAW);
         }
 
@@ -441,7 +435,6 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
                 mCallback.pathWFState();
             }
         }
-        mBeforeType = Constants.ORDINARY;
 
         draw(Constants.WFC);
     }

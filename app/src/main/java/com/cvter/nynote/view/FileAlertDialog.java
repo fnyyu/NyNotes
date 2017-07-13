@@ -200,7 +200,7 @@ public class FileAlertDialog extends AlertDialog {
     }
 
     public void quit(){
-        mFilePresenter.quitThread();
+        //mFilePresenter.quitThread();
     }
 
 }
