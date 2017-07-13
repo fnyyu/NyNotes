@@ -360,6 +360,7 @@ public class PaintView extends SurfaceView implements SurfaceHolder.Callback {
         info.setPointList(mPointList);
         info.setGraphType(mPaint.getGraphType());
         info.setPenType(mPaint.getPenType());
+        info.setDelta(0f, 0f);
         mDrawingList.add(info);
         mCanEraser = true;
         if (mCallback != null) {

@@ -23,6 +23,7 @@ import com.cvter.nynote.utils.ImportListener;
 import com.cvter.nynote.utils.SaveListener;
 
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
@@ -59,6 +60,13 @@ public class FilePresenterImpl implements IFilePresenter {
     private Handler mHandler;
     private Handler mFileHandler;
     private Context mContext;
+    private boolean isFirstPoint = true;
+    private float startX = 0f;
+    private float startY = 0f;
+    private PathInfo mDrawPath;
+    private Path mPathInfo;
+    private PaintInfo mPaintInfo;
+    private LinkedList<PointInfo> mPointList;
 
     public FilePresenterImpl(Context context) {
         this.mContext = context;
@@ -84,52 +92,7 @@ public class FilePresenterImpl implements IFilePresenter {
                     }
                     if (file.createNewFile()) {
                         outputStream = new FileOutputStream(file);
-
-                        XmlSerializer serializer = Xml.newSerializer();
-                        serializer.setOutput(outputStream, CODE_TYPE);
-                        serializer.startDocument(CODE_TYPE, true);
-                        serializer.startTag(null, PATH_LIST);
-                        for (PathInfo pathInfo : pathList) {
-                            serializer.startTag(null, DRAW_PATH);
-                            Paint paint = pathInfo.getPaint();
-                            serializer.startTag(null, PAINT);
-
-                            serializer.startTag(null, COLOR);
-                            serializer.text(String.valueOf(paint.getColor()));
-                            serializer.endTag(null, COLOR);
-
-                            serializer.startTag(null, PEN_TYPE);
-                            serializer.text(String.valueOf(pathInfo.getPenType()));
-                            serializer.endTag(null, PEN_TYPE);
-
-                            serializer.startTag(null, WIDTH);
-                            serializer.text(String.valueOf(paint.getStrokeWidth()));
-                            serializer.endTag(null, WIDTH);
-
-                            serializer.startTag(null, TYPE);
-                            serializer.text(String.valueOf(pathInfo.getPaintType()));
-                            serializer.endTag(null, TYPE);
-
-                            serializer.startTag(null, GRAPH_TYPE);
-                            serializer.text(String.valueOf(pathInfo.getGraphType()));
-                            serializer.endTag(null, GRAPH_TYPE);
-
-                            serializer.endTag(null, PAINT);
-
-                            serializer.startTag(null, PATH);
-                            List<PointInfo> mPoints = pathInfo.getPointList();
-                            for (PointInfo points : mPoints) {
-                                serializer.startTag(null, POINT);
-                                serializer.text(points.mPointX + "," + points.mPointY);
-                                serializer.endTag(null, POINT);
-                            }
-                            serializer.endTag(null, PATH);
-
-                            serializer.endTag(null, DRAW_PATH);
-                        }
-                        serializer.endTag(null, PATH_LIST);
-                        serializer.endDocument();
-
+                        saveTag(outputStream, pathList);
                         outputStream.flush();
                         outputStream.close();
                     }
@@ -232,17 +195,11 @@ public class FilePresenterImpl implements IFilePresenter {
         mFileHandler.post(new Runnable() {
             @Override
             public void run() {
+                InputStream is = null;
                 try {
                     final LinkedList<PathInfo> drawPathList = new LinkedList<>();
-                    PathInfo drawPath = null;
-                    Path path = null;
-                    PaintInfo paint = null;
-                    LinkedList<PointInfo> pointList = null;
-                    boolean isFirstPoint = true;
-                    float startX = 0f;
-                    float startY = 0f;
 
-                    InputStream is = new FileInputStream(new File(filePath));
+                    is = new FileInputStream(new File(filePath));
                     XmlPullParser parser = Xml.newPullParser();
                     parser.setInput(is, CODE_TYPE);
                     int eventType = parser.getEventType();
@@ -253,146 +210,11 @@ public class FilePresenterImpl implements IFilePresenter {
                                 break;
 
                             case XmlPullParser.START_TAG:
-                                String startTag = parser.getName();
-                                switch (startTag) {
-                                    case DRAW_PATH:
-                                        drawPath = new PathDrawingInfo();
-                                        isFirstPoint = true;
-                                        break;
-                                    case PAINT:
-                                        paint = new PaintInfo();
-                                        paint.setStyle(Paint.Style.STROKE);
-                                        paint.setStrokeCap(Paint.Cap.ROUND);
-                                        paint.setAntiAlias(true);
-
-                                        break;
-
-                                    case COLOR:
-                                        if (paint != null) {
-                                            paint.setColor(Integer.parseInt(parser.nextText().trim()));
-                                        }
-                                        break;
-
-                                    case PEN_TYPE:
-                                        int penType = Integer.parseInt(parser.nextText().trim());
-                                        switch (penType) {
-                                            case Constants.ORDINARY:
-                                                if (paint != null) {
-                                                    paint.setOrdinaryPen();
-                                                }
-                                                break;
-                                            case Constants.TRANS_PEN:
-                                                if (paint != null) {
-                                                    paint.setTransPen();
-                                                }
-                                                break;
-                                            case Constants.INK_PEN:
-                                                if (paint != null) {
-                                                    paint.setInkPen();
-                                                }
-                                                break;
-                                            case Constants.DISCRETE_PEN:
-                                                if (paint != null) {
-                                                    paint.setDiscretePen();
-                                                }
-                                                break;
-                                            case Constants.DASH_PEN:
-                                                if (paint != null) {
-                                                    paint.setDashPen();
-                                                }
-                                                break;
-                                            default:
-                                                break;
-
-                                        }
-
-                                        break;
-
-                                    case WIDTH:
-                                        if (paint != null) {
-                                            paint.setStrokeWidth(Float.parseFloat(parser.nextText().trim()));
-                                        }
-                                        break;
-
-                                    case TYPE:
-                                        int drawType = Integer.parseInt(parser.nextText().trim());
-                                        PorterDuff.Mode mode = (drawType == 0) ? null : PorterDuff.Mode.CLEAR;
-                                        if (mode != null && paint != null) {
-                                            paint.setXfermode(new PorterDuffXfermode(mode));
-                                        } else if (mode == null && paint != null) {
-                                            paint.setXfermode(null);
-                                        }
-                                        if (drawPath != null) {
-                                            drawPath.setPaintType(drawType);
-                                        }
-                                        break;
-
-                                    case GRAPH_TYPE:
-                                        int graphType = Integer.parseInt(parser.nextText().trim());
-                                        if (drawPath != null) {
-                                            drawPath.setGraphType(graphType);
-                                        }
-                                        break;
-
-                                    case PATH:
-                                        path = new Path();
-                                        pointList = new LinkedList<>();
-                                        break;
-
-                                    case POINT:
-                                        PointInfo point = new PointInfo();
-                                        String[] pointArr = parser.nextText().trim().split(",");
-                                        point.mPointX = Float.parseFloat(pointArr[0]);
-                                        point.mPointY = Float.parseFloat(pointArr[1]);
-                                        if (isFirstPoint && path != null) {
-                                            startX = point.mPointX;
-                                            startY = point.mPointY;
-                                            path.moveTo(startX, startY);
-                                            isFirstPoint = false;
-                                        }
-                                        if (pointList != null) {
-                                            pointList.add(point);
-                                        }
-
-                                        if (drawPath != null) {
-                                            CommonMethod.handleGraphType(path, startX, startY, point.mPointX, point.mPointY, drawPath.getGraphType(), Constants.DRAW);
-                                        }
-                                        startX = point.mPointX;
-                                        startY = point.mPointY;
-                                        break;
-
-                                    default:
-                                        break;
-                                }
+                                importStartTag(parser);
                                 break;
 
                             case XmlPullParser.END_TAG:
-                                String endTag = parser.getName();
-                                switch (endTag) {
-
-                                    case PATH:
-                                        if (drawPath != null) {
-                                            drawPath.setPath(path);
-                                            drawPath.setPointList(pointList);
-                                        }
-                                        break;
-
-                                    case PAINT:
-                                        if (drawPath != null) {
-                                            drawPath.setPaint(paint);
-                                        }
-                                        break;
-
-                                    case DRAW_PATH:
-                                        if (drawPath != null) {
-                                            drawPathList.add(drawPath);
-                                        }
-                                        break;
-
-                                    default:
-                                        break;
-
-                                }
+                                importEndTag(parser, drawPathList);
                                 break;
 
                             default:
@@ -415,6 +237,15 @@ public class FilePresenterImpl implements IFilePresenter {
                             listener.onFail(mContext.getString(R.string.import_fail) + e.getMessage());
                         }
                     });
+                }finally {
+                    if (is != null){
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            Log.getStackTraceString(e);
+                        }
+                    }
+
                 }
             }
         });
@@ -552,6 +383,258 @@ public class FilePresenterImpl implements IFilePresenter {
                 listener.onFail(message);
             }
         });
+    }
+
+    private void saveTag(OutputStream outputStream, List<PathInfo> pathList){
+        try {
+            XmlSerializer serializer = Xml.newSerializer();
+            serializer.setOutput(outputStream, CODE_TYPE);
+            serializer.startDocument(CODE_TYPE, true);
+            serializer.startTag(null, PATH_LIST);
+            for (PathInfo pathInfo : pathList) {
+                serializer.startTag(null, DRAW_PATH);
+                Paint paint = pathInfo.getPaint();
+                serializer.startTag(null, PAINT);
+
+                serializer.startTag(null, COLOR);
+                serializer.text(String.valueOf(paint.getColor()));
+                serializer.endTag(null, COLOR);
+
+                serializer.startTag(null, PEN_TYPE);
+                serializer.text(String.valueOf(pathInfo.getPenType()));
+                serializer.endTag(null, PEN_TYPE);
+
+                serializer.startTag(null, WIDTH);
+                serializer.text(String.valueOf(paint.getStrokeWidth()));
+                serializer.endTag(null, WIDTH);
+
+                serializer.startTag(null, TYPE);
+                serializer.text(String.valueOf(pathInfo.getPaintType()));
+                serializer.endTag(null, TYPE);
+
+                serializer.startTag(null, GRAPH_TYPE);
+                serializer.text(String.valueOf(pathInfo.getGraphType()));
+                serializer.endTag(null, GRAPH_TYPE);
+
+                serializer.endTag(null, PAINT);
+
+                serializer.startTag(null, PATH);
+                List<PointInfo> mPoints = pathInfo.getPointList();
+                for (PointInfo points : mPoints) {
+                    serializer.startTag(null, POINT);
+                    serializer.text(points.mPointX + "," + points.mPointY);
+                    serializer.endTag(null, POINT);
+                }
+                serializer.endTag(null, PATH);
+
+                serializer.endTag(null, DRAW_PATH);
+            }
+
+            serializer.endTag(null, PATH_LIST);
+            serializer.endDocument();
+        }catch (IOException e) {
+            Log.getStackTraceString(e);
+        }
+    }
+
+    private void importStartTag(XmlPullParser parser){
+        String startTag = parser.getName();
+        switch (startTag) {
+            case DRAW_PATH:
+                mDrawPath = new PathDrawingInfo();
+                isFirstPoint = true;
+                break;
+            case PAINT:
+                mPaintInfo = new PaintInfo();
+                initPen();
+                break;
+
+            case COLOR:
+                setPenColor(parser);
+                break;
+
+            case PEN_TYPE:
+                setPenType(parser);
+                break;
+
+            case WIDTH:
+                setPenWidth(parser);
+                break;
+
+            case TYPE:
+                setType(parser);
+                break;
+
+            case GRAPH_TYPE:
+                setGraphType(parser);
+                break;
+
+            case PATH:
+                mPathInfo = new Path();
+                mPointList = new LinkedList<>();
+                break;
+
+            case POINT:
+                setPoint(parser);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void initPen(){
+        if (mPaintInfo != null){
+            mPaintInfo.setStyle(Paint.Style.STROKE);
+            mPaintInfo.setStrokeCap(Paint.Cap.ROUND);
+            mPaintInfo.setAntiAlias(true);
+        }
+    }
+
+    private void setPenColor(XmlPullParser parser){
+        if (mPaintInfo != null) {
+            try {
+                mPaintInfo.setColor(Integer.parseInt(parser.nextText().trim()));
+            } catch (XmlPullParserException | IOException e) {
+                Log.getStackTraceString(e);
+            }
+        }
+    }
+
+    private void setPenWidth(XmlPullParser parser){
+        if (mPaintInfo != null) {
+            try {
+                mPaintInfo.setStrokeWidth(Float.parseFloat(parser.nextText().trim()));
+            } catch (XmlPullParserException | IOException e) {
+                Log.getStackTraceString(e);
+            }
+        }
+    }
+
+    private void setPenType(XmlPullParser parser){
+        int penType = 0;
+        try {
+            penType = Integer.parseInt(parser.nextText().trim());
+        } catch (XmlPullParserException | IOException e) {
+            Log.getStackTraceString(e);
+        }
+
+        switch (penType) {
+            case Constants.ORDINARY:
+                if (mPaintInfo != null) {
+                    mPaintInfo.setOrdinaryPen();
+                }
+                break;
+            case Constants.TRANS_PEN:
+                if (mPaintInfo != null) {
+                    mPaintInfo.setTransPen();
+                }
+                break;
+            case Constants.INK_PEN:
+                if (mPaintInfo != null) {
+                    mPaintInfo.setInkPen();
+                }
+                break;
+            case Constants.DISCRETE_PEN:
+                if (mPaintInfo != null) {
+                    mPaintInfo.setDiscretePen();
+                }
+                break;
+            case Constants.DASH_PEN:
+                if (mPaintInfo != null) {
+                    mPaintInfo.setDashPen();
+                }
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    private void setType(XmlPullParser parser){
+        int drawType = 0;
+        try {
+            drawType = Integer.parseInt(parser.nextText().trim());
+        }catch (XmlPullParserException | IOException e) {
+            Log.getStackTraceString(e);
+        }
+        PorterDuff.Mode mode = (drawType == 0) ? null : PorterDuff.Mode.CLEAR;
+        if (mode != null && mPaintInfo != null) {
+            mPaintInfo.setXfermode(new PorterDuffXfermode(mode));
+        } else if (mode == null && mPaintInfo != null) {
+            mPaintInfo.setXfermode(null);
+        }
+        if (mDrawPath != null) {
+            mDrawPath.setPaintType(drawType);
+        }
+    }
+
+    private void setGraphType(XmlPullParser parser){
+        int graphType = 0;
+        try {
+            graphType = Integer.parseInt(parser.nextText().trim());
+        } catch (XmlPullParserException | IOException e) {
+            Log.getStackTraceString(e);
+        }
+        if (mDrawPath != null) {
+            mDrawPath.setGraphType(graphType);
+        }
+    }
+
+    private void importEndTag(XmlPullParser parser, LinkedList<PathInfo> drawPathList){
+        String endTag = parser.getName();
+        switch (endTag) {
+
+            case PATH:
+                if (mDrawPath != null) {
+                    mDrawPath.setPath(mPathInfo);
+                    mDrawPath.setPointList(mPointList);
+                }
+                break;
+
+            case PAINT:
+                if (mDrawPath != null) {
+                    mDrawPath.setPaint(mPaintInfo);
+                }
+                break;
+
+            case DRAW_PATH:
+                if (mDrawPath != null) {
+                    drawPathList.add(mDrawPath);
+                }
+                break;
+
+            default:
+                break;
+
+        }
+    }
+
+    private void setPoint(XmlPullParser parser){
+        PointInfo point = new PointInfo();
+        String[] pointArr = new String[0];
+        try {
+            pointArr = parser.nextText().trim().split(",");
+        } catch (XmlPullParserException | IOException e) {
+            Log.getStackTraceString(e);
+        }
+        point.mPointX = Float.parseFloat(pointArr[0]);
+        point.mPointY = Float.parseFloat(pointArr[1]);
+        if (isFirstPoint && mPathInfo != null) {
+            startX = point.mPointX;
+            startY = point.mPointY;
+            mPathInfo.moveTo(startX, startY);
+            isFirstPoint = false;
+        }
+        if (mPointList != null) {
+            mPointList.add(point);
+        }
+
+        if (mDrawPath != null) {
+            CommonMethod.handleGraphType(mPathInfo, startX, startY, point.mPointX, point.mPointY, mDrawPath.getGraphType(), Constants.DRAW);
+        }
+        startX = point.mPointX;
+        startY = point.mPointY;
     }
 
     @Override

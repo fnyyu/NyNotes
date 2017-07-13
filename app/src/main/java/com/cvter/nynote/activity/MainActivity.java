@@ -124,8 +124,8 @@ public class MainActivity extends BaseActivity implements IMainView {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         mIFilePresenter.quitThread();
     }
 }

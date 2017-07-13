@@ -236,6 +236,8 @@ public class MatrixView extends View {
 
     public void recycle() {
         if (mBitmap != null && !mBitmap.isRecycled()) {
+            mDeltaX = 0f;
+            mDeltaY = 0f;
             mBitmap.recycle();
             mBitmap = null;
         }
