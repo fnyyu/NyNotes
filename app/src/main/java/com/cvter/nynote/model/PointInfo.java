@@ -3,7 +3,7 @@ package com.cvter.nynote.model;
 import java.io.Serializable;
 
 /**
- * Created by cvter on 2017/6/10.
+ * Created by serenefang on 2017/6/10.
  * 路径点坐标bean类
  */
 

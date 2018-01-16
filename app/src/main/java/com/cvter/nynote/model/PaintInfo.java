@@ -16,7 +16,7 @@ import com.cvter.nynote.utils.Constants;
 
 
 /**
- * Created by cvter on 2017/6/8.
+ * Created by serenefang on 2017/6/8.
  * 画笔封装类
  */
 
