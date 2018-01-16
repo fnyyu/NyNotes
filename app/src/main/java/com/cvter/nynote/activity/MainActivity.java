@@ -25,7 +25,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 /**
- * Created by cvter on 2017/6/2.
+ * Created by serenefang on 2017/6/2.
  * 缩略图展示主页面Activity
  */
 

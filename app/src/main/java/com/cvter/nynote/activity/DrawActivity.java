@@ -59,7 +59,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 /**
- * Created by cvter on 2017/6/2.
+ * Created by serenefang on 2017/6/2.
  * 绘制页面Activity
  */
 

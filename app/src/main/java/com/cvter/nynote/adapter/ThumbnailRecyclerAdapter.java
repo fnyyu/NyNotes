@@ -22,7 +22,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Created by cvter on 2017/6/5.
+ * Created by serenefang on 2017/6/5.
  * 主页面缩略图适配器RecyclerViewAdapter
  */
 

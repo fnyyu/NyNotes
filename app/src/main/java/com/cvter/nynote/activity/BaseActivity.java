@@ -28,7 +28,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 /**
- * Created by cvter on 2017/6/2.
+ * Created by serenefang on 2017/6/2.
  * Activity基类
  */
 

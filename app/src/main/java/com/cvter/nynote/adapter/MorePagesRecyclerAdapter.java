@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by cvter on 2017/6/5.
+ * Created by serenefang on 2017/6/5.
  * 多页适配器RecyclerViewAdapter
  */
 
