@@ -4,7 +4,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 
 /**
- * Created by cvter on 2017/7/8.
+ * Created by serenefang on 2017/7/8.
  * 圆形绘制类
  */
 
